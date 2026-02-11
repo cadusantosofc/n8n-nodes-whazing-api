@@ -3,11 +3,13 @@ import {
 	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
+	Icon,
 } from 'n8n-workflow';
 
 export class WhazingApi implements ICredentialType {
 	name = 'whazingApi';
 	displayName = 'Whazing API';
+	icon: Icon = 'file:../icons/github.svg';
 	documentationUrl = 'https://docs.whazing.com';
 	properties: INodeProperties[] = [
 		{

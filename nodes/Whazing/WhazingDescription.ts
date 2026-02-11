@@ -68,6 +68,12 @@ export const whazingDescription: INodeProperties[] = [
 				description: 'Enviar mensagem usando parâmetros de URL',
 				action: 'Enviar mensagem via parâmetros',
 			},
+			{
+				name: 'Mensagem via Parâmetros (Grupo)',
+				value: 'sendParamsGroup',
+				description: 'Enviar mensagem para grupo usando parâmetros de URL',
+				action: 'Enviar mensagem para grupo via parâmetros',
+			},
 		],
 		default: 'sendText',
 	},
@@ -107,7 +113,7 @@ export const whazingDescription: INodeProperties[] = [
 				action: 'Enviar template',
 			},
 			{
-				name: 'Enviar Template com Parâmetros',
+				name: 'Enviar Template Com Parâmetros',
 				value: 'sendTemplateParams',
 				action: 'Enviar template com parâmetros',
 			},
@@ -135,14 +141,14 @@ export const whazingDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Enviar Botão Dinâmico PLUS',
-				value: 'sendButtonDynamicPlus',
-				action: 'Enviar botão dinâmico PLUS',
-			},
-			{
 				name: 'Enviar Botão PLUS',
 				value: 'sendButtonPlus',
-				action: 'Enviar botão PLUS',
+				action: 'Enviar botão plus',
+			},
+			{
+				name: 'Enviar Botão Dinâmico PLUS',
+				value: 'sendButtonDynamicPlus',
+				action: 'Enviar botão dinâmico plus',
 			},
 			{
 				name: 'Enviar Carrossel PLUS',
@@ -167,17 +173,17 @@ export const whazingDescription: INodeProperties[] = [
 			{
 				name: 'Enviar Pix Button PLUS',
 				value: 'sendPixButtonPlus',
-				action: 'Enviar Pix Button PLUS',
+				action: 'Enviar pix button plus',
 			},
 			{
-				name: 'Enviar Solicitação de Pagamento PLUS',
+				name: 'Enviar Solicitação De Pagamento PLUS',
 				value: 'sendRequestPaymentPlus',
-				action: 'Enviar solicitação de pagamento PLUS',
+				action: 'Enviar solicitação de pagamento plus',
 			},
 			{
 				name: 'Solicitar Localização PLUS',
 				value: 'requestLocationPlus',
-				action: 'Solicitar localização PLUS',
+				action: 'Solicitar localização plus',
 			},
 		],
 		default: 'sendButtonPlus',
@@ -187,7 +193,7 @@ export const whazingDescription: INodeProperties[] = [
 	//         Campos Comuns: Número e Rastreio
 	// ----------------------------------
 	{
-		displayName: 'Número do WhatsApp',
+		displayName: 'Número Do WhatsApp',
 		name: 'number',
 		type: 'string',
 		required: true,
@@ -203,7 +209,7 @@ export const whazingDescription: INodeProperties[] = [
 		placeholder: '5511999999999',
 	},
 	{
-		displayName: 'ID do Ticket',
+		displayName: 'ID Do Ticket',
 		name: 'ticketId',
 		type: 'string',
 		displayOptions: {
@@ -225,15 +231,28 @@ export const whazingDescription: INodeProperties[] = [
 		displayName: 'Mensagem (Corpo)',
 		name: 'body',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
-				operation: ['sendText', 'sendButton', 'sendList', 'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus', 'sendLinkPlus', 'sendButtonDynamicPlus', 'sendFile', 'sendSticker', 'sendCarouselPlus', 'sendRequestPaymentPlus'],
+				operation: ['requestLocation', 'requestLocationPlus'],
+			},
+		},
+		default: '',
+		description: 'Mensagem que será exibida ao solicitar a localização do usuário',
+	},
+	{
+		displayName: 'Mensagem (Corpo)',
+		name: 'body',
+		type: 'string',
+		displayOptions: {
+			show: {
+				operation: ['sendText', 'sendButton', 'sendList', 'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus', 'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus', 'sendButtonDynamicPlus', 'sendFile', 'sendSticker', 'sendCarouselPlus', 'sendRequestPaymentPlus', 'sendParams', 'sendParamsGroup'],
 			},
 		},
 		default: '',
 	},
 	{
-		displayName: 'Método de Envio',
+		displayName: 'Método De Envio',
 		name: 'sendMethod',
 		type: 'options',
 		displayOptions: {
@@ -242,13 +261,13 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'URL do Arquivo', value: 'url' },
+			{ name: 'URL Do Arquivo', value: 'url' },
 			{ name: 'Base64 / Binário', value: 'base64' },
 		],
 		default: 'url',
 	},
 	{
-		displayName: 'URL do Arquivo',
+		displayName: 'URL Do Arquivo',
 		name: 'mediaUrl',
 		type: 'string',
 		displayOptions: {
@@ -260,7 +279,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Tipo de Mídia',
+		displayName: 'Tipo De Mídia',
 		name: 'mediaType',
 		type: 'options',
 		displayOptions: {
@@ -290,7 +309,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Nome do Arquivo',
+		displayName: 'Nome Do Arquivo',
 		name: 'fileName',
 		type: 'string',
 		displayOptions: {
@@ -313,7 +332,7 @@ export const whazingDescription: INodeProperties[] = [
 				operation: ['sendSticker'],
 			},
 		},
-		description: 'Nome da propriedade binária que contém o arquivo para gerar o sticker.',
+		description: 'Nome da propriedade binária que contém o arquivo para gerar o sticker',
 	},
 	{
 		displayName: 'External Key',
@@ -322,16 +341,16 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 		displayOptions: {
 			show: {
-				operation: ['sendSticker', 'sendText', 'sendFile', 'sendParams'],
+				operation: ['sendSticker', 'sendText', 'sendFile', 'sendParams', 'sendParamsGroup'],
 			},
 		},
-		description: 'Chave externa opcional para identificação da mensagem.',
+		description: 'Chave externa opcional para identificação da mensagem',
 	},
 	// ----------------------------------
 	//         Mensagens: Detalhes Complexos (Listas e Botões)
 	// ----------------------------------
 	{
-		displayName: 'Título do Cabeçalho',
+		displayName: 'Título Do Cabeçalho',
 		name: 'headerText',
 		type: 'string',
 		displayOptions: {
@@ -353,7 +372,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Texto do Link (Display)',
+		displayName: 'Texto Do Link (Display)',
 		name: 'linkDisplayText',
 		type: 'string',
 		displayOptions: {
@@ -364,9 +383,10 @@ export const whazingDescription: INodeProperties[] = [
 		default: 'Ver mais',
 	},
 	{
-		displayName: 'URL do Link',
+		displayName: 'URL Do Link',
 		name: 'linkUrl',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				operation: ['sendLinkCta', 'sendLinkCtaPlus'],
@@ -375,7 +395,32 @@ export const whazingDescription: INodeProperties[] = [
 		default: 'https://',
 	},
 	{
-		displayName: 'Texto do Botão (Trigger Lista)',
+		displayName: 'URL Do Link (PLUS)',
+		name: 'url',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				operation: ['sendLinkPlus'],
+			},
+		},
+		default: 'https://',
+		description: 'URL completa que será aberta quando o usuário clicar no botão',
+	},
+	{
+		displayName: 'Texto Do Botão (PLUS)',
+		name: 'buttonText',
+		type: 'string',
+		displayOptions: {
+			show: {
+				operation: ['sendLinkPlus'],
+			},
+		},
+		default: 'Ver Link',
+		description: 'Texto que aparecerá no botão de link',
+	},
+	{
+		displayName: 'Texto Do Botão (Trigger Lista)',
 		name: 'buttonText',
 		type: 'string',
 		displayOptions: {
@@ -386,7 +431,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: 'Clique para ver as opções',
 	},
 	{
-		displayName: 'Seções da Lista',
+		displayName: 'Seções Da Lista',
 		name: 'sections',
 		type: 'fixedCollection',
 		typeOptions: {
@@ -401,16 +446,16 @@ export const whazingDescription: INodeProperties[] = [
 		options: [
 			{
 				name: 'sectionValues',
-				displayName: 'Valores da Seção',
+				displayName: 'Valores Da Seção',
 				values: [
 					{
-						displayName: 'Título da Seção',
+						displayName: 'Título Da Seção',
 						name: 'title',
 						type: 'string',
 						default: '',
 					},
 					{
-						displayName: 'Itens da Seção',
+						displayName: 'Itens Da Seção',
 						name: 'rows',
 						type: 'fixedCollection',
 						typeOptions: {
@@ -420,10 +465,10 @@ export const whazingDescription: INodeProperties[] = [
 						options: [
 							{
 								name: 'rowValues',
-								displayName: 'Valores do Item',
+								displayName: 'Valores Do Item',
 								values: [
 									{
-										displayName: 'ID do Item',
+										displayName: 'ID Do Item',
 										name: 'id',
 										type: 'string',
 										default: '',
@@ -464,16 +509,16 @@ export const whazingDescription: INodeProperties[] = [
 		options: [
 			{
 				name: 'buttonValues',
-				displayName: 'Valores do Botão',
+				displayName: 'Valores Do Botão',
 				values: [
 					{
-						displayName: 'Texto do Botão',
+						displayName: 'Texto Do Botão',
 						name: 'text',
 						type: 'string',
 						default: '',
 					},
 					{
-						displayName: 'ID do Botão (Opcional)',
+						displayName: 'ID Do Botão (Opcional)',
 						name: 'id',
 						type: 'string',
 						default: '',
@@ -498,7 +543,7 @@ export const whazingDescription: INodeProperties[] = [
 		options: [
 			{
 				name: 'buttonValues',
-				displayName: 'Valores do Botão',
+				displayName: 'Valores Do Botão',
 				values: [
 					{
 						displayName: 'Tipo',
@@ -513,7 +558,7 @@ export const whazingDescription: INodeProperties[] = [
 						default: 'reply',
 					},
 					{
-						displayName: 'Texto de Exibição',
+						displayName: 'Texto De Exibição',
 						name: 'displayText',
 						type: 'string',
 						default: '',
@@ -530,7 +575,7 @@ export const whazingDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: 'Itens do Carrossel (PLUS)',
+		displayName: 'Itens Do Carrossel (PLUS)',
 		name: 'carouselItems',
 		type: 'fixedCollection',
 		typeOptions: {
@@ -545,10 +590,10 @@ export const whazingDescription: INodeProperties[] = [
 		options: [
 			{
 				name: 'itemValues',
-				displayName: 'Valores do Item',
+				displayName: 'Valores Do Item',
 				values: [
 					{
-						displayName: 'Texto do Item',
+						displayName: 'Texto Do Item',
 						name: 'text',
 						type: 'string',
 						default: '',
@@ -561,7 +606,7 @@ export const whazingDescription: INodeProperties[] = [
 						description: 'Data URL base64 da imagem',
 					},
 					{
-						displayName: 'Botões do Item',
+						displayName: 'Botões Do Item',
 						name: 'buttons',
 						type: 'fixedCollection',
 						typeOptions: {
@@ -589,7 +634,7 @@ export const whazingDescription: INodeProperties[] = [
 	//         Template (Oficial)
 	// ----------------------------------
 	{
-		displayName: 'Nome do Template',
+		displayName: 'Nome Do Template',
 		name: 'templateName',
 		type: 'string',
 		displayOptions: {
@@ -600,7 +645,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Código do Idioma',
+		displayName: 'Código Do Idioma',
 		name: 'languageCode',
 		type: 'string',
 		displayOptions: {
@@ -611,7 +656,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: 'pt_BR',
 	},
 	{
-		displayName: 'Componentes do Template',
+		displayName: 'Componentes Do Template',
 		name: 'templateComponents',
 		type: 'fixedCollection',
 		typeOptions: {
@@ -629,7 +674,7 @@ export const whazingDescription: INodeProperties[] = [
 				displayName: 'Componente',
 				values: [
 					{
-						displayName: 'Tipo de Componente',
+						displayName: 'Tipo De Componente',
 						name: 'componentType',
 						type: 'options',
 						options: [
@@ -650,7 +695,7 @@ export const whazingDescription: INodeProperties[] = [
 						default: 'quick_reply',
 					},
 					{
-						displayName: 'Índice do Botão',
+						displayName: 'Índice Do Botão',
 						name: 'index',
 						type: 'number',
 						default: 0,
@@ -669,7 +714,7 @@ export const whazingDescription: INodeProperties[] = [
 								displayName: 'Parâmetro',
 								values: [
 									{
-										displayName: 'Tipo de Parâmetro',
+										displayName: 'Tipo De Parâmetro',
 										name: 'parameterType',
 										type: 'options',
 										options: [
@@ -679,7 +724,7 @@ export const whazingDescription: INodeProperties[] = [
 										default: 'text',
 									},
 									{
-										displayName: 'Nome do Parâmetro',
+										displayName: 'Nome Do Parâmetro',
 										name: 'parameter_name',
 										type: 'string',
 										default: '',
@@ -691,7 +736,7 @@ export const whazingDescription: INodeProperties[] = [
 										default: '',
 									},
 									{
-										displayName: 'Link da Imagem',
+										displayName: 'Link Da Imagem',
 										name: 'link',
 										type: 'string',
 										default: '',
@@ -731,7 +776,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Nome do Local',
+		displayName: 'Nome Do Local',
 		name: 'locationName',
 		type: 'string',
 		displayOptions: {
@@ -768,20 +813,20 @@ export const whazingDescription: INodeProperties[] = [
 		},
 		options: [
 			{ name: 'Criar Novo Ticket', value: 'create', action: 'Criar um ticket' },
-			{ name: 'Consultar Último Ticket do Canal', value: 'showTicket', action: 'Consultar último ticket atribuído ao canal' },
-			{ name: 'Consultar Ticket do ChatBot', value: 'showTicketChatBot', action: 'Consultar ticket do ChatBot' },
-			{ name: 'Listar Todos os Tickets do Canal', value: 'getAll', action: 'Consultar todos os tickets atribuídos ao canal' },
-			{ name: 'Atualizar Informações do Ticket', value: 'updateInfo', action: 'Atualizar informações do ticket' },
-			{ name: 'Atualizar Fila do Ticket', value: 'setQueue', action: 'Atualizar fila do ticket' },
-			{ name: 'Atualizar Chatbot do Ticket', value: 'updateChatbot', action: 'Atualizar chatbot do ticket' },
-			{ name: 'Listar Mensagens do Ticket', value: 'listMessages', action: 'Listar mensagens do ticket' },
-			{ name: 'Ativar/Desativar ChatBot (Geral)', value: 'setChatBot', action: 'Definir ativação de chatbot' },
-			{ name: 'Obter Detalhes via ID', value: 'get', action: 'Obter informações do ticket' },
+			{ name: 'Consultar Último Ticket Do Canal', value: 'showTicket', action: 'Consultar ltimo ticket atribu do ao canal' },
+			{ name: 'Consultar Ticket Do ChatBot', value: 'showTicketChatBot', action: 'Consultar ticket do chat bot' },
+			{ name: 'Get Many', value: 'getAll', action: 'Consultar todos os tickets atribu dos ao canal' },
+			{ name: 'Atualizar Informações Do Ticket', value: 'updateInfo', action: 'Atualizar informa es do ticket' },
+			{ name: 'Atualizar Fila Do Ticket', value: 'setQueue', action: 'Atualizar fila do ticket' },
+			{ name: 'Atualizar Chatbot Do Ticket', value: 'updateChatbot', action: 'Atualizar chatbot do ticket' },
+			{ name: 'Listar Mensagens Do Ticket', value: 'listMessages', action: 'Listar mensagens do ticket' },
+			{ name: 'Ativar/Desativar ChatBot (Geral)', value: 'setChatBot', action: 'Definir ativa o de chatbot' },
+			{ name: 'Obter Detalhes via ID', value: 'get', action: 'Obter informa es do ticket' },
 		],
 		default: 'create',
 	},
 	{
-		displayName: 'ID do Chatbot',
+		displayName: 'ID Do Chatbot',
 		name: 'chatbotId',
 		type: 'string',
 		displayOptions: {
@@ -793,7 +838,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'ID do Usuário (Atendente)',
+		displayName: 'ID Do Usuário (Atendente)',
 		name: 'userId',
 		type: 'string',
 		displayOptions: {
@@ -815,11 +860,11 @@ export const whazingDescription: INodeProperties[] = [
 				operation: ['setChatBot'],
 			},
 		},
-		description: 'Se deve ativar (Ligado) ou desativar (Desligado) o chatbot para este número.',
+		description: 'Whether deve ativar (Ligado) ou desativar (Desligado) o chatbot para este número',
 	},
 
 	{
-		displayName: 'Status do Ticket',
+		displayName: 'Status Do Ticket',
 		name: 'status',
 		type: 'options',
 		displayOptions: {
@@ -836,7 +881,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: 'open',
 	},
 	{
-		displayName: 'ID da Fila',
+		displayName: 'ID Da Fila',
 		name: 'queueId',
 		type: 'string',
 		displayOptions: {
@@ -862,22 +907,22 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Atualizar Informações do Contato', value: 'update', action: 'Atualizar informações do contato' },
-			{ name: 'Obter Dados do Contato', value: 'get', action: 'Buscar informações do contato' },
+			{ name: 'Atualizar Informações Do Contato', value: 'update', action: 'Atualizar informa es do contato' },
+			{ name: 'Obter Dados Do Contato', value: 'get', action: 'Buscar informa es do contato' },
 			{ name: 'Criar Novo Contato', value: 'create', action: 'Criar um contato' },
-			{ name: 'Definir Data de Follow-up', value: 'setFollowup', action: 'Definir follow-up' },
-			{ name: 'Vincular à Carteira CRM', value: 'setCrm', action: 'Definir informações CRM' },
-			{ name: 'Gerenciar Tags do Contato', value: 'setTags', action: 'Definir tags' },
-			{ name: 'Listar Contatos por Carteira', value: 'listByWallet', action: 'Listar contatos por carteira' },
-			{ name: 'Listar Contatos por CRM', value: 'listByCrm', action: 'Listar contatos por CRM' },
-			{ name: 'Listar Contatos por Data', value: 'listByFollowup', action: 'Listar contatos por follow-up' },
-			{ name: 'Listar Contatos por Tag', value: 'listByTag', action: 'Listar contatos por tag' },
-			{ name: 'Validar Número do WhatsApp', value: 'validateNumber', action: 'Validar número do WhatsApp' },
+			{ name: 'Definir Data De Follow-Up', value: 'setFollowup', action: 'Definir follow up' },
+			{ name: 'Vincular À Carteira CRM', value: 'setCrm', action: 'Definir informa es crm' },
+			{ name: 'Gerenciar Tags Do Contato', value: 'setTags', action: 'Definir tags' },
+			{ name: 'Listar Contatos Por Carteira', value: 'listByWallet', action: 'Listar contatos por carteira' },
+			{ name: 'Listar Contatos Por CRM', value: 'listByCrm', action: 'Listar contatos por CRM' },
+			{ name: 'Listar Contatos Por Data', value: 'listByFollowup', action: 'Listar contatos por follow up' },
+			{ name: 'Listar Contatos Por Tag', value: 'listByTag', action: 'Listar contatos por tag' },
+			{ name: 'Validar Número Do WhatsApp', value: 'validateNumber', action: 'Validar n mero do whats app' },
 		],
 		default: 'create',
 	},
 	{
-		displayName: 'ID do Contato',
+		displayName: 'ID Do Contato',
 		name: 'contactId',
 		type: 'string',
 		displayOptions: {
@@ -890,7 +935,7 @@ export const whazingDescription: INodeProperties[] = [
 	},
 
 	{
-		displayName: 'Nome do Contato',
+		displayName: 'Nome Do Contato',
 		name: 'contactName',
 		type: 'string',
 		displayOptions: {
@@ -902,9 +947,10 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'E-mail',
+		displayName: 'E-Mail',
 		name: 'email',
 		type: 'string',
+		placeholder: 'name@email.com',
 		displayOptions: {
 			show: {
 				resource: ['contact'],
@@ -1017,7 +1063,7 @@ export const whazingDescription: INodeProperties[] = [
 				name: 'extraInfoValues',
 				displayName: 'Info',
 				values: [
-					{ displayName: 'Nome do Campo', name: 'name', type: 'string', default: '' },
+					{ displayName: 'Nome Do Campo', name: 'name', type: 'string', default: '' },
 					{ displayName: 'Valor', name: 'value', type: 'string', default: '' },
 				],
 			},
@@ -1050,10 +1096,10 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Gerar QR Code (Nova Sessão)', value: 'getQrCode', action: 'Gerar QR Code' },
-			{ name: 'Obter Status da Conexão', value: 'getStatus', action: 'Obter status do canal' },
-			{ name: 'Desconectar/Logout do Canal', value: 'logout', action: 'Fazer logout do canal' },
-			{ name: 'Reiniciar Sessão do Canal', value: 'restart', action: 'Reiniciar canal' },
+			{ name: 'Gerar QR Code (Nova Sessão)', value: 'getQrCode', action: 'Gerar qr code' },
+			{ name: 'Obter Status Da Conexão', value: 'getStatus', action: 'Obter status do canal' },
+			{ name: 'Desconectar/Logout Do Canal', value: 'logout', action: 'Fazer logout do canal' },
+			{ name: 'Reiniciar Sessão Do Canal', value: 'restart', action: 'Reiniciar canal' },
 		],
 		default: 'getStatus',
 	},
@@ -1072,18 +1118,18 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Alterar Senha do Usuário da Empresa', value: 'changePassword', action: 'Alterar senha do usuário da empresa' },
-			{ name: 'Atualizar Dados da Empresa', value: 'updateTenant', action: 'Atualizar dados da empresa' },
+			{ name: 'Alterar Senha Do Usuário Da Empresa', value: 'changePassword', action: 'Alterar senha do usu rio da empresa' },
+			{ name: 'Atualizar Dados Da Empresa', value: 'updateTenant', action: 'Atualizar dados da empresa' },
 			{ name: 'Criar Nova Empresa', value: 'createTenant', action: 'Criar nova empresa' },
 			{ name: 'Listar Todas Empresas', value: 'listTenants', action: 'Listar todas empresas' },
-			{ name: 'Obter Dados por ID', value: 'getTenant', action: 'Obter dados por ID' },
-			{ name: 'Renovar Assinatura (+1 Mês)', value: 'addMonth', action: 'Renovar assinatura (+1 mês)' },
-			{ name: 'Listar Usuários da Empresa', value: 'listUsers', action: 'Listar usuários da empresa' },
+			{ name: 'Obter Dados Por ID', value: 'getTenant', action: 'Obter dados por ID' },
+			{ name: 'Renovar Assinatura (+1 Mês)', value: 'addMonth', action: 'Renovar assinatura 1 m s' },
+			{ name: 'Listar Usuários Da Empresa', value: 'listUsers', action: 'Listar usu rios da empresa' },
 		],
 		default: 'createTenant',
 	},
 	{
-		displayName: 'ID da Empresa (Tenant)',
+		displayName: 'ID Da Empresa (Tenant)',
 		name: 'tenantId',
 		type: 'string',
 		required: true,
@@ -1096,7 +1142,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'ID do Usuário',
+		displayName: 'ID Do Usuário',
 		name: 'userId',
 		type: 'string',
 		required: true,
@@ -1135,7 +1181,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Nome da Empresa',
+		displayName: 'Nome Da Empresa',
 		name: 'tenantName',
 		type: 'string',
 		required: true,
@@ -1148,7 +1194,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'E-mail de Login',
+		displayName: 'E-Mail De Login',
 		name: 'adminEmail',
 		type: 'string',
 		displayOptions: {
@@ -1160,7 +1206,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Telefone de Contato',
+		displayName: 'Telefone De Contato',
 		name: 'adminPhone',
 		type: 'string',
 		displayOptions: {
@@ -1184,7 +1230,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '1',
 	},
 	{
-		displayName: 'Dias de Teste (Trial)',
+		displayName: 'Dias De Teste (Trial)',
 		name: 'timeTest',
 		type: 'string',
 		displayOptions: {
@@ -1196,7 +1242,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '3',
 	},
 	{
-		displayName: 'Data de Vencimento (Due Date)',
+		displayName: 'Data De Vencimento (Due Date)',
 		name: 'dueDate',
 		type: 'dateTime',
 		displayOptions: {
@@ -1215,6 +1261,7 @@ export const whazingDescription: INodeProperties[] = [
 		displayName: 'Valor (Amount)',
 		name: 'amount',
 		type: 'number',
+		required: true,
 		typeOptions: {
 			numberPrecision: 2,
 		},
@@ -1226,7 +1273,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: 0,
 	},
 	{
-		displayName: 'Título do Pagamento',
+		displayName: 'Título Do Pagamento',
 		name: 'paymentTitle',
 		type: 'string',
 		displayOptions: {
@@ -1237,7 +1284,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: 'Detalhes do pedido',
 	},
 	{
-		displayName: 'Nome do Item',
+		displayName: 'Nome Do Item',
 		name: 'itemName',
 		type: 'string',
 		displayOptions: {
@@ -1248,9 +1295,10 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Tipo de Pix',
+		displayName: 'Tipo De Pix',
 		name: 'pixType',
 		type: 'options',
+		required: true,
 		displayOptions: {
 			show: {
 				operation: ['sendPixButtonPlus', 'sendRequestPaymentPlus'],
@@ -1259,7 +1307,7 @@ export const whazingDescription: INodeProperties[] = [
 		options: [
 			{ name: 'CNPJ', value: 'CNPJ' },
 			{ name: 'CPF', value: 'CPF' },
-			{ name: 'E-mail', value: 'EMAIL' },
+			{ name: 'E-Mail', value: 'EMAIL' },
 			{ name: 'Telefone', value: 'PHONE' },
 			{ name: 'Chave Aleatória (EVP)', value: 'EVP' },
 		],
@@ -1269,6 +1317,7 @@ export const whazingDescription: INodeProperties[] = [
 		displayName: 'Chave Pix',
 		name: 'pixKey',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				operation: ['sendPixButtonPlus', 'sendRequestPaymentPlus'],
@@ -1277,9 +1326,10 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Nome do Beneficiário Pix',
+		displayName: 'Nome Do Beneficiário Pix',
 		name: 'pixName',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				operation: ['sendPixButtonPlus', 'sendRequestPaymentPlus'],
@@ -1288,7 +1338,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Código do Boleto',
+		displayName: 'Código Do Boleto',
 		name: 'boletoCode',
 		type: 'string',
 		displayOptions: {

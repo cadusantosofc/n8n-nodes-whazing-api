@@ -3,9 +3,9 @@ import {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-	NodeOperationError,
+	NodeOperationError, NodeConnectionTypes 
 } from 'n8n-workflow';
-import { NodeConnectionTypes } from 'n8n-workflow';
+
 import { whazingDescription } from './WhazingDescription';
 import { whazingApiRequest, adminApiRequest } from './GenericFunctions';
 
@@ -22,6 +22,7 @@ export class Whazing implements INodeType {
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
+		usableAsTool: true,
 		credentials: [
 			{
 				name: 'whazingApi',
@@ -37,7 +38,7 @@ export class Whazing implements INodeType {
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
 
-		let responseData: any;
+		let responseData: unknown;
 
 		for (let i = 0; i < items.length; i++) {
 			try {
@@ -207,7 +208,7 @@ export class Whazing implements INodeType {
 						};
 
 						responseData = await whazingApiRequest.call(this, 'POST', '', {}, {}, undefined, undefined, formData);
-					} else if (operation === 'sendParams') {
+					} else if (operation === 'sendParams' || operation === 'sendParamsGroup') {
 						const credentials = await this.getCredentials('whazingApi');
 						const token = credentials.apiToken || '';
 						
@@ -223,7 +224,12 @@ export class Whazing implements INodeType {
 					}
 				} else if (resource === 'messageOfficial' || resource === 'messagePlus') {
 					const isPlus = resource === 'messagePlus';
-					const path = isPlus ? '/apiplus' : '/apioficial';
+					let path = isPlus ? '/apiplus' : '/apioficial';
+					
+					// Ajuste específico para requestpayment
+					if (operation === 'sendRequestPaymentPlus') {
+						path = '/requestpayment';
+					}
 
 					const typeMap: any = {
 						sendButtonOfficial: 'button',
@@ -278,13 +284,26 @@ export class Whazing implements INodeType {
 					} else if (operation.includes('Button') && !['sendButtonDynamicPlus', 'sendPixButtonPlus'].includes(operation)) {
 						body.contents.action = { buttons: getButtons() };
 					} else if (operation === 'sendLinkPlus' || operation.includes('LinkCta')) {
-						const btnText = operation === 'sendLinkPlus' ? this.getNodeParameter('buttonText', i, 'Ver Link') : this.getNodeParameter('linkDisplayText', i, 'Ver Link');
-						const url = operation === 'sendLinkPlus' ? this.getNodeParameter('url', i, '') : this.getNodeParameter('linkUrl', i, '');
+						const btnText = operation === 'sendLinkPlus' ? this.getNodeParameter('buttonText', i, 'Ver Link') as string : this.getNodeParameter('linkDisplayText', i, 'Ver Link') as string;
+						const url = operation === 'sendLinkPlus' ? this.getNodeParameter('url', i, '') as string : this.getNodeParameter('linkUrl', i, '') as string;
+						
+						// Validação obrigatória para URL
+						if (!url || url.trim() === '') {
+							throw new NodeOperationError(this.getNode(), 'A URL é obrigatória para enviar links via WhatsApp Plus', { itemIndex: i });
+						}
+						
 						body.contents.action = {
 							name: 'cta_url',
 							parameters: { display_text: btnText, url },
 						};
 					} else if (contentType === 'location_request_message') {
+						const bodyText = this.getNodeParameter('body', i, '') as string;
+						
+						// Validação obrigatória para mensagem de localização
+						if (!bodyText || bodyText.trim() === '') {
+							throw new NodeOperationError(this.getNode(), 'A mensagem é obrigatória para solicitar localização', { itemIndex: i });
+						}
+						
 						body.contents.action = { name: 'send_location' };
 					} else if (operation === 'sendButtonDynamicPlus') {
 						body.contents.text = this.getNodeParameter('body', i) as string;
@@ -299,14 +318,38 @@ export class Whazing implements INodeType {
 						body.contents.pixName = this.getNodeParameter('pixName', i, '') as string;
 						body.contents.pixType = this.getNodeParameter('pixType', i, '') as string;
 					} else if (operation === 'sendRequestPaymentPlus') {
-						body.contents.amount = Number(this.getNodeParameter('amount', i, 0));
-						body.contents.pixKey = this.getNodeParameter('pixKey', i, '') as string;
-						body.contents.pixName = this.getNodeParameter('pixName', i, '') as string;
-						body.contents.pixType = this.getNodeParameter('pixType', i, '') as string;
+						const amount = Number(this.getNodeParameter('amount', i, 0)) || 0;
+						const pixKey = this.getNodeParameter('pixKey', i, '') as string;
+						const pixName = this.getNodeParameter('pixName', i, '') as string;
+						const pixType = this.getNodeParameter('pixType', i, '') as string;
+						
+						// Validações obrigatórias
+						if (amount <= 0) {
+							throw new NodeOperationError(this.getNode(), 'O valor do pagamento deve ser maior que zero', { itemIndex: i });
+						}
+						if (!pixKey || (pixKey as string).trim() === '') {
+							throw new NodeOperationError(this.getNode(), 'A chave Pix é obrigatória', { itemIndex: i });
+						}
+						if (!pixName || (pixName as string).trim() === '') {
+							throw new NodeOperationError(this.getNode(), 'O nome do beneficiário Pix é obrigatório', { itemIndex: i });
+						}
+						if (!pixType || (pixType as string).trim() === '') {
+							throw new NodeOperationError(this.getNode(), 'O tipo de Pix é obrigatório', { itemIndex: i });
+						}
+						
+						body.contents.amount = amount;
+						body.contents.text = this.getNodeParameter('body', i) as string;
+						body.contents.pixKey = pixKey;
+						body.contents.pixName = pixName;
+						body.contents.pixType = pixType;
 						body.contents.title = this.getNodeParameter('paymentTitle', i, '') as string;
 						body.contents.itemName = this.getNodeParameter('itemName', i, '') as string;
+						
 						const bCode = this.getNodeParameter('boletoCode', i, '') as string;
 						if (bCode) body.contents.boletoCode = bCode;
+						
+						const footer = this.getNodeParameter('footer', i, '') as string;
+						if (footer) body.contents.footer = footer;
 					} else if (operation === 'sendTemplate' || operation === 'sendTemplateParams') {
 						const components = operation === 'sendTemplate' 
 							? [{ type: 'body', parameters: [] }] 
@@ -325,7 +368,6 @@ export class Whazing implements INodeType {
 
 					responseData = await whazingApiRequest.call(this, 'POST', path, body);
 
-				} else if (resource === 'contact') {
 				} else if (resource === 'contact') {
 					if (operation === 'create' || operation === 'update') {
 						const extraInfoCollection = this.getNodeParameter('extraInfo', i, { extraInfoValues: [] }) as any;
@@ -447,8 +489,12 @@ export class Whazing implements INodeType {
 						};
 						responseData = await adminApiRequest.call(this, 'POST', '/createtenant', body);
 					} else if (operation === 'updateTenant') {
+						const tenantId = this.getNodeParameter('tenantId', i) as string;
+						if (tenantId === '1') {
+							throw new NodeOperationError(this.getNode(), 'O tenant ID 1 é o administrador e não pode ser editado.', { itemIndex: i });
+						}
 						const body = {
-							tenantId: this.getNodeParameter('tenantId', i) as string,
+							tenantId,
 							tenantName: this.getNodeParameter('tenantName', i) as string,
 							email: this.getNodeParameter('adminEmail', i) as string,
 							phone: this.getNodeParameter('adminPhone', i) as string,
@@ -458,12 +504,43 @@ export class Whazing implements INodeType {
 						responseData = await adminApiRequest.call(this, 'POST', '/updatetenant', body);
 					} else if (operation === 'addMonth') {
 						const tenantId = this.getNodeParameter('tenantId', i) as string;
-						responseData = await adminApiRequest.call(this, 'POST', '/addMonth', { tenantId });
+						if (tenantId === '1') {
+							throw new NodeOperationError(this.getNode(), 'O tenant ID 1 é o administrador e não pode ser editado.', { itemIndex: i });
+						}
+
+						// Busca dados atuais do tenant para calcular a nova data localmente e evitar erro de "anos" no endpoint original
+						let tenant = await adminApiRequest.call(this, 'GET', '', { tenantId });
+
+						if (Array.isArray(tenant)) {
+							tenant = tenant[0];
+						}
+
+						if (!tenant || !tenant.dueDate) {
+							throw new NodeOperationError(this.getNode(), 'Não foi possível recuperar os dados do tenant ou a data de vencimento.', { itemIndex: i });
+						}
+
+						const date = new Date(tenant.dueDate as string);
+						date.setMonth(date.getMonth() + 1);
+
+						const body = {
+							tenantId,
+							tenantName: tenant.name,
+							email: tenant.email,
+							phone: tenant.phone,
+							plano: tenant.planId,
+							dueDate: date.toISOString(),
+						};
+
+						responseData = await adminApiRequest.call(this, 'POST', '/updatetenant', body);
 					} else if (operation === 'listUsers') {
 						const tenantId = this.getNodeParameter('tenantId', i) as string;
 						responseData = await adminApiRequest.call(this, 'GET', `/users/${tenantId}`);
 					} else if (operation === 'changePassword') {
-						const body = { userId: this.getNodeParameter('userId', i) as string, password: this.getNodeParameter('adminPassword', i) as string };
+						const userId = this.getNodeParameter('userId', i) as string;
+						if (userId === '1') {
+							throw new NodeOperationError(this.getNode(), 'O usuário ID 1 é o administrador e não pode ter a senha alterada.', { itemIndex: i });
+						}
+						const body = { userId, password: this.getNodeParameter('adminPassword', i) as string };
 						responseData = await adminApiRequest.call(this, 'POST', '/users', body);
 					}
 				} else if (resource === 'channel') {
@@ -479,7 +556,7 @@ export class Whazing implements INodeType {
 					}
 				}
 
-				const executionData = this.helpers.returnJsonArray(responseData).map(json => ({
+				const executionData = this.helpers.returnJsonArray(responseData as any).map((json: any) => ({
 					json,
 					pairedItem: { item: i },
 				}));

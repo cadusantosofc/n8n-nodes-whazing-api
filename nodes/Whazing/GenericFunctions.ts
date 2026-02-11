@@ -2,8 +2,6 @@ import {
 	IExecuteFunctions,
 	IHookFunctions,
 	ILoadOptionsFunctions,
-} from 'n8n-workflow';
-import {
 	IDataObject,
 } from 'n8n-workflow';
 
@@ -11,12 +9,12 @@ export async function whazingApiRequest(
 	this: IExecuteFunctions | ILoadOptionsFunctions | IHookFunctions,
 	method: string,
 	path: string,
-	body: any = {},
+	body: IDataObject = {},
 	qs: IDataObject = {},
 	uri?: string,
 	option: IDataObject = {},
-	formData?: any,
-): Promise<any> {
+	formData?: IDataObject,
+): Promise<IDataObject> {
 	const credentials = await this.getCredentials('whazingApi');
 
 	// Roteamento Inteligente:
@@ -24,7 +22,15 @@ export async function whazingApiRequest(
 	// Se o path começa com /external/, ele será anexado à URL base completa.
 	const finalBaseUrl = (credentials.baseUrl as string || '').trim().replace(/\/+$/, '');
 
-	const options: any = {
+	const options: {
+		headers: { 'Content-Type': string };
+		method: string;
+		body?: IDataObject;
+		qs: IDataObject;
+		formData?: IDataObject;
+		url: string;
+		json: boolean;
+	} = {
 		headers: {
 			'Content-Type': formData ? 'multipart/form-data' : 'application/json',
 		},
@@ -32,7 +38,7 @@ export async function whazingApiRequest(
 		body,
 		qs,
 		formData,
-		uri: uri || `${finalBaseUrl}${path}`,
+		url: uri || `${finalBaseUrl}${path}`,
 		json: true,
 	};
 
@@ -48,16 +54,16 @@ export async function whazingApiRequest(
 		delete options.formData;
 	}
 
-	return this.helpers.requestWithAuthentication.call(this, 'whazingApi', options);
+	return this.helpers.httpRequestWithAuthentication.call(this, 'whazingApi', options as any);
 }
 
 export async function adminApiRequest(
 	this: IExecuteFunctions | ILoadOptionsFunctions | IHookFunctions,
 	method: string,
 	path: string,
-	body: any = {},
+	body: IDataObject = {},
 	qs: IDataObject = {},
-): Promise<any> {
+): Promise<IDataObject> {
 	const credentials = await this.getCredentials('whazingApi');
 
 	if (!credentials.adminUrl || !credentials.adminApiId) {
@@ -76,7 +82,7 @@ export async function adminApiRequest(
 		? `${baseAdminUrl}${path}`
 		: `${baseAdminUrl}/${credentials.adminApiId}${path}`;
 
-	const options: any = {
+	const options: IDataObject = {
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${credentials.adminToken}`,
@@ -92,5 +98,5 @@ export async function adminApiRequest(
 		delete options.body;
 	}
 
-	return this.helpers.request.call(this, options);
+	return this.helpers.httpRequest.call(this, options as any);
 }
