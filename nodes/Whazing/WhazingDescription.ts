@@ -19,16 +19,6 @@ export const whazingDescription: INodeProperties[] = [
 	},
 
 	// ----------------------------------
-	//         DIVISOR VISUAL
-	// ----------------------------------
-	{
-		displayName: '⚙️ Configuração da Operação',
-		name: 'operation_header',
-		type: 'notice',
-		default: '',
-	},
-
-	// ----------------------------------
 	//         Mensagem Básica (Baileys)
 	// ----------------------------------
 	{
@@ -203,20 +193,6 @@ export const whazingDescription: INodeProperties[] = [
 	//         Campos Comuns: Número e Rastreio
 	// ----------------------------------
 	{
-		displayName: '📱 Dados do Destinatário',
-		name: 'recipient_header',
-		type: 'notice',
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['message', 'messageOfficial', 'messagePlus', 'contact', 'ticket', 'channel'],
-			},
-			hide: {
-				operation: ['sendTemplate', 'sendTemplateParams'],
-			},
-		},
-	},
-	{
 		displayName: 'Número do WhatsApp',
 		name: 'number',
 		type: 'string',
@@ -253,17 +229,6 @@ export const whazingDescription: INodeProperties[] = [
 	//         Campos de Mensagem (Gerais)
 	// ----------------------------------
 	{
-		displayName: '💬 Conteúdo da Mensagem',
-		name: 'message_content_header',
-		type: 'notice',
-		default: '',
-		displayOptions: {
-			show: {
-				operation: ['sendText', 'sendButton', 'sendList', 'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus', 'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus', 'sendButtonDynamicPlus', 'sendFile', 'sendSticker', 'sendCarouselPlus', 'sendRequestPaymentPlus', 'sendParams', 'sendParamsGroup', 'requestLocation', 'requestLocationPlus'],
-			},
-		},
-	},
-	{
 		displayName: 'Mensagem (Corpo)',
 		name: 'body',
 		type: 'string',
@@ -293,17 +258,6 @@ export const whazingDescription: INodeProperties[] = [
 	// ----------------------------------
 	//         📎 Anexos e Mídia
 	// ----------------------------------
-	{
-		displayName: '📎 Anexos e Arquivos',
-		name: 'media_header',
-		type: 'notice',
-		default: '',
-		displayOptions: {
-			show: {
-				operation: ['sendFile', 'sendSticker'],
-			},
-		},
-	},
 	{
 		displayName: 'Método de Envio',
 		name: 'sendMethod',
@@ -403,17 +357,6 @@ export const whazingDescription: INodeProperties[] = [
 	// ----------------------------------
 	//         🔘 Botões e Interatividade
 	// ----------------------------------
-	{
-		displayName: '🔘 Botões e Interatividade',
-		name: 'buttons_header',
-		type: 'notice',
-		default: '',
-		displayOptions: {
-			show: {
-				operation: ['sendButton', 'sendList', 'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus', 'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus', 'sendButtonDynamicPlus', 'sendCarouselPlus'],
-			},
-		},
-	},
 	{
 		displayName: 'Título do Cabeçalho',
 		name: 'headerText',
@@ -699,17 +642,6 @@ export const whazingDescription: INodeProperties[] = [
 	// ----------------------------------
 	//         📋 Templates (Oficial)
 	// ----------------------------------
-	{
-		displayName: '📋 Configuração do Template',
-		name: 'template_header',
-		type: 'notice',
-		default: '',
-		displayOptions: {
-			show: {
-				operation: ['sendTemplate', 'sendTemplateParams'],
-			},
-		},
-	},
 	{
 		displayName: 'Nome do Template',
 		name: 'templateName',
@@ -1337,17 +1269,6 @@ export const whazingDescription: INodeProperties[] = [
 	//         Campos de Pagamento (PLUS)
 	// ----------------------------------
 	{
-		displayName: '💳 Dados do Pagamento',
-		name: 'payment_header',
-		type: 'notice',
-		default: '',
-		displayOptions: {
-			show: {
-				operation: ['sendPixButtonPlus', 'sendRequestPaymentPlus'],
-			},
-		},
-	},
-	{
 		displayName: 'Valor (Amount)',
 		name: 'amount',
 		type: 'number',
@@ -1437,11 +1358,5 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-	},
-	{
-		displayName: '🔐 Créditos & Suporte',
-		name: 'authorNotice',
-		type: 'notice',
-		default: '💡 **Dica:** Não encontrou a operação desejada? Use a opção de chamada personalizada da API.\n\n👨‍💻 **Desenvolvido por:** @cadusantos1\n📸 **Instagram:** @cadu.santos1\n\n🔗 **Documentação:** https://docs.whazing.com',
 	},
 ];
