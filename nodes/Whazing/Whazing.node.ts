@@ -16,7 +16,7 @@ export class Whazing implements INodeType {
 		icon: 'file:whazing.svg',
 		group: ['transform'],
 		version: 1,
-		description: 'Interaja com a API Whazing - By Carlos Eduardo @cadu.santos1',
+		description: 'Integração completa com API Whazing (Galaxy Chat) - Desenvolvido por @cadusantos1 | Envie mensagens, gerencie tickets, automatize pagamentos PIX e muito mais via WhatsApp Business API',
 		defaults: {
 			name: 'Whazing',
 		},
