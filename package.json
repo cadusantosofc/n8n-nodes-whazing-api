@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-whazing-cadu",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Whazing community node for n8n",
 	"license": "MIT",
 	"homepage": "",
