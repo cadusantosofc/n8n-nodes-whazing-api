@@ -1,245 +1,260 @@
 import { INodeProperties } from 'n8n-workflow';
 
 export const whazingDescription: INodeProperties[] = [
+
+	// ============================================================
+	//  RECURSO
+	//  O caractere › no nome cria o agrupamento visual no painel
+	//  de ações do n8n:  Mensagens › Baileys / API Oficial / API PLUS
+	// ============================================================
 	{
 		displayName: 'Recurso',
 		name: 'resource',
 		type: 'options',
 		noDataExpression: true,
 		options: [
-			{ name: 'Administração (Empresas/Usuários)', value: 'admin' },
-			{ name: 'Canais (Status/QR Code)', value: 'channel' },
-			{ name: 'Contatos (CRM/Tags)', value: 'contact' },
-			{ name: 'Mensagens (API Baileys/Simples)', value: 'message' },
-			{ name: 'Mensagens (API Oficial)', value: 'messageOfficial' },
-			{ name: 'Mensagens (API Plus/Pix)', value: 'messagePlus' },
-			{ name: 'Tickets (Atendimentos/ChatBot)', value: 'ticket' },
+			{ name: 'Admin',                   value: 'admin',       description: 'Empresas e usuários (multi-tenant)' },
+			{ name: 'Canal',                   value: 'channel',     description: 'Status, QR Code, logout e restart' },
+			{ name: 'Contatos',                value: 'contact',     description: 'CRM, tags e carteiras' },
+			{ name: 'Kanban Pro',              value: 'kanban',      description: 'Boards, colunas e cards (funil)' },
+			{ name: 'Mensagens › API Oficial', value: 'msgOfficial', description: 'Botões, listas, templates e localização (Meta)' },
+			{ name: 'Mensagens › API PLUS',    value: 'msgPlus',     description: 'Botões dinâmicos, carrossel, Pix e pagamentos' },
+			{ name: 'Mensagens › Baileys',     value: 'msgBaileys',  description: 'Texto, arquivo, sticker, localização, contato, params' },
+			{ name: 'Tickets',                 value: 'ticket',      description: 'Criar, consultar e gerenciar atendimentos' },
 		],
-		default: 'message',
+		default: 'msgBaileys',
 	},
 
-	// ----------------------------------
-	//         Mensagem Básica (Baileys)
-	// ----------------------------------
+	// ============================================================
+	//  OPERAÇÕES — Mensagens › Baileys
+	// ============================================================
 	{
 		displayName: 'Operação',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['message'],
-			},
-		},
+		displayOptions: { show: { resource: ['msgBaileys'] } },
 		options: [
-			{
-				name: 'Enviar Arquivo',
-				value: 'sendFile',
-				description: 'Enviar imagem, vídeo, áudio ou documento',
-				action: 'Enviar uma mensagem com arquivo',
-			},
-			{
-				name: 'Enviar Botões',
-				value: 'sendButton',
-				description: 'Enviar mensagem com botões interativos',
-				action: 'Enviar uma mensagem com botões',
-			},
-			{
-				name: 'Enviar Localização',
-				value: 'sendLocation',
-				description: 'Enviar um mapa com localização específica',
-				action: 'Enviar uma mensagem com localização',
-			},
-			{
-				name: 'Enviar Sticker',
-				value: 'sendSticker',
-				description: 'Enviar uma figurinha (sticker)',
-				action: 'Enviar uma mensagem com sticker',
-			},
-			{
-				name: 'Enviar Texto',
-				value: 'sendText',
-				description: 'Enviar uma mensagem de texto simples',
-				action: 'Enviar uma mensagem de texto',
-			},
-			{
-				name: 'Mensagem via Parâmetros',
-				value: 'sendParams',
-				description: 'Enviar mensagem usando parâmetros de URL',
-				action: 'Enviar mensagem via parâmetros',
-			},
-			{
-				name: 'Mensagem via Parâmetros (Grupo)',
-				value: 'sendParamsGroup',
-				description: 'Enviar mensagem para grupo usando parâmetros de URL',
-				action: 'Enviar mensagem para grupo via parâmetros',
-			},
+			{ name: 'Enviar Arquivo',                   value: 'sendFile',        action: 'Enviar mensagem com arquivo' },
+			{ name: 'Enviar Botão',                     value: 'sendButton',      action: 'Enviar mensagem com botões' },
+			{ name: 'Enviar Contato',                   value: 'sendContact',     action: 'Enviar um contato' },
+			{ name: 'Enviar Localização',               value: 'sendLocation',    action: 'Enviar mensagem com localização' },
+			{ name: 'Enviar Sticker',                   value: 'sendSticker',     action: 'Enviar sticker' },
+			{ name: 'Enviar Texto',                     value: 'sendText',        action: 'Enviar mensagem de texto' },
+			{ name: 'Mensagem Via Parâmetros (Grupo)',  value: 'sendParamsGroup', action: 'Enviar mensagem para grupo via parâmetros' },
+			{ name: 'Mensagem Via Parâmetros (Número)', value: 'sendParams',      action: 'Enviar mensagem via parâmetros' },
 		],
 		default: 'sendText',
 	},
 
-	// ----------------------------------
-	//         Mensagem Oficial
-	// ----------------------------------
+	// ============================================================
+	//  OPERAÇÕES — Mensagens › API Oficial
+	// ============================================================
 	{
 		displayName: 'Operação',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['messageOfficial'],
-			},
-		},
+		displayOptions: { show: { resource: ['msgOfficial'] } },
 		options: [
-			{
-				name: 'Enviar Botão Oficial',
-				value: 'sendButtonOfficial',
-				action: 'Enviar botão oficial',
-			},
-			{
-				name: 'Enviar Link CTA',
-				value: 'sendLinkCta',
-				action: 'Enviar link CTA',
-			},
-			{
-				name: 'Enviar Lista',
-				value: 'sendList',
-				action: 'Enviar lista',
-			},
-			{
-				name: 'Enviar Template',
-				value: 'sendTemplate',
-				action: 'Enviar template',
-			},
-			{
-				name: 'Enviar Template Com Parâmetros',
-				value: 'sendTemplateParams',
-				action: 'Enviar template com parâmetros',
-			},
-			{
-				name: 'Solicitar Localização',
-				value: 'requestLocation',
-				action: 'Solicitar localização',
-			},
+			{ name: 'Enviar Botão',                     value: 'sendButtonOfficial', action: 'Enviar botão oficial' },
+			{ name: 'Enviar Link CTA',                  value: 'sendLinkCta',        action: 'Enviar link CTA' },
+			{ name: 'Enviar Lista',                     value: 'sendList',           action: 'Enviar lista' },
+			{ name: 'Enviar Template (Com Parâmetros)', value: 'sendTemplateParams', action: 'Enviar template com parâmetros' },
+			{ name: 'Enviar Template (Sem Parâmetros)', value: 'sendTemplate',       action: 'Enviar template' },
+			{ name: 'Solicitar Localização',            value: 'requestLocation',    action: 'Solicitar localização' },
 		],
-		default: 'sendTemplate',
+		default: 'sendButtonOfficial',
 	},
 
-	// ----------------------------------
-	//         Mensagem API Plus
-	// ----------------------------------
+	// ============================================================
+	//  OPERAÇÕES — Mensagens › API PLUS
+	// ============================================================
 	{
 		displayName: 'Operação',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['messagePlus'],
-			},
-		},
+		displayOptions: { show: { resource: ['msgPlus'] } },
 		options: [
-			{
-				name: 'Enviar Botão PLUS',
-				value: 'sendButtonPlus',
-				action: 'Enviar botão plus',
-			},
-			{
-				name: 'Enviar Botão Dinâmico PLUS',
-				value: 'sendButtonDynamicPlus',
-				action: 'Enviar botão dinâmico plus',
-			},
-			{
-				name: 'Enviar Carrossel PLUS',
-				value: 'sendCarouselPlus',
-				action: 'Enviar carrossel PLUS',
-			},
-			{
-				name: 'Enviar Link PLUS',
-				value: 'sendLinkPlus',
-				action: 'Enviar link PLUS',
-			},
-			{
-				name: 'Enviar Link CTA PLUS',
-				value: 'sendLinkCtaPlus',
-				action: 'Enviar link CTA PLUS',
-			},
-			{
-				name: 'Enviar Lista PLUS',
-				value: 'sendListPlus',
-				action: 'Enviar lista PLUS',
-			},
-			{
-				name: 'Enviar Pix Button PLUS',
-				value: 'sendPixButtonPlus',
-				action: 'Enviar pix button plus',
-			},
-			{
-				name: 'Enviar Solicitação De Pagamento PLUS',
-				value: 'sendRequestPaymentPlus',
-				action: 'Enviar solicitação de pagamento plus',
-			},
-			{
-				name: 'Solicitar Localização PLUS',
-				value: 'requestLocationPlus',
-				action: 'Solicitar localização plus',
-			},
+			{ name: 'Enviar Botão',                    value: 'sendButtonPlus',         action: 'Enviar botão plus' },
+			{ name: 'Enviar Botão Dinâmico',           value: 'sendButtonDynamicPlus',  action: 'Enviar botão dinâmico plus' },
+			{ name: 'Enviar Botão Pix',                value: 'sendPixButtonPlus',      action: 'Enviar pix button plus' },
+			{ name: 'Enviar Carrossel',                value: 'sendCarouselPlus',       action: 'Enviar carrossel plus' },
+			{ name: 'Enviar Link',                     value: 'sendLinkPlus',           action: 'Enviar link plus' },
+			{ name: 'Enviar Link CTA',                 value: 'sendLinkCtaPlus',        action: 'Enviar link CTA plus' },
+			{ name: 'Enviar Lista',                    value: 'sendListPlus',           action: 'Enviar lista plus' },
+			{ name: 'Enviar Solicitação De Pagamento', value: 'sendRequestPaymentPlus', action: 'Enviar solicitação de pagamento plus' },
+			{ name: 'Solicitar Localização',           value: 'requestLocationPlus',    action: 'Solicitar localização plus' },
 		],
 		default: 'sendButtonPlus',
 	},
 
-	// ----------------------------------
-	//         Campos Comuns: Número e Rastreio
-	// ----------------------------------
+	// ============================================================
+	//  OPERAÇÕES — Tickets
+	// ============================================================
 	{
-		displayName: 'Número do WhatsApp',
+		displayName: 'Operação',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['ticket'] } },
+		options: [
+			{ name: 'Alterar Chatbot Do Ticket',         value: 'updateChatbot',     action: 'Alterar chatbot do ticket' },
+			{ name: 'Ativar / Desativar Chatbot',        value: 'setChatBot',        action: 'Ativar ou desativar chatbot do ticket' },
+			{ name: 'Atualizar Fila',                    value: 'setQueue',          action: 'Atualizar fila do ticket' },
+			{ name: 'Atualizar Informações',             value: 'updateInfo',        action: 'Atualizar informações do ticket' },
+			{ name: 'Consultar Ticket Do Chatbot',       value: 'showTicketChatBot', action: 'Consultar ticket do chatbot' },
+			{ name: 'Consultar Último Ticket Do Número', value: 'showTicket',        action: 'Consultar último ticket do número' },
+			{ name: 'Criar Ticket',                      value: 'create',            action: 'Criar ticket' },
+			{ name: 'Listar Mensagens Do Ticket',        value: 'listMessages',      action: 'Listar mensagens do ticket' },
+			{ name: 'Listar Todos Os Tickets',           value: 'getAll',            action: 'Listar todos os tickets do número' },
+			{ name: 'Obter Detalhes (Por ID)',           value: 'get',               action: 'Obter detalhes do ticket' },
+		],
+		default: 'create',
+	},
+
+	// ============================================================
+	//  OPERAÇÕES — Contatos
+	// ============================================================
+	{
+		displayName: 'Operação',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['contact'] } },
+		options: [
+			{ name: 'Atualizar Contato',       value: 'update',         action: 'Atualizar contato' },
+			{ name: 'Criar Contato',           value: 'create',         action: 'Criar contato' },
+			{ name: 'Definir CRM',             value: 'setCrm',         action: 'Definir CRM do contato' },
+			{ name: 'Definir Follow-Up',       value: 'setFollowup',    action: 'Definir follow-up do contato' },
+			{ name: 'Gerenciar Tags',          value: 'setTags',        action: 'Gerenciar tags do contato' },
+			{ name: 'Listar Por Carteira',     value: 'listByWallet',   action: 'Listar contatos por carteira' },
+			{ name: 'Listar Por CRM',          value: 'listByCrm',      action: 'Listar contatos por CRM' },
+			{ name: 'Listar Por Follow-Up',    value: 'listByFollowup', action: 'Listar contatos por follow-up' },
+			{ name: 'Listar Por Tag',          value: 'listByTag',      action: 'Listar contatos por tag' },
+			{ name: 'Obter Dados Do Contato',  value: 'get',            action: 'Obter dados do contato' },
+			{ name: 'Validar Número WhatsApp', value: 'validateNumber', action: 'Validar número do WhatsApp' },
+		],
+		default: 'create',
+	},
+
+	// ============================================================
+	//  OPERAÇÕES — Canal
+	// ============================================================
+	{
+		displayName: 'Operação',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['channel'] } },
+		options: [
+			{ name: 'Desconectar / Logout',        value: 'logout',    action: 'Fazer logout do canal' },
+			{ name: 'Gerar QR Code (Nova Sessão)', value: 'getQrCode', action: 'Gerar QR code' },
+			{ name: 'Obter Status Da Conexão',     value: 'getStatus', action: 'Obter status do canal' },
+			{ name: 'Reiniciar Sessão',            value: 'restart',   action: 'Reiniciar sessão do canal' },
+		],
+		default: 'getStatus',
+	},
+
+	// ============================================================
+	//  OPERAÇÕES — Kanban Pro
+	// ============================================================
+	{
+		displayName: 'Operação',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['kanban'] } },
+		options: [
+			{ name: 'Atualizar Card',            value: 'updateCard',      action: 'Atualizar card' },
+			{ name: 'Criar / Mover Card (Bot)',  value: 'createOrMoveCard', action: 'Criar ou mover card usando lógica de bot' },
+			{ name: 'Deletar / Arquivar Card',   value: 'deleteCard',      action: 'Deletar ou arquivar card' },
+			{ name: 'Listar Boards',             value: 'getBoards',       action: 'Listar boards' },
+			{ name: 'Listar Cards Do Board',     value: 'getCards',        action: 'Listar cards do board' },
+			{ name: 'Listar Cards Do Contato',   value: 'getContactCards', action: 'Listar cards do contato' },
+			{ name: 'Listar Colunas Do Board',   value: 'getColumns',      action: 'Listar colunas do board' },
+			{ name: 'Obter Detalhes Do Card',    value: 'getCard',         action: 'Obter detalhes do card' },
+		],
+		default: 'getBoards',
+	},
+
+	// ============================================================
+	//  OPERAÇÕES — Admin
+	// ============================================================
+	{
+		displayName: 'Operação',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['admin'] } },
+		options: [
+			{ name: 'Alterar Senha Do Usuário',    value: 'changePassword', action: 'Alterar senha do usuário' },
+			{ name: 'Atualizar Empresa',           value: 'updateTenant',   action: 'Atualizar empresa' },
+			{ name: 'Criar Empresa',               value: 'createTenant',   action: 'Criar empresa' },
+			{ name: 'Listar Planos',               value: 'listPlans',      action: 'Listar todos os planos' },
+			{ name: 'Listar Todas As Empresas',    value: 'listTenants',    action: 'Listar todas as empresas' },
+			{ name: 'Listar Usuários Da Empresa',  value: 'listUsers',      action: 'Listar usuários da empresa' },
+			{ name: 'Obter Empresa Por ID',        value: 'getTenant',      action: 'Obter empresa por ID' },
+			{ name: 'Renovar Assinatura', value: 'addMonth',       action: 'Renovar Assinatura' },
+		],
+		default: 'createTenant',
+	},
+
+	// ============================================================
+	//  CAMPOS COMUNS — Número e Ticket ID
+	//  number NÃO é required — ticketId pode ser usado no lugar
+	// ============================================================
+	{
+		displayName: 'Número Do WhatsApp',
 		name: 'number',
 		type: 'string',
-		required: true,
+		required: false,
 		displayOptions: {
-			show: {
-				resource: ['message', 'messageOfficial', 'messagePlus', 'contact', 'ticket', 'channel'],
-			},
-			hide: {
-				operation: ['sendTemplate', 'sendTemplateParams'],
-			},
+			show: { resource: ['msgBaileys', 'msgOfficial', 'msgPlus', 'contact', 'ticket'] },
+			hide: { operation: ['sendTemplate', 'sendTemplateParams'] },
 		},
 		default: '',
 		placeholder: '5511999999999',
-		description: 'Número do destinatário no formato internacional (ex: 5511999999999)',
+		description: 'Número no formato internacional. Pode ser substituído pelo ID do Ticket abaixo.',
 	},
 	{
 		displayName: 'ID Do Ticket',
 		name: 'ticketId',
 		type: 'string',
 		displayOptions: {
+			show: { resource: ['msgBaileys', 'msgOfficial', 'msgPlus', 'contact', 'kanban'] },
+			hide: { operation: ['validateNumber', 'getBoards', 'getColumns', 'getCards', 'getCard', 'getContactCards', 'deleteCard', 'updateCard'] },
+		},
+		default: '',
+		description: 'Se fornecido, substitui o número como identificador do destinatário',
+	},
+	{
+		// ticketId para ops de ticket que o exigem como alvo
+		displayName: 'ID Do Ticket',
+		name: 'ticketId',
+		type: 'string',
+		displayOptions: {
 			show: {
-				resource: ['message', 'messageOfficial', 'messagePlus', 'contact', 'ticket'],
-			},
-			hide: {
-				operation: ['validateNumber', 'setChatBot'],
+				resource: ['ticket'],
+				operation: ['updateInfo', 'setQueue', 'setChatBot', 'updateChatbot', 'listMessages', 'get'],
 			},
 		},
 		default: '',
-		description: 'Se fornecido, o ticket será identificado por este ID em vez do número',
+		description: 'ID do ticket a ser manipulado',
 	},
 
-	// ----------------------------------
-	//         Campos de Mensagem (Gerais)
-	// ----------------------------------
+	// ============================================================
+	//  CAMPOS — Corpo da mensagem
+	// ============================================================
 	{
 		displayName: 'Mensagem (Corpo)',
 		name: 'body',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: {
-				operation: ['requestLocation', 'requestLocationPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['requestLocation', 'requestLocationPlus'] } },
 		default: '',
-		description: 'Mensagem que será exibida ao solicitar a localização do usuário',
+		description: 'Mensagem exibida ao solicitar a localização do usuário',
 	},
 	{
 		displayName: 'Mensagem (Corpo)',
@@ -247,60 +262,64 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: {
 			show: {
-				operation: ['sendText', 'sendButton', 'sendList', 'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus', 'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus', 'sendButtonDynamicPlus', 'sendFile', 'sendSticker', 'sendCarouselPlus', 'sendRequestPaymentPlus', 'sendParams', 'sendParamsGroup'],
+				operation: [
+					'sendText', 'sendButton', 'sendList',
+					'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus',
+					'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus',
+					'sendButtonDynamicPlus', 'sendFile', 'sendSticker',
+					'sendCarouselPlus', 'sendRequestPaymentPlus',
+					'sendParams', 'sendParamsGroup',
+				],
 			},
 		},
 		default: '',
 		placeholder: 'Digite sua mensagem aqui...',
-		description: 'Texto principal da mensagem que será enviada',
 	},
 
-	// ----------------------------------
-	//         📎 Anexos e Mídia
-	// ----------------------------------
+	// ============================================================
+	//  CAMPOS — Arquivo / Mídia
+	// ============================================================
 	{
-		displayName: 'Método de Envio',
+		displayName: 'Método De Envio',
 		name: 'sendMethod',
 		type: 'options',
-		displayOptions: {
-			show: {
-				operation: ['sendFile'],
-			},
-		},
+		noDataExpression: true,
+		displayOptions: { show: { operation: ['sendFile'] } },
 		options: [
-			{ name: 'URL do Arquivo', value: 'url' },
-			{ name: 'Base64 / Binário', value: 'base64' },
+			{ name: 'Base64 / Binário (Texto)', value: 'base64' },
+			{ name: 'Upload De Arquivo (Binário)', value: 'binary' },
+			{ name: 'URL Do Arquivo',   value: 'url' },
 		],
 		default: 'url',
-		description: 'Escolha como enviar o arquivo',
+	},
+	{
+		displayName: 'Propriedade Binária',
+		name: 'binaryPropertyName',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { operation: ['sendFile'], sendMethod: ['binary'] } },
+		default: 'data',
+		description: 'Nome da propriedade binária do n8n que contém o arquivo a ser enviado',
 	},
 	{
 		displayName: 'URL Do Arquivo',
 		name: 'mediaUrl',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendFile'],
-				sendMethod: ['url'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendFile'], sendMethod: ['url'] } },
 		default: '',
+		placeholder: 'https://example.com/arquivo.pdf',
 	},
 	{
 		displayName: 'Tipo De Mídia',
 		name: 'mediaType',
 		type: 'options',
-		displayOptions: {
-			show: {
-				operation: ['sendFile'],
-				sendMethod: ['base64'],
-			},
-		},
+		noDataExpression: true,
+		displayOptions: { show: { operation: ['sendFile'], sendMethod: ['base64'] } },
 		options: [
-			{ name: 'Áudio', value: 'audio' },
+			{ name: 'Áudio',     value: 'audio' },
 			{ name: 'Documento', value: 'document' },
-			{ name: 'Imagem', value: 'image' },
-			{ name: 'Vídeo', value: 'video' },
+			{ name: 'Imagem',    value: 'image' },
+			{ name: 'Vídeo',     value: 'video' },
 		],
 		default: 'image',
 	},
@@ -308,66 +327,80 @@ export const whazingDescription: INodeProperties[] = [
 		displayName: 'Arquivo (Base64)',
 		name: 'mediaBase64',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendFile'],
-				sendMethod: ['base64'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendFile'], sendMethod: ['base64'] } },
 		default: '',
 	},
 	{
 		displayName: 'Nome Do Arquivo',
 		name: 'fileName',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendFile'],
-				sendMethod: ['base64'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendFile'], sendMethod: ['base64'] } },
 		default: '',
+		placeholder: 'documento.pdf',
 	},
-
 	{
 		displayName: 'Propriedade Binária',
 		name: 'binaryPropertyName',
 		type: 'string',
-		default: 'data',
 		required: true,
-		displayOptions: {
-			show: {
-				operation: ['sendSticker'],
-			},
-		},
-		description: 'Nome da propriedade binária que contém o arquivo para gerar o sticker',
+		displayOptions: { show: { operation: ['sendSticker'] } },
+		default: 'data',
+		description: 'Nome da propriedade binária do n8n que contém a imagem do sticker',
 	},
+
+	// ============================================================
+	//  CAMPOS — Card de Contato
+	// ============================================================
+	{
+		displayName: 'Nome De Exibição',
+		name: 'contactDisplayName',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { operation: ['sendContact'] } },
+		default: '',
+		placeholder: 'Ex: João Silva',
+	},
+	{
+		displayName: 'Telefone Do Contato',
+		name: 'contactTelephone',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { operation: ['sendContact'] } },
+		default: '',
+		placeholder: '5511999999999',
+	},
+
+	// ============================================================
+	//  CAMPOS — External Key
+	// ============================================================
 	{
 		displayName: 'External Key',
 		name: 'externalKey',
 		type: 'string',
-		default: '',
 		displayOptions: {
-			show: {
-				operation: ['sendSticker', 'sendText', 'sendFile', 'sendParams', 'sendParamsGroup'],
-			},
+			show: { operation: ['sendText', 'sendFile', 'sendSticker', 'sendParams', 'sendParamsGroup'] },
 		},
-		description: 'Chave externa opcional para identificação da mensagem',
+		default: '',
+		description: 'Chave externa para identificar a mensagem no webhook do seu sistema',
 	},
-	// ----------------------------------
-	//         🔘 Botões e Interatividade
-	// ----------------------------------
+
+	// ============================================================
+	//  CAMPOS — Cabeçalho / Rodapé / Links
+	// ============================================================
 	{
-		displayName: 'Título do Cabeçalho',
+		displayName: 'Título Do Cabeçalho',
 		name: 'headerText',
 		type: 'string',
 		displayOptions: {
 			show: {
-				operation: ['sendButton', 'sendList', 'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus', 'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus'],
+				operation: [
+					'sendButton', 'sendList',
+					'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus',
+					'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus',
+				],
 			},
 		},
 		default: '',
-		description: 'Título opcional que aparece no topo da mensagem',
 	},
 	{
 		displayName: 'Rodapé (Opcional)',
@@ -375,20 +408,21 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: {
 			show: {
-				operation: ['sendButton', 'sendList', 'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus', 'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus', 'sendButtonDynamicPlus', 'sendRequestPaymentPlus'],
+				operation: [
+					'sendButton', 'sendList',
+					'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus',
+					'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus',
+					'sendButtonDynamicPlus', 'sendRequestPaymentPlus',
+				],
 			},
 		},
 		default: '',
 	},
 	{
-		displayName: 'Texto Do Link (Display)',
+		displayName: 'Texto Do Botão Link',
 		name: 'linkDisplayText',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendLinkCta', 'sendLinkCtaPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendLinkCta', 'sendLinkCtaPlus'] } },
 		default: 'Ver mais',
 	},
 	{
@@ -396,11 +430,7 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'linkUrl',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: {
-				operation: ['sendLinkCta', 'sendLinkCtaPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendLinkCta', 'sendLinkCtaPlus'] } },
 		default: 'https://',
 	},
 	{
@@ -408,228 +438,54 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'url',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: {
-				operation: ['sendLinkPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendLinkPlus'] } },
 		default: 'https://',
-		description: 'URL completa que será aberta quando o usuário clicar no botão',
 	},
 	{
-		displayName: 'Texto Do Botão (PLUS)',
+		displayName: 'Texto Do Botão Link (PLUS)',
 		name: 'buttonText',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendLinkPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendLinkPlus'] } },
 		default: 'Ver Link',
-		description: 'Texto que aparecerá no botão de link',
 	},
 	{
 		displayName: 'Texto Do Botão (Trigger Lista)',
 		name: 'buttonText',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendList', 'sendListPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendList', 'sendListPlus'] } },
 		default: 'Clique para ver as opções',
 	},
+
+	// ============================================================
+	//  CAMPOS — Seções de Lista
+	// ============================================================
 	{
 		displayName: 'Seções Da Lista',
 		name: 'sections',
 		type: 'fixedCollection',
-		typeOptions: {
-			multipleValues: true,
-		},
-		displayOptions: {
-			show: {
-				operation: ['sendList', 'sendListPlus'],
-			},
-		},
+		typeOptions: { multipleValues: true },
+		displayOptions: { show: { operation: ['sendList', 'sendListPlus'] } },
 		default: {},
 		options: [
 			{
 				name: 'sectionValues',
-				displayName: 'Valores Da Seção',
+				displayName: 'Seção',
 				values: [
-					{
-						displayName: 'Título Da Seção',
-						name: 'title',
-						type: 'string',
-						default: '',
-					},
+					{ displayName: 'Título Da Seção', name: 'title', type: 'string', default: '' },
 					{
 						displayName: 'Itens Da Seção',
 						name: 'rows',
 						type: 'fixedCollection',
-						typeOptions: {
-							multipleValues: true,
-						},
+						typeOptions: { multipleValues: true },
 						default: {},
 						options: [
 							{
 								name: 'rowValues',
-								displayName: 'Valores Do Item',
+								displayName: 'Item',
 								values: [
-									{
-										displayName: 'ID Do Item',
-										name: 'id',
-										type: 'string',
-										default: '',
-									},
-									{
-										displayName: 'Título',
-										name: 'title',
-										type: 'string',
-										default: '',
-									},
-									{
-										displayName: 'Descrição',
-										name: 'description',
-										type: 'string',
-										default: '',
-									},
-								],
-							},
-						],
-					},
-				],
-			},
-		],
-	},
-	{
-		displayName: 'Botões',
-		name: 'buttons',
-		type: 'fixedCollection',
-		typeOptions: {
-			multipleValues: true,
-		},
-		displayOptions: {
-			show: {
-				operation: ['sendButton', 'sendButtonOfficial', 'sendButtonPlus'],
-			},
-		},
-		default: {},
-		options: [
-			{
-				name: 'buttonValues',
-				displayName: 'Valores Do Botão',
-				values: [
-					{
-						displayName: 'Texto Do Botão',
-						name: 'text',
-						type: 'string',
-						default: '',
-					},
-					{
-						displayName: 'ID Do Botão (Opcional)',
-						name: 'id',
-						type: 'string',
-						default: '',
-					},
-				],
-			},
-		],
-	},
-	{
-		displayName: 'Botões Dinâmicos (PLUS)',
-		name: 'dynamicButtons',
-		type: 'fixedCollection',
-		typeOptions: {
-			multipleValues: true,
-		},
-		displayOptions: {
-			show: {
-				operation: ['sendButtonDynamicPlus'],
-			},
-		},
-		default: {},
-		options: [
-			{
-				name: 'buttonValues',
-				displayName: 'Valores Do Botão',
-				values: [
-					{
-						displayName: 'Tipo',
-						name: 'btnType',
-						type: 'options',
-						options: [
-							{ name: 'Resposta (Reply)', value: 'reply' },
-							{ name: 'Copiar Texto (Copy)', value: 'copy' },
-							{ name: 'Ligar (Call)', value: 'call' },
-							{ name: 'Abrir Site (URL)', value: 'url' },
-						],
-						default: 'reply',
-					},
-					{
-						displayName: 'Texto De Exibição',
-						name: 'displayText',
-						type: 'string',
-						default: '',
-					},
-					{
-						displayName: 'ID / Valor / URL / Telefone',
-						name: 'value',
-						type: 'string',
-						default: '',
-						description: 'Dependendo do tipo: ID para resposta, texto para copiar, número para ligação ou URL para site',
-					},
-				],
-			},
-		],
-	},
-	{
-		displayName: 'Itens Do Carrossel (PLUS)',
-		name: 'carouselItems',
-		type: 'fixedCollection',
-		typeOptions: {
-			multipleValues: true,
-		},
-		displayOptions: {
-			show: {
-				operation: ['sendCarouselPlus'],
-			},
-		},
-		default: {},
-		options: [
-			{
-				name: 'itemValues',
-				displayName: 'Valores Do Item',
-				values: [
-					{
-						displayName: 'Texto Do Item',
-						name: 'text',
-						type: 'string',
-						default: '',
-					},
-					{
-						displayName: 'Imagem (Base64)',
-						name: 'image',
-						type: 'string',
-						default: '',
-						description: 'Data URL base64 da imagem',
-					},
-					{
-						displayName: 'Botões Do Item',
-						name: 'buttons',
-						type: 'fixedCollection',
-						typeOptions: {
-							multipleValues: true,
-						},
-						default: {},
-								options: [
-							{
-								name: 'buttonValues',
-								displayName: 'Botão',
-								values: [
-									{ displayName: 'Tipo', name: 'itemBtnType', type: 'options', options: [{ name: 'Resposta', value: 'reply' }, { name: 'URL', value: 'url' }, { name: 'Ligar', value: 'call' }], default: 'reply' },
-									{ displayName: 'Texto', name: 'displayText', type: 'string', default: '' },
-									{ displayName: 'Valor/URL', name: 'value', type: 'string', default: '' },
+									{ displayName: 'ID Do Item',  name: 'id',          type: 'string', default: '' },
+									{ displayName: 'Título',      name: 'title',       type: 'string', default: '' },
+									{ displayName: 'Descrição',   name: 'description', type: 'string', default: '' },
 								],
 							},
 						],
@@ -639,45 +495,139 @@ export const whazingDescription: INodeProperties[] = [
 		],
 	},
 
-	// ----------------------------------
-	//         📋 Templates (Oficial)
-	// ----------------------------------
+	// ============================================================
+	//  CAMPOS — Botões Simples
+	// ============================================================
 	{
-		displayName: 'Nome do Template',
+		displayName: 'Botões',
+		name: 'buttons',
+		type: 'fixedCollection',
+		typeOptions: { multipleValues: true },
+		displayOptions: { show: { operation: ['sendButton', 'sendButtonOfficial', 'sendButtonPlus'] } },
+		default: {},
+		options: [
+			{
+				name: 'buttonValues',
+				displayName: 'Botão',
+				values: [
+					{ displayName: 'Texto Do Botão',         name: 'text', type: 'string', default: '' },
+					{ displayName: 'ID Do Botão (Opcional)', name: 'id',   type: 'string', default: '' },
+				],
+			},
+		],
+	},
+
+	// ============================================================
+	//  CAMPOS — Botões Dinâmicos (PLUS)
+	// ============================================================
+	{
+		displayName: 'Botões Dinâmicos',
+		name: 'dynamicButtons',
+		type: 'fixedCollection',
+		typeOptions: { multipleValues: true },
+		displayOptions: { show: { operation: ['sendButtonDynamicPlus'] } },
+		default: {},
+		options: [
+			{
+				name: 'buttonValues',
+				displayName: 'Botão',
+				values: [
+					{
+						displayName: 'Tipo',
+						name: 'btnType',
+						type: 'options',
+						noDataExpression: true,
+						options: [
+							{ name: 'Abrir Site (URL)', value: 'url' },
+							{ name: 'Copiar Texto',     value: 'copy' },
+							{ name: 'Ligar (Call)',     value: 'call' },
+							{ name: 'Resposta (Reply)', value: 'reply' },
+						],
+						default: 'reply',
+					},
+					{ displayName: 'Texto De Exibição',      name: 'displayText', type: 'string', default: '' },
+					{ displayName: 'ID / Texto / Tel / URL', name: 'value',       type: 'string', default: '' },
+				],
+			},
+		],
+	},
+
+	// ============================================================
+	//  CAMPOS — Carrossel (PLUS)
+	// ============================================================
+	{
+		displayName: 'Itens Do Carrossel',
+		name: 'carouselItems',
+		type: 'fixedCollection',
+		typeOptions: { multipleValues: true },
+		displayOptions: { show: { operation: ['sendCarouselPlus'] } },
+		default: {},
+		options: [
+			{
+				name: 'itemValues',
+				displayName: 'Item Do Carrossel',
+				values: [
+					{ displayName: 'Texto Do Item',   name: 'text',  type: 'string', default: '' },
+					{ displayName: 'Imagem (Base64)', name: 'image', type: 'string', default: '' },
+					{
+						displayName: 'Botões Do Item',
+						name: 'buttons',
+						type: 'fixedCollection',
+						typeOptions: { multipleValues: true },
+						default: {},
+						options: [
+							{
+								name: 'buttonValues',
+								displayName: 'Botão',
+								values: [
+									{
+										displayName: 'Tipo',
+										name: 'itemBtnType',
+										type: 'options',
+										noDataExpression: true,
+										options: [
+											{ name: 'Ligar',    value: 'call' },
+											{ name: 'Resposta', value: 'reply' },
+											{ name: 'URL',      value: 'url' },
+										],
+										default: 'reply',
+									},
+									{ displayName: 'Texto',     name: 'displayText', type: 'string', default: '' },
+									{ displayName: 'Valor/URL', name: 'value',       type: 'string', default: '' },
+								],
+							},
+						],
+					},
+				],
+			},
+		],
+	},
+
+	// ============================================================
+	//  CAMPOS — Templates (API Oficial)
+	// ============================================================
+	{
+		displayName: 'Nome Do Template',
 		name: 'templateName',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendTemplate', 'sendTemplateParams'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendTemplate', 'sendTemplateParams'] } },
 		default: '',
 		placeholder: 'nome_do_template',
-		description: 'Nome do template aprovado no Meta Business',
+		description: 'Nome exato do template aprovado no Meta Business Manager',
 	},
 	{
 		displayName: 'Código Do Idioma',
 		name: 'languageCode',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendTemplate', 'sendTemplateParams'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendTemplate', 'sendTemplateParams'] } },
 		default: 'pt_BR',
 	},
 	{
 		displayName: 'Componentes Do Template',
 		name: 'templateComponents',
 		type: 'fixedCollection',
-		typeOptions: {
-			multipleValues: true,
-		},
-		displayOptions: {
-			show: {
-				operation: ['sendTemplateParams'],
-			},
-		},
+		typeOptions: { multipleValues: true },
+		displayOptions: { show: { operation: ['sendTemplateParams'] } },
 		default: {},
 		options: [
 			{
@@ -689,35 +639,28 @@ export const whazingDescription: INodeProperties[] = [
 						name: 'componentType',
 						type: 'options',
 						options: [
+							{ name: 'Botão (Button)',      value: 'button' },
 							{ name: 'Cabeçalho (Header)', value: 'header' },
-							{ name: 'Corpo (Body)', value: 'body' },
-							{ name: 'Botão (Button)', value: 'button' },
+							{ name: 'Corpo (Body)',        value: 'body' },
 						],
 						default: 'body',
 					},
 					{
-						displayName: 'Subtipo (Para Botão)',
+						displayName: 'Subtipo (Somente Para Botão)',
 						name: 'sub_type',
 						type: 'options',
 						options: [
-							{ name: 'Ação (Quick Reply)', value: 'quick_reply' },
-							{ name: 'URL / CTA', value: 'url' },
+							{ name: 'Quick Reply', value: 'quick_reply' },
+							{ name: 'URL / CTA',   value: 'url' },
 						],
 						default: 'quick_reply',
 					},
-					{
-						displayName: 'Índice Do Botão',
-						name: 'index',
-						type: 'number',
-						default: 0,
-					},
+					{ displayName: 'Índice Do Botão', name: 'index', type: 'number', default: 0 },
 					{
 						displayName: 'Parâmetros',
 						name: 'parameters',
 						type: 'fixedCollection',
-						typeOptions: {
-							multipleValues: true,
-						},
+						typeOptions: { multipleValues: true },
 						default: {},
 						options: [
 							{
@@ -725,33 +668,18 @@ export const whazingDescription: INodeProperties[] = [
 								displayName: 'Parâmetro',
 								values: [
 									{
-										displayName: 'Tipo De Parâmetro',
+										displayName: 'Tipo',
 										name: 'parameterType',
 										type: 'options',
 										options: [
-											{ name: 'Texto', value: 'text' },
 											{ name: 'Imagem', value: 'image' },
+											{ name: 'Texto',  value: 'text' },
 										],
 										default: 'text',
 									},
-									{
-										displayName: 'Nome Do Parâmetro',
-										name: 'parameter_name',
-										type: 'string',
-										default: '',
-									},
-									{
-										displayName: 'Texto',
-										name: 'text',
-										type: 'string',
-										default: '',
-									},
-									{
-										displayName: 'Link Da Imagem',
-										name: 'link',
-										type: 'string',
-										default: '',
-									},
+									{ displayName: 'Nome Do Parâmetro', name: 'parameter_name', type: 'string', default: '' },
+									{ displayName: 'Texto',            name: 'text',           type: 'string', default: '' },
+									{ displayName: 'Link Da Imagem',   name: 'link',           type: 'string', default: '' },
 								],
 							},
 						],
@@ -761,321 +689,331 @@ export const whazingDescription: INodeProperties[] = [
 		],
 	},
 
-	// ----------------------------------
-	//         Localização
-	// ----------------------------------
+	// ============================================================
+	//  CAMPOS — Localização (Baileys)
+	// ============================================================
 	{
 		displayName: 'Latitude',
 		name: 'latitude',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendLocation'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendLocation'] } },
 		default: '',
+		placeholder: '-23.5505',
 	},
 	{
 		displayName: 'Longitude',
 		name: 'longitude',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendLocation'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendLocation'] } },
 		default: '',
+		placeholder: '-46.6333',
 	},
 	{
 		displayName: 'Nome Do Local',
 		name: 'locationName',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendLocation'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendLocation'] } },
 		default: '',
 	},
 	{
 		displayName: 'Endereço',
 		name: 'address',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendLocation'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendLocation'] } },
 		default: '',
 	},
 
-	// ----------------------------------
-	//         Recurso: Ticket
-	// ----------------------------------
+	// ============================================================
+	//  CAMPOS — Tickets
+	// ============================================================
 	{
-		displayName: 'Operação',
-		name: 'operation',
-		type: 'options',
-		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['ticket'],
-			},
-		},
-		options: [
-			{ name: 'Criar Novo Ticket', value: 'create', action: 'Criar um ticket' },
-			{ name: 'Consultar Último Ticket Do Canal', value: 'showTicket', action: 'Consultar último ticket atribuído ao canal' },
-			{ name: 'Consultar Ticket Do ChatBot', value: 'showTicketChatBot', action: 'Consultar ticket do chatbot' },
-			{ name: 'Get Many', value: 'getAll', action: 'Consultar todos os tickets atribuídos ao canal' },
-			{ name: 'Atualizar Informações Do Ticket', value: 'updateInfo', action: 'Atualizar informações do ticket' },
-			{ name: 'Atualizar Fila Do Ticket', value: 'setQueue', action: 'Atualizar fila do ticket' },
-			{ name: 'Atualizar Chatbot Do Ticket', value: 'updateChatbot', action: 'Atualizar chatbot do ticket' },
-			{ name: 'Listar Mensagens Do Ticket', value: 'listMessages', action: 'Listar mensagens do ticket' },
-			{ name: 'Ativar/Desativar ChatBot (Geral)', value: 'setChatBot', action: 'Definir ativação de chatbot' },
-			{ name: 'Obter Detalhes via ID', value: 'get', action: 'Obter informações do ticket' },
-		],
-		default: 'create',
-	},
-	{
-		displayName: 'ID Do Chatbot',
+		displayName: 'ID Do ChatBot',
 		name: 'chatbotId',
 		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['ticket'],
-				operation: ['updateChatbot'],
-			},
-		},
+		displayOptions: { show: { resource: ['ticket'], operation: ['updateChatbot'] } },
 		default: '',
 	},
 	{
-		displayName: 'ID Do Usuário (Atendente)',
+		displayName: 'ID Do Atendente',
 		name: 'userId',
 		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['ticket'],
-				operation: ['create', 'updateInfo'],
-			},
-		},
+		displayOptions: { show: { resource: ['ticket'], operation: ['create', 'updateInfo'] } },
 		default: '',
+		description: 'ID do usuário/atendente responsável. Deixe vazio para não atribuir.',
 	},
 	{
 		displayName: 'Ativar ChatBot',
 		name: 'enableChatbot',
 		type: 'boolean',
+		displayOptions: { show: { resource: ['ticket'], operation: ['setChatBot'] } },
 		default: true,
-		displayOptions: {
-			show: {
-				resource: ['ticket'],
-				operation: ['setChatBot'],
-			},
-		},
-		description: 'Whether deve ativar (Ligado) ou desativar (Desligado) o chatbot para este número',
+		description: 'Whether ativa (ligado) ou desativa (desligado) o chatbot para este ticket',
 	},
-
 	{
 		displayName: 'Status Do Ticket',
 		name: 'status',
 		type: 'options',
-		displayOptions: {
-			show: {
-				resource: ['ticket'],
-				operation: ['create', 'updateInfo'],
-			},
-		},
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['ticket'], operation: ['create', 'updateInfo'] } },
 		options: [
-			{ name: 'Aberto', value: 'open' },
+			{ name: 'Aberto',   value: 'open' },
+			{ name: 'Fechado',  value: 'closed' },
 			{ name: 'Pendente', value: 'pending' },
-			{ name: 'Fechado', value: 'closed' },
 		],
-		default: 'open',
+		default: '',
+		placeholder: 'Selecione um status...',
 	},
 	{
 		displayName: 'ID Da Fila',
 		name: 'queueId',
 		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['ticket'],
-				operation: ['create', 'updateInfo', 'setQueue'],
-			},
-		},
+		displayOptions: { show: { resource: ['ticket'], operation: ['create', 'updateInfo', 'setQueue'] } },
 		default: '',
 	},
 
-	// ----------------------------------
-	//         Recurso: Contato
-	// ----------------------------------
-	{
-		displayName: 'Operação',
-		name: 'operation',
-		type: 'options',
-		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-			},
-		},
-		options: [
-			{ name: 'Atualizar Informações Do Contato', value: 'update', action: 'Atualizar informações do contato' },
-			{ name: 'Obter Dados Do Contato', value: 'get', action: 'Buscar informações do contato' },
-			{ name: 'Criar Novo Contato', value: 'create', action: 'Criar um contato' },
-			{ name: 'Definir Data De Follow-Up', value: 'setFollowup', action: 'Definir follow-up' },
-			{ name: 'Vincular À Carteira CRM', value: 'setCrm', action: 'Definir informações crm' },
-			{ name: 'Gerenciar Tags Do Contato', value: 'setTags', action: 'Definir tags' },
-			{ name: 'Listar Contatos Por Carteira', value: 'listByWallet', action: 'Listar contatos por carteira' },
-			{ name: 'Listar Contatos Por CRM', value: 'listByCrm', action: 'Listar contatos por CRM' },
-			{ name: 'Listar Contatos Por Data', value: 'listByFollowup', action: 'Listar contatos por follow-up' },
-			{ name: 'Listar Contatos Por Tag', value: 'listByTag', action: 'Listar contatos por tag' },
-			{ name: 'Validar Número Do WhatsApp', value: 'validateNumber', action: 'Validar número do whatsapp' },
-		],
-		default: 'create',
-	},
+	// ============================================================
+	//  CAMPOS — Contatos
+	// ============================================================
 	{
 		displayName: 'ID Do Contato',
 		name: 'contactId',
 		type: 'string',
 		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['update', 'get', 'setCrm', 'setFollowup', 'setTags'],
-			},
+			show: { resource: ['contact'], operation: ['update', 'get', 'setCrm', 'setFollowup', 'setTags'] },
+		},
+		default: '',
+		description: 'Se vazio, busca pelo número ou ticketId',
+	},
+	{
+		displayName: 'ID Do Contato',
+		name: 'contactId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['createOrMoveCard', 'getContactCards'] },
 		},
 		default: '',
 	},
-
+	{
+		displayName: 'ID Do Board',
+		name: 'boardId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['getColumns', 'getCards', 'createOrMoveCard'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'ID Do Card',
+		name: 'cardId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['getCard', 'updateCard', 'deleteCard'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'ID Da Coluna',
+		name: 'columnId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['createOrMoveCard'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'ID Da Coluna (Opcional)',
+		name: 'columnId',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['getCards', 'updateCard'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Ação (Bot)',
+		name: 'kanbanAction',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['createOrMoveCard'] },
+		},
+		options: [
+			{ name: 'Criar Ou Mover (Padrão)', value: 'create_or_move', description: 'Cria ou move para a coluna informada' },
+			{ name: 'Criar Ou Atualizar', value: 'create_or_update', description: 'Cria ou atualiza dados sem mover' },
+			{ name: 'Sempre Criar Novo', value: 'create_only', description: 'Sempre cria um novo card' },
+			{ name: 'Apenas Mover', value: 'move_only', description: 'Só move se já existir, ignora se não existir' },
+		],
+		default: 'create_or_move',
+	},
+	{
+		displayName: 'Título Do Card',
+		name: 'cardTitle',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['createOrMoveCard', 'updateCard'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Prioridade',
+		name: 'kanbanPriority',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['createOrMoveCard', 'updateCard', 'getCards'] },
+		},
+		options: [
+			{ name: 'Nenhuma', value: 'none' },
+			{ name: 'Baixa', value: 'low' },
+			{ name: 'Média', value: 'medium' },
+			{ name: 'Alta', value: 'high' },
+			{ name: 'Urgente', value: 'urgent' },
+		],
+		default: 'none',
+	},
+	{
+		displayName: 'Nota / Comentário',
+		name: 'kanbanNote',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['createOrMoveCard', 'updateCard'] },
+		},
+		default: '',
+		description: 'Aparecerá no histórico do card',
+	},
+	{
+		displayName: 'ID Do Responsável (User ID)',
+		name: 'assigneeId',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['updateCard'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Data Limite (Due Date)',
+		name: 'kanbanDueDate',
+		type: 'dateTime',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['updateCard'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Deletar Permanentemente',
+		name: 'permanentDelete',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['deleteCard'] },
+		},
+		default: false,
+		description: 'Se desativado, o card será apenas arquivado (soft delete)',
+	},
+	{
+		displayName: 'Filtros Adicionais',
+		name: 'kanbanFilters',
+		type: 'collection',
+		placeholder: 'Adicionar Filtro',
+		default: {},
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['getCards', 'getContactCards'] },
+		},
+		options: [
+			{
+				displayName: 'Busca (Termo)',
+				name: 'search',
+				type: 'string',
+				default: '',
+				description: 'Busca no título e descrição do card',
+			},
+			{
+				displayName: 'Incluir Arquivados',
+				name: 'includeArchived',
+				type: 'boolean',
+				default: false,
+			},
+		],
+	},
 	{
 		displayName: 'Nome Do Contato',
 		name: 'contactName',
 		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['create', 'update'],
-			},
-		},
+		displayOptions: { show: { resource: ['contact'], operation: ['create', 'update'] } },
 		default: '',
 	},
 	{
 		displayName: 'E-Mail',
 		name: 'email',
 		type: 'string',
-		placeholder: 'name@email.com',
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['create', 'update'],
-			},
-		},
+		placeholder: 'nome@email.com',
+		displayOptions: { show: { resource: ['contact'], operation: ['create', 'update'] } },
 		default: '',
 	},
 	{
-		displayName: 'Observações (Commentary)',
+		displayName: 'Observações',
 		name: 'commentary',
 		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['create', 'update'],
-			},
-		},
+		displayOptions: { show: { resource: ['contact'], operation: ['create', 'update'] } },
 		default: '',
 	},
 	{
 		displayName: 'Prazo (Deadline)',
 		name: 'deadline',
 		type: 'dateTime',
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['create', 'update'],
-			},
-		},
+		displayOptions: { show: { resource: ['contact'], operation: ['create', 'update'] } },
 		default: '',
-		description: 'Data limite para o contato',
 	},
 	{
 		displayName: 'Preço Kanban',
 		name: 'kanbanPrice',
 		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['create', 'update'],
-			},
-		},
+		displayOptions: { show: { resource: ['contact'], operation: ['create', 'update'] } },
 		default: '',
 	},
 	{
-		displayName: 'Desativar BoT',
+		displayName: 'Desativar Bot',
 		name: 'disableBot',
 		type: 'boolean',
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['create', 'update'],
-			},
-		},
+		displayOptions: { show: { resource: ['contact'], operation: ['create', 'update'] } },
 		default: false,
 	},
 	{
 		displayName: 'Desativar Campanha',
 		name: 'disableCampaign',
 		type: 'boolean',
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['create', 'update'],
-			},
-		},
+		displayOptions: { show: { resource: ['contact'], operation: ['create', 'update'] } },
 		default: false,
 	},
 	{
 		displayName: 'Desativar Kanban',
 		name: 'disableKanban',
 		type: 'boolean',
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['create', 'update'],
-			},
-		},
+		displayOptions: { show: { resource: ['contact'], operation: ['create', 'update'] } },
 		default: false,
 	},
 	{
 		displayName: 'Ignorar Contato',
 		name: 'ignore',
 		type: 'boolean',
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['create', 'update'],
-			},
-		},
+		displayOptions: { show: { resource: ['contact'], operation: ['create', 'update'] } },
 		default: false,
 	},
 	{
 		displayName: 'Informações Extras',
 		name: 'extraInfo',
 		type: 'fixedCollection',
-		typeOptions: {
-			multipleValues: true,
-		},
-		displayOptions: {
-			show: {
-				resource: ['contact'],
-				operation: ['create', 'update'],
-			},
-		},
+		typeOptions: { multipleValues: true },
+		displayOptions: { show: { resource: ['contact'], operation: ['create', 'update'] } },
 		default: {},
 		options: [
 			{
 				name: 'extraInfoValues',
-				displayName: 'Info',
+				displayName: 'Campo Extra',
 				values: [
-					{ displayName: 'Nome Do Campo', name: 'name', type: 'string', default: '' },
-					{ displayName: 'Valor', name: 'value', type: 'string', default: '' },
+					{ displayName: 'Nome Do Campo', name: 'name',  type: 'string', default: '' },
+					{ displayName: 'Valor',         name: 'value', type: 'string', default: '' },
 				],
 			},
 		],
@@ -1091,76 +1029,101 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
+		description: 'ID do CRM, tag, follow-up ou carteira',
 	},
 
-	// ----------------------------------
-	//         Outros: Canal
-	// ----------------------------------
-	{
-		displayName: 'Operação',
-		name: 'operation',
-		type: 'options',
-		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['channel'],
-			},
-		},
-		options: [
-			{ name: 'Gerar QR Code (Nova Sessão)', value: 'getQrCode', action: 'Gerar qr code' },
-			{ name: 'Obter Status Da Conexão', value: 'getStatus', action: 'Obter status do canal' },
-			{ name: 'Desconectar/Logout Do Canal', value: 'logout', action: 'Fazer logout do canal' },
-			{ name: 'Reiniciar Sessão Do Canal', value: 'restart', action: 'Reiniciar canal' },
-		],
-		default: 'getStatus',
-	},
-	
-	// ----------------------------------
-	//         Recurso: Admin
-	// ----------------------------------
-	{
-		displayName: 'Operação',
-		name: 'operation',
-		type: 'options',
-		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['admin'],
-			},
-		},
-		options: [
-			{ name: 'Alterar Senha Do Usuário Da Empresa', value: 'changePassword', action: 'Alterar senha do usuário da empresa' },
-			{ name: 'Atualizar Dados Da Empresa', value: 'updateTenant', action: 'Atualizar dados da empresa' },
-			{ name: 'Criar Nova Empresa', value: 'createTenant', action: 'Criar nova empresa' },
-			{ name: 'Listar Todas Empresas', value: 'listTenants', action: 'Listar todas empresas' },
-			{ name: 'Obter Dados Por ID', value: 'getTenant', action: 'Obter dados por ID' },
-			{ name: 'Renovar Assinatura (+1 Mês)', value: 'addMonth', action: 'Renovar assinatura (+1 mês)' },
-			{ name: 'Listar Usuários Da Empresa', value: 'listUsers', action: 'Listar usuários da empresa' },
-		],
-		default: 'createTenant',
-	},
+	// ============================================================
+	//  CAMPOS — Admin
+	// ============================================================
 	{
 		displayName: 'ID Da Empresa (Tenant)',
 		name: 'tenantId',
 		type: 'string',
 		required: true,
 		displayOptions: {
+			show: { resource: ['admin'], operation: ['getTenant', 'updateTenant', 'addMonth', 'listUsers'] },
+		},
+		default: '',
+	},
+	{
+		displayName: '⚠️ O ID 1 É A Empresa Mestre. Esta Operação Pode Retornar 401 Ou Falhar. Use Por Conta E Risco.',
+		name: 'adminTenantNotice',
+		type: 'notice',
+		displayOptions: {
 			show: {
 				resource: ['admin'],
-				operation: ['getTenant', 'updateTenant', 'addMonth', 'listUsers'],
+				operation: ['updateTenant', 'addMonth', 'listUsers'],
+				tenantId: ['1'],
 			},
 		},
 		default: '',
+	},
+	// ── Campos exclusivos de Renovar Assinatura ──────────────────
+	{
+		displayName: 'Modo De Renovação',
+		name: 'renewalMode',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['admin'], operation: ['addMonth'] } },
+		options: [
+			{
+				name: 'Template (calcular automaticamente)',
+				value: 'template',
+				description: 'Escolha um período e a data é calculada a partir de hoje',
+			},
+			{
+				name: 'Data manual',
+				value: 'manual',
+				description: 'Informe exatamente a data de vencimento desejada',
+			},
+		],
+		default: 'template',
+	},
+	{
+		displayName: 'Período',
+		name: 'renewalTemplate',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: {
+			show: { resource: ['admin'], operation: ['addMonth'], renewalMode: ['template'] },
+		},
+		options: [
+			{ name: 'Anual (+ 12 meses)',        value: 'annual' },
+			{ name: 'Mensal (+ 1 mês)',          value: 'monthly' },
+			{ name: 'Semanal (+ 7 dias)',        value: 'weekly' },
+			{ name: 'Semestral (+ 6 meses)',     value: 'semiannual' },
+			{ name: 'Trimestral (+ 3 meses)',    value: 'quarterly' },
+		],
+		default: 'monthly',
+		description: 'A nova data de vencimento será calculada a partir de hoje',
+	},
+	{
+		displayName: 'Data De Vencimento (Manual)',
+		name: 'renewalDate',
+		type: 'dateTime',
+		displayOptions: {
+			show: { resource: ['admin'], operation: ['addMonth'], renewalMode: ['manual'] },
+		},
+		default: '',
+		description: 'Data exata de vencimento a ser definida',
 	},
 	{
 		displayName: 'ID Do Usuário',
 		name: 'userId',
 		type: 'string',
 		required: true,
+		displayOptions: { show: { resource: ['admin'], operation: ['changePassword'] } },
+		default: '',
+	},
+	{
+		displayName: '⚠️ O ID 1 É O Administrador Global. Esta Operação Pode Retornar 401 Ou Falhar. Use Por Conta E Risco.',
+		name: 'adminUserNotice',
+		type: 'notice',
 		displayOptions: {
 			show: {
 				resource: ['admin'],
 				operation: ['changePassword'],
+				userId: ['1'],
 			},
 		},
 		default: '',
@@ -1170,25 +1133,15 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'adminPassword',
 		type: 'string',
 		typeOptions: { password: true },
-		displayOptions: {
-			show: {
-				resource: ['admin'],
-				operation: ['createTenant', 'changePassword'],
-			},
-		},
+		displayOptions: { show: { resource: ['admin'], operation: ['createTenant', 'changePassword'] } },
 		default: '',
 	},
 	{
-		displayName: 'Nome do Administrador',
+		displayName: 'Nome Do Administrador',
 		name: 'adminUserName',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: {
-				resource: ['admin'],
-				operation: ['createTenant'],
-			},
-		},
+		displayOptions: { show: { resource: ['admin'], operation: ['createTenant'] } },
 		default: '',
 	},
 	{
@@ -1196,113 +1149,85 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'tenantName',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: {
-				resource: ['admin'],
-				operation: ['createTenant', 'updateTenant'],
-			},
-		},
+		displayOptions: { show: { resource: ['admin'], operation: ['createTenant', 'updateTenant'] } },
 		default: '',
 	},
 	{
 		displayName: 'E-Mail De Login',
 		name: 'adminEmail',
 		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['admin'],
-				operation: ['createTenant', 'updateTenant'],
-			},
-		},
+		placeholder: 'admin@empresa.com',
+		displayOptions: { show: { resource: ['admin'], operation: ['createTenant', 'updateTenant'] } },
 		default: '',
 	},
 	{
 		displayName: 'Telefone De Contato',
 		name: 'adminPhone',
 		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['admin'],
-				operation: ['createTenant', 'updateTenant'],
-			},
-		},
+		placeholder: '5511999999999',
+		displayOptions: { show: { resource: ['admin'], operation: ['createTenant', 'updateTenant'] } },
 		default: '',
 	},
 	{
 		displayName: 'Plano (ID)',
 		name: 'planId',
 		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['admin'],
-				operation: ['createTenant', 'updateTenant'],
-			},
-		},
+		displayOptions: { show: { resource: ['admin'], operation: ['createTenant', 'updateTenant'] } },
 		default: '1',
+	},
+	{
+		displayName: 'Recorrência',
+		name: 'recurrence',
+		type: 'options',
+		displayOptions: { show: { resource: ['admin'], operation: ['createTenant', 'updateTenant'] } },
+		options: [
+			{ name: 'Mensal',    value: 'MENSAL' },
+			{ name: 'Bimestral', value: 'BIMESTRAL' },
+			{ name: 'Trimestral', value: 'TRIMESTRAL' },
+			{ name: 'Semestral', value: 'SEMESTRAL' },
+			{ name: 'Anual',     value: 'ANUAL' },
+		],
+		default: 'MENSAL',
 	},
 	{
 		displayName: 'Dias De Teste (Trial)',
 		name: 'timeTest',
 		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['admin'],
-				operation: ['createTenant'],
-			},
-		},
+		displayOptions: { show: { resource: ['admin'], operation: ['createTenant'] } },
 		default: '3',
 	},
 	{
-		displayName: 'Data De Vencimento (Due Date)',
+		displayName: 'Data De Vencimento',
 		name: 'dueDate',
 		type: 'dateTime',
-		displayOptions: {
-			show: {
-				resource: ['admin'],
-				operation: ['updateTenant'],
-			},
-		},
+		displayOptions: { show: { resource: ['admin'], operation: ['updateTenant'] } },
 		default: '',
-		description: 'Nova data de vencimento para o tenant (Ex: 2025-07-17T20:58)',
 	},
-	// ----------------------------------
-	//         Campos de Pagamento (PLUS)
-	// ----------------------------------
+
+	// ============================================================
+	//  CAMPOS — Pagamento (API PLUS)
+	// ============================================================
 	{
 		displayName: 'Valor (Amount)',
 		name: 'amount',
 		type: 'number',
 		required: true,
-		typeOptions: {
-			numberPrecision: 2,
-		},
-		displayOptions: {
-			show: {
-				operation: ['sendRequestPaymentPlus'],
-			},
-		},
+		typeOptions: { numberPrecision: 2 },
+		displayOptions: { show: { operation: ['sendRequestPaymentPlus'] } },
 		default: 0,
 	},
 	{
 		displayName: 'Título Do Pagamento',
 		name: 'paymentTitle',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendRequestPaymentPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendRequestPaymentPlus'] } },
 		default: 'Detalhes do pedido',
 	},
 	{
 		displayName: 'Nome Do Item',
 		name: 'itemName',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendRequestPaymentPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendRequestPaymentPlus'] } },
 		default: '',
 	},
 	{
@@ -1310,17 +1235,13 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'pixType',
 		type: 'options',
 		required: true,
-		displayOptions: {
-			show: {
-				operation: ['sendPixButtonPlus', 'sendRequestPaymentPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendPixButtonPlus', 'sendRequestPaymentPlus'] } },
 		options: [
-			{ name: 'CNPJ', value: 'CNPJ' },
-			{ name: 'CPF', value: 'CPF' },
-			{ name: 'E-Mail', value: 'EMAIL' },
-			{ name: 'Telefone', value: 'PHONE' },
 			{ name: 'Chave Aleatória (EVP)', value: 'EVP' },
+			{ name: 'CNPJ',                  value: 'CNPJ' },
+			{ name: 'CPF',                   value: 'CPF' },
+			{ name: 'E-Mail',                value: 'EMAIL' },
+			{ name: 'Telefone',              value: 'PHONE' },
 		],
 		default: 'CNPJ',
 	},
@@ -1329,11 +1250,7 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'pixKey',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: {
-				operation: ['sendPixButtonPlus', 'sendRequestPaymentPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendPixButtonPlus', 'sendRequestPaymentPlus'] } },
 		default: '',
 	},
 	{
@@ -1341,22 +1258,14 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'pixName',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: {
-				operation: ['sendPixButtonPlus', 'sendRequestPaymentPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendPixButtonPlus', 'sendRequestPaymentPlus'] } },
 		default: '',
 	},
 	{
 		displayName: 'Código Do Boleto',
 		name: 'boletoCode',
 		type: 'string',
-		displayOptions: {
-			show: {
-				operation: ['sendRequestPaymentPlus'],
-			},
-		},
+		displayOptions: { show: { operation: ['sendRequestPaymentPlus'] } },
 		default: '',
 	},
 ];

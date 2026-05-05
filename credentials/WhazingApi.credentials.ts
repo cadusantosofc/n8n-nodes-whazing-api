@@ -9,35 +9,44 @@ import {
 export class WhazingApi implements ICredentialType {
 	name = 'whazingApi';
 	displayName = 'Whazing API';
-	icon: Icon = 'file:../icons/github.svg';
+	icon: Icon = 'file:whazing.svg';
 	documentationUrl = 'https://docs.whazing.com';
+
 	properties: INodeProperties[] = [
+
+		// ------------------------------------------------
+		//  API do Canal (obrigatório)
+		// ------------------------------------------------
 		{
 			displayName: 'Base URL',
 			name: 'baseUrl',
 			type: 'string',
 			default: 'https://api.galaxychat.com.br/v1/api',
 			required: true,
-			description: 'A URL base para a API Whazing',
+			placeholder: 'https://api.galaxychat.com.br/v1/api',
+			description: 'URL base da API do canal. Inclui o endereço até /v1/api sem barra no final.',
 		},
 		{
 			displayName: 'API Token',
 			name: 'apiToken',
 			type: 'string',
-			typeOptions: {
-				password: true,
-			},
+			typeOptions: { password: true },
 			default: '',
 			required: true,
-			description: 'O token da API para autenticação',
+			description: 'Token de autenticação do canal. Encontrado nas configurações da instância no Whazing.',
 		},
+
+		// ------------------------------------------------
+		//  API Admin (opcional — só para recurso Admin)
+		// ------------------------------------------------
 		{
-			displayName: 'Admin API URL',
+			displayName: 'Admin URL',
 			name: 'adminUrl',
 			type: 'string',
 			default: 'https://api.galaxychat.com.br/v1/api/admin',
 			required: false,
-			description: 'URL da API Admin (opcional, para gerenciamento de tenants)',
+			placeholder: 'https://api.galaxychat.com.br/v1/api/admin',
+			description: 'URL da API de administração. Necessário apenas para o recurso Admin (gestão de empresas/usuários).',
 		},
 		{
 			displayName: 'Admin API ID',
@@ -45,21 +54,23 @@ export class WhazingApi implements ICredentialType {
 			type: 'string',
 			default: '',
 			required: false,
-			description: 'ID da API Admin (opcional, para gerenciamento de tenants)',
+			placeholder: 'CSKQA9dMMaqgmsquZywQBkkHMSEE6V',
+			description: 'ID da API Admin. Aparece na URL após /admin/ nas chamadas de gerenciamento.',
 		},
 		{
 			displayName: 'Admin Token',
 			name: 'adminToken',
 			type: 'string',
-			typeOptions: {
-				password: true,
-			},
+			typeOptions: { password: true },
 			default: '',
 			required: false,
-			description: 'Token Admin (opcional, para gerenciamento de tenants)',
+			description: 'Token Bearer para autenticação na API Admin. Diferente do token do canal.',
 		},
 	];
 
+	// Bearer Token injetado automaticamente pelo n8n em todas as
+	// chamadas feitas via httpRequestWithAuthentication (API do canal).
+	// A API Admin usa adminToken diretamente no GenericFunctions.ts.
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {
@@ -69,6 +80,7 @@ export class WhazingApi implements ICredentialType {
 		},
 	};
 
+	// Testa conectividade usando o endpoint de status do canal
 	test: ICredentialTestRequest = {
 		request: {
 			baseURL: '={{$credentials.baseUrl}}',

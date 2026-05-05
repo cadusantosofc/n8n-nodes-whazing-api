@@ -1,10 +1,54 @@
 ![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
 
-# n8n-nodes-starter
+# n8n-nodes-whazing-api
 
-This starter repository helps you build custom integrations for [n8n](https://n8n.io). It includes example nodes, credentials, the node linter, and all the tooling you need to get started.
+Este node permite a integração completa com a API Whazing, possibilitando a automação de mensagens de WhatsApp, gestão de tickets, controle multi-tenant (Admin) e o novo sistema de **Kanban Pro**.
 
-## Quick Start
+## 🚀 Novidades da Versão 1.0.6
+
+- **Kanban Pro**: Gestão completa de boards, colunas e cards (funis de venda).
+- **Upload Binário**: Agora é possível enviar arquivos diretamente de propriedades binárias do n8n (Multipart/Form-Data).
+- **Admin Avançado**: Operação de listagem de planos e suporte a recorrência (Mensal a Anual).
+- **Estabilidade**: Correções críticas em IDs de atendentes e tratamento de status de tickets.
+
+## 🛠️ Comandos Úteis
+
+Se você está desenvolvendo ou instalando este node localmente:
+
+### 1. Instalar Dependências
+```bash
+npm install
+```
+
+### 2. Compilar o Código (Build)
+Sempre que fizer uma alteração, você deve compilar:
+```bash
+npm run build
+```
+
+### 3. Iniciar n8n Localmente com o Node
+Use o script que criamos para carregar o node automaticamente:
+```bash
+./iniciar_whazing.bat
+```
+*(Ou execute `npx n8n start` após configurar a variável `N8N_CUSTOM_EXTENSIONS` para a pasta atual)*
+
+### 4. Publicar no NPM (Apenas para Administradores)
+```bash
+npm publish
+```
+
+## 📦 Funcionalidades Principais
+
+- **Mensagens**: Texto, Arquivo (URL/Base64/Upload), Botões, Listas, Stickers e Localização.
+- **Kanban Pro**: Criar/Mover cards automaticamente via bot, atualizar responsáveis e datas limites.
+- **Tickets**: Criar atendimentos, mudar atendentes e gerenciar filas.
+- **Contatos**: Gerenciar CRM, Tags e Follow-ups.
+- **Admin**: Criar e gerenciar empresas (tenants) em larga escala.
+
+---
+
+## Quick Start (Original Starter)
 
 > [!TIP]
 > **New to building n8n nodes?** The fastest way to get started is with `npm create @n8n/node`. This command scaffolds a complete node package for you using the [@n8n/node-cli](https://www.npmjs.com/package/@n8n/node-cli).

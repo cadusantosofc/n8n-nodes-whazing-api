@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-whazing-api",
-	"version": "1.0.2",
+	"version": "1.0.6",
 	"description": "Whazing community node for n8n",
 	"license": "MIT",
 	"homepage": "",
@@ -32,18 +32,16 @@
 		"n8nNodesApiVersion": 1,
 		"strict": true,
 		"credentials": [
-			"dist/credentials/WhazingApi.credentials.js",
-			"dist/credentials/GithubIssuesApi.credentials.js",
-			"dist/credentials/GithubIssuesOAuth2Api.credentials.js"
+			"dist/credentials/WhazingApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/Whazing/Whazing.node.js",
-			"dist/nodes/GithubIssues/GithubIssues.node.js",
-			"dist/nodes/Example/Example.node.js"
+			"dist/nodes/Whazing/Whazing.node.js"
 		]
 	},
 	"devDependencies": {
 		"@n8n/node-cli": "*",
+		"n8n-workflow": "*",
+		"n8n-core": "*",
 		"eslint": "9.32.0",
 		"prettier": "3.6.2",
 		"release-it": "^19.0.4",
