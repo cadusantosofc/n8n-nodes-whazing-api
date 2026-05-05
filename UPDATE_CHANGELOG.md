@@ -1,5 +1,19 @@
 # Registro de Atualizações - Whazing Node
 
+## [1.0.7] - 05/05/2026
+
+### 🔧 Padronização de Telefones e Correções de Busca
+
+Esta versão foca na experiência do usuário e na resolução de problemas de busca de contatos e tickets que exigiam formatação manual do número de telefone.
+
+#### 🛠️ O que mudou:
+
+- **Formatação Automática de Telefone**: Implementada uma lógica global que limpa caracteres não numéricos e garante o prefixo **55** (Brasil) automaticamente para números informados com apenas o DDD (ex: 11999998888 vira 5511999998888).
+- **Consistência em Mensagens e Tickets**: Agora, tanto o envio de mensagens quanto a consulta de tickets e contatos utilizam a mesma padronização, eliminando a necessidade de adicionar "55" manualmente em expressões no n8n.
+- **Melhoria na Busca de Contatos**: As operações de "Consultar Último Ticket" e "Obter Contato" foram otimizadas para usar o método GET padronizado da API, garantindo maior velocidade e precisão no retorno dos dados.
+
+---
+
 ## [1.0.6] - 05/05/2026
 
 ### 🚀 Lançamento do Kanban Pro e Upload Binário

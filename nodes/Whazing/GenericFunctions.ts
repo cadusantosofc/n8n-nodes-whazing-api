@@ -16,6 +16,23 @@ type IHttpRequestOptionsWithFormData = IHttpRequestOptions & {
  * Faz requisições para a API principal do Whazing (por canal).
  * Autenticação via Bearer Token injetado automaticamente pelo n8n.
  */
+/**
+ * Formata o numero de telefone para garantir que tenha o prefixo 55 se for brasileiro
+ * e remove caracteres nao numericos.
+ */
+export function formatPhoneNumber(number: string): string {
+	let cleaned = number.replace(/\D/g, '');
+
+	if (cleaned.length === 0) return '';
+
+	// Se o numero tem 10 ou 11 digitos (DDD + Numero), assume-se Brasil e adiciona 55
+	if (cleaned.length === 10 || cleaned.length === 11) {
+		cleaned = '55' + cleaned;
+	}
+
+	return cleaned;
+}
+
 export async function whazingApiRequest(
 	this: IExecuteFunctions | ILoadOptionsFunctions | IHookFunctions,
 	method: string,

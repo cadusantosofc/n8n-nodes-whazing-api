@@ -9,7 +9,11 @@ import {
 } from 'n8n-workflow';
 
 import { whazingDescription } from './WhazingDescription';
-import { whazingApiRequest, adminApiRequest } from './GenericFunctions';
+import {
+	adminApiRequest,
+	formatPhoneNumber,
+	whazingApiRequest,
+} from './GenericFunctions';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Função standalone compartilhada por API Oficial e API PLUS.
@@ -200,7 +204,9 @@ export class Whazing implements INodeType {
 
 				let responseData: unknown;
 
-				const number   = this.getNodeParameter('number',   i, '') as string;
+				let number = this.getNodeParameter('number', i, '') as string;
+				number = formatPhoneNumber(number);
+
 				const ticketId = this.getNodeParameter('ticketId', i, '') as string;
 
 				// -----------------------------------------------------------
@@ -426,13 +432,8 @@ export class Whazing implements INodeType {
 						if (number)         body.number    = number;
 						responseData = await whazingApiRequest.call(this, 'POST', operation === 'create' ? '/createcontact' : '/updatecontact', body);
 
-					} else if (operation === 'get') {
-						const body: IDataObject = {};
-						const contactIdInput = this.getNodeParameter('contactId', i, '') as string;
-						if (contactIdInput) body.contactId = Number(contactIdInput);
-						else if (ticketId)  body.ticketId  = Number(ticketId);
-						else                body.number    = number;
-						responseData = await whazingApiRequest.call(this, 'POST', '/contact', body);
+					} else if (operation === 'get' || operation === 'getLastTicket') {
+						responseData = await whazingApiRequest.call(this, 'GET', `/contact/${number}`);
 
 					} else if (operation === 'validateNumber') {
 						responseData = await whazingApiRequest.call(this, 'POST', '/valid-whatsapp-number', { number });
