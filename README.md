@@ -2,14 +2,26 @@
 
 # n8n-nodes-whazing-api
 
-Este node permite a integração completa com a API Whazing, possibilitando a automação de mensagens de WhatsApp, gestão de tickets, controle multi-tenant (Admin) e o novo sistema de **Kanban Pro**.
+Este node permite a integração completa com a API Whazing, oferecendo automação de WhatsApp, tickets, gerenciamento multi-tenant (Admin), Kanban Pro e agora faturas/cobranças.
 
-## 🚀 Novidades da Versão 1.0.6
+## 📌 Versão atual
 
-- **Kanban Pro**: Gestão completa de boards, colunas e cards (funis de venda).
-- **Upload Binário**: Agora é possível enviar arquivos diretamente de propriedades binárias do n8n (Multipart/Form-Data).
-- **Admin Avançado**: Operação de listagem de planos e suporte a recorrência (Mensal a Anual).
-- **Estabilidade**: Correções críticas em IDs de atendentes e tratamento de status de tickets.
+- **1.0.8**
+- Inclui suporte ao novo recurso `invoice` e ao envio de carrossel oficial via `msgOfficial`.
+
+## 🚀 Novidades da Versão 1.0.8
+
+- **Faturas / Cobranças**: novo recurso `invoice` para criar, editar, listar e pagar faturas.
+- **PIX e QR Code**: gerar pagamento / QR Code PIX para cobrança de faturas.
+- **Carrossel Oficial**: suporte a `Enviar Carrossel` no recurso **Mensagens › API Oficial**.
+- **Kanban Pro**: gestão completa de boards, colunas e cards (funis de venda).
+- **Upload Binário**: envio de arquivos diretamente de propriedades binárias do n8n (Multipart/Form-Data).
+- **Admin Avançado**: listagem de planos e suporte a recorrência (Mensal a Anual).
+- **Estabilidade**: correções em IDs de atendentes e tratamento de status de tickets.
+
+## 🗂️ Histórico de versões
+
+Consulte o changelog completo em [`UPDATE_CHANGELOG.md`](UPDATE_CHANGELOG.md) para ver cada versão e detalhe de release.
 
 ## 🛠️ Comandos Úteis
 

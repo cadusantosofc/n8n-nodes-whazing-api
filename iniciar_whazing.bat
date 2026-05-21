@@ -1,41 +1,42 @@
 @echo off
 setlocal
-title n8n Dev - Whazing Node
+title n8n Dev - Whazing Node (Hot Reload)
 
-:: Como o arquivo esta dentro da pasta do projeto, usamos %~dp0 para pegar o caminho atual
 set PROJECT_DIR=%~dp0
-
-:: Entra na pasta do projeto (onde o .bat esta)
 cd /d "%PROJECT_DIR%"
 
 echo ========================================================
 echo   Iniciando Whazing Node em modo Desenvolvimento
+echo              [HOT RELOAD ATIVADO]
 echo ========================================================
 echo.
 
-:: Define a variavel para o n8n carregar o node local
 set N8N_CUSTOM_EXTENSIONS=%PROJECT_DIR%
 
-:: Pergunta se deseja fazer o build antes de iniciar
-set /p build=Deseja realizar o build antes de iniciar? (s/n): 
+echo [1/3] Instalando nodemon localmente (se necessario)...
+call npm install --save-dev nodemon 2>nul
+echo.
 
-if /i "%build%"=="s" (
-    echo Executando npm run build...
-    call npm run build
-    if %errorlevel% neq 0 (
-        echo.
-        echo [ERRO] Falha no build. Verifique o codigo.
-        pause
-        exit /b %errorlevel%
-    )
+echo [2/3] Executando build inicial...
+call npm run build
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERRO] Falha no build. Verifique o codigo.
+    pause
+    exit /b %errorlevel%
 )
-
-echo.
-echo Iniciando n8n...
-echo [Acesse http://localhost:5678 para testar]
+echo [OK] Build concluido.
 echo.
 
-:: Inicia o n8n
-npx n8n start
+echo [3/3] Abrindo TypeScript Watch em janela separada...
+start "TS Watch - Whazing" cmd /k "cd /d %PROJECT_DIR% && npx tsc --watch --preserveWatchOutput"
+
+echo.
+echo Iniciando n8n com nodemon (hot reload)...
+echo [Acesse http://localhost:5678]
+echo [n8n reinicia automaticamente ao salvar qualquer .ts]
+echo.
+
+call node_modules\.bin\nodemon --watch dist --ext js,json --delay 1500ms --exec "npx n8n start"
 
 pause

@@ -15,12 +15,13 @@ export const whazingDescription: INodeProperties[] = [
 		options: [
 			{ name: 'Admin',                   value: 'admin',       description: 'Empresas e usuários (multi-tenant)' },
 			{ name: 'Canal',                   value: 'channel',     description: 'Status, QR Code, logout e restart' },
-			{ name: 'Contatos',                value: 'contact',     description: 'CRM, tags e carteiras' },
+			{ name: 'Contato',                value: 'contact',     description: 'CRM, tags e carteiras' },
+			{ name: 'Fatura',                 value: 'invoice',     description: 'Gerenciar faturas, pagamentos PIX e cobranças' },
 			{ name: 'Kanban Pro',              value: 'kanban',      description: 'Boards, colunas e cards (funil)' },
 			{ name: 'Mensagens › API Oficial', value: 'msgOfficial', description: 'Botões, listas, templates e localização (Meta)' },
 			{ name: 'Mensagens › API PLUS',    value: 'msgPlus',     description: 'Botões dinâmicos, carrossel, Pix e pagamentos' },
 			{ name: 'Mensagens › Baileys',     value: 'msgBaileys',  description: 'Texto, arquivo, sticker, localização, contato, params' },
-			{ name: 'Tickets',                 value: 'ticket',      description: 'Criar, consultar e gerenciar atendimentos' },
+			{ name: 'Ticket',                 value: 'ticket',      description: 'Criar, consultar e gerenciar atendimentos' },
 		],
 		default: 'msgBaileys',
 	},
@@ -57,12 +58,13 @@ export const whazingDescription: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['msgOfficial'] } },
 		options: [
-			{ name: 'Enviar Botão',                     value: 'sendButtonOfficial', action: 'Enviar botão oficial' },
-			{ name: 'Enviar Link CTA',                  value: 'sendLinkCta',        action: 'Enviar link CTA' },
-			{ name: 'Enviar Lista',                     value: 'sendList',           action: 'Enviar lista' },
-			{ name: 'Enviar Template (Com Parâmetros)', value: 'sendTemplateParams', action: 'Enviar template com parâmetros' },
-			{ name: 'Enviar Template (Sem Parâmetros)', value: 'sendTemplate',       action: 'Enviar template' },
-			{ name: 'Solicitar Localização',            value: 'requestLocation',    action: 'Solicitar localização' },
+			{ name: 'Enviar Botão',                     value: 'sendButtonOfficial',  action: 'Enviar botão oficial' },
+			{ name: 'Enviar Carrossel',                 value: 'sendCarouselOfficial', action: 'Enviar carrossel oficial' },
+			{ name: 'Enviar Link CTA',                  value: 'sendLinkCta',         action: 'Enviar link CTA' },
+			{ name: 'Enviar Lista',                     value: 'sendList',            action: 'Enviar lista' },
+			{ name: 'Enviar Template (Com Parâmetros)', value: 'sendTemplateParams',  action: 'Enviar template com parâmetros' },
+			{ name: 'Enviar Template (Sem Parâmetros)', value: 'sendTemplate',        action: 'Enviar template' },
+			{ name: 'Solicitar Localização',            value: 'requestLocation',     action: 'Solicitar localização' },
 		],
 		default: 'sendButtonOfficial',
 	},
@@ -108,7 +110,7 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Consultar Último Ticket Do Número', value: 'showTicket',        action: 'Consultar último ticket do número' },
 			{ name: 'Criar Ticket',                      value: 'create',            action: 'Criar ticket' },
 			{ name: 'Listar Mensagens Do Ticket',        value: 'listMessages',      action: 'Listar mensagens do ticket' },
-			{ name: 'Listar Todos Os Tickets',           value: 'getAll',            action: 'Listar todos os tickets do número' },
+			{ name: 'Listar Todos Os Tickets',  value: 'getAll',            action: 'Listar todos os tickets do número' },
 			{ name: 'Obter Detalhes (Por ID)',           value: 'get',               action: 'Obter detalhes do ticket' },
 		],
 		default: 'create',
@@ -127,11 +129,11 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Atualizar Contato',       value: 'update',         action: 'Atualizar contato' },
 			{ name: 'Criar Contato',           value: 'create',         action: 'Criar contato' },
 			{ name: 'Definir CRM',             value: 'setCrm',         action: 'Definir CRM do contato' },
-			{ name: 'Definir Follow-Up',       value: 'setFollowup',    action: 'Definir follow-up do contato' },
+			{ name: 'Definir Follow-Up',       value: 'setFollowup',    action: 'Definir follow up do contato' },
 			{ name: 'Gerenciar Tags',          value: 'setTags',        action: 'Gerenciar tags do contato' },
 			{ name: 'Listar Por Carteira',     value: 'listByWallet',   action: 'Listar contatos por carteira' },
 			{ name: 'Listar Por CRM',          value: 'listByCrm',      action: 'Listar contatos por CRM' },
-			{ name: 'Listar Por Follow-Up',    value: 'listByFollowup', action: 'Listar contatos por follow-up' },
+			{ name: 'Listar Por Follow-Up',    value: 'listByFollowup', action: 'Listar contatos por follow up' },
 			{ name: 'Listar Por Tag',          value: 'listByTag',      action: 'Listar contatos por tag' },
 			{ name: 'Obter Dados Do Contato',  value: 'get',            action: 'Obter dados do contato' },
 			{ name: 'Validar Número WhatsApp', value: 'validateNumber', action: 'Validar número do WhatsApp' },
@@ -196,9 +198,27 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Listar Todas As Empresas',    value: 'listTenants',    action: 'Listar todas as empresas' },
 			{ name: 'Listar Usuários Da Empresa',  value: 'listUsers',      action: 'Listar usuários da empresa' },
 			{ name: 'Obter Empresa Por ID',        value: 'getTenant',      action: 'Obter empresa por ID' },
-			{ name: 'Renovar Assinatura', value: 'addMonth',       action: 'Renovar Assinatura' },
+			{ name: 'Renovar Assinatura', value: 'addMonth',       action: 'Renovar assinatura' },
 		],
 		default: 'createTenant',
+	},
+	{
+		displayName: 'Operação',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['invoice'] } },
+		options: [
+			{ name: 'Criar Cobrança Avulsa',          value: 'createInvoiceAvulsa', action: 'Criar cobrança avulsa' },
+			{ name: 'Deletar Fatura',                 value: 'deleteInvoice',        action: 'Deletar fatura' },
+			{ name: 'Editar Fatura',                  value: 'updateInvoice',        action: 'Editar fatura' },
+			{ name: 'Faturas Em Aberto (Atalho)',     value: 'getInvoicesOpen',      action: 'Listar faturas em aberto do tenant' },
+			{ name: 'Gerar Pagamento / QR Code PIX',  value: 'generatePaymentPix',  action: 'Gerar pagamento ou qr code pix da fatura' },
+			{ name: 'Marcar Como Paga (Manual)',      value: 'markPaidManual',       action: 'Marcar fatura como paga manualmente' },
+			{ name: 'Recriar Faturas Do Tenant',      value: 'recreateInvoices',     action: 'Deletar e recriar faturas abertas do tenant' },
+			{ name: 'Listar Todas As Faturas',        value: 'getInvoices',          action: 'Listar histórico de faturas do tenant' },
+		],
+		default: 'getInvoices',
 	},
 
 	// ============================================================
@@ -209,7 +229,6 @@ export const whazingDescription: INodeProperties[] = [
 		displayName: 'Número Do WhatsApp',
 		name: 'number',
 		type: 'string',
-		required: false,
 		displayOptions: {
 			show: { resource: ['msgBaileys', 'msgOfficial', 'msgPlus', 'contact', 'ticket'] },
 			hide: { operation: ['sendTemplate', 'sendTemplateParams'] },
@@ -267,7 +286,7 @@ export const whazingDescription: INodeProperties[] = [
 					'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus',
 					'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus',
 					'sendButtonDynamicPlus', 'sendFile', 'sendSticker',
-					'sendCarouselPlus', 'sendRequestPaymentPlus',
+					'sendCarouselPlus', 'sendCarouselOfficial', 'sendRequestPaymentPlus',
 					'sendParams', 'sendParamsGroup',
 				],
 			},
@@ -560,7 +579,7 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'carouselItems',
 		type: 'fixedCollection',
 		typeOptions: { multipleValues: true },
-		displayOptions: { show: { operation: ['sendCarouselPlus'] } },
+		displayOptions: { show: { operation: ['sendCarouselPlus', 'sendCarouselOfficial'] } },
 		default: {},
 		options: [
 			{
@@ -760,7 +779,7 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Fechado',  value: 'closed' },
 			{ name: 'Pendente', value: 'pending' },
 		],
-		default: '',
+		default: 'open',
 		placeholder: 'Selecione um status...',
 	},
 	{
@@ -790,9 +809,19 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		displayOptions: {
-			show: { resource: ['kanban'], operation: ['createOrMoveCard', 'getContactCards'] },
+			show: { resource: ['kanban'], operation: ['getContactCards'] },
 		},
 		default: '',
+	},
+	{
+		displayName: 'ID Do Contato',
+		name: 'contactId',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['createOrMoveCard'] },
+		},
+		default: '',
+		description: 'Opcional se o ID do Ticket for fornecido',
 	},
 	{
 		displayName: 'ID Do Board',
@@ -900,6 +929,16 @@ export const whazingDescription: INodeProperties[] = [
 			show: { resource: ['kanban'], operation: ['updateCard'] },
 		},
 		default: '',
+	},
+	{
+		displayName: 'Tags (Opcional)',
+		name: 'tags',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['createOrMoveCard', 'updateCard'] },
+		},
+		default: '',
+		description: 'Tags associadas ao card. Use string separada por vírgulas ou expressão n8n para array.',
 	},
 	{
 		displayName: 'Deletar Permanentemente',
@@ -1041,7 +1080,10 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		displayOptions: {
-			show: { resource: ['admin'], operation: ['getTenant', 'updateTenant', 'addMonth', 'listUsers'] },
+			show: {
+				resource: ['admin', 'invoice'],
+				operation: ['getTenant', 'updateTenant', 'addMonth', 'listUsers', 'getInvoices', 'getInvoicesOpen', 'createInvoiceAvulsa', 'recreateInvoices'],
+			},
 		},
 		default: '',
 	},
@@ -1058,55 +1100,20 @@ export const whazingDescription: INodeProperties[] = [
 		},
 		default: '',
 	},
-	// ── Campos exclusivos de Renovar Assinatura ──────────────────
 	{
-		displayName: 'Modo De Renovação',
-		name: 'renewalMode',
-		type: 'options',
-		noDataExpression: true,
-		displayOptions: { show: { resource: ['admin'], operation: ['addMonth'] } },
-		options: [
-			{
-				name: 'Template (calcular automaticamente)',
-				value: 'template',
-				description: 'Escolha um período e a data é calculada a partir de hoje',
-			},
-			{
-				name: 'Data manual',
-				value: 'manual',
-				description: 'Informe exatamente a data de vencimento desejada',
-			},
-		],
-		default: 'template',
-	},
-	{
-		displayName: 'Período',
-		name: 'renewalTemplate',
-		type: 'options',
-		noDataExpression: true,
+		displayName: 'ID Da Fatura',
+		name: 'invoiceId',
+		type: 'string',
+		required: true,
 		displayOptions: {
-			show: { resource: ['admin'], operation: ['addMonth'], renewalMode: ['template'] },
-		},
-		options: [
-			{ name: 'Anual (+ 12 meses)',        value: 'annual' },
-			{ name: 'Mensal (+ 1 mês)',          value: 'monthly' },
-			{ name: 'Semanal (+ 7 dias)',        value: 'weekly' },
-			{ name: 'Semestral (+ 6 meses)',     value: 'semiannual' },
-			{ name: 'Trimestral (+ 3 meses)',    value: 'quarterly' },
-		],
-		default: 'monthly',
-		description: 'A nova data de vencimento será calculada a partir de hoje',
-	},
-	{
-		displayName: 'Data De Vencimento (Manual)',
-		name: 'renewalDate',
-		type: 'dateTime',
-		displayOptions: {
-			show: { resource: ['admin'], operation: ['addMonth'], renewalMode: ['manual'] },
+			show: {
+				resource: ['invoice'],
+				operation: ['generatePaymentPix', 'markPaidManual', 'updateInvoice', 'deleteInvoice'],
+			},
 		},
 		default: '',
-		description: 'Data exata de vencimento a ser definida',
 	},
+
 	{
 		displayName: 'ID Do Usuário',
 		name: 'userId',
@@ -1203,6 +1210,48 @@ export const whazingDescription: INodeProperties[] = [
 		displayOptions: { show: { resource: ['admin'], operation: ['updateTenant'] } },
 		default: '',
 	},
+	{
+		displayName: 'Status Do Tenant',
+		name: 'tenantStatus',
+		type: 'options',
+		displayOptions: {
+			show: {
+				resource: ['admin'],
+				operation: ['createTenant', 'updateTenant'],
+			},
+		},
+		options: [
+			{ name: 'Ativo', value: 'active' },
+			{ name: 'Inativo', value: 'inactive' },
+		],
+		default: 'active',
+	},
+	{
+		displayName: 'Trial',
+		name: 'tenantTrial',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				resource: ['admin'],
+				operation: ['createTenant'],
+			},
+		},
+		default: false,
+		description: 'Define se o tenant está em período de testes',
+	},
+	{
+		displayName: 'Afiliado',
+		name: 'tenantAffiliate',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				resource: ['admin'],
+				operation: ['createTenant'],
+			},
+		},
+		default: false,
+		description: 'Define se o tenant é um afiliado',
+	},
 
 	// ============================================================
 	//  CAMPOS — Pagamento (API PLUS)
@@ -1267,5 +1316,140 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { operation: ['sendRequestPaymentPlus'] } },
 		default: '',
+	},
+	{
+		displayName: 'Status Da Fatura',
+		name: 'invoiceStatusFilter',
+		type: 'options',
+		displayOptions: {
+			show: {
+				resource: ['invoice'],
+				operation: ['getInvoices'],
+			},
+		},
+		options: [
+			{ name: 'Todas', value: 'all' },
+			{ name: 'Em Aberto', value: 'open' },
+			{ name: 'Pagas', value: 'paid' },
+		],
+		default: 'all',
+		description: 'Filtrar faturas por status',
+	},
+	{
+		displayName: 'Preço (Opcional)',
+		name: 'invoicePrice',
+		type: 'number',
+		typeOptions: { numberPrecision: 2 },
+		displayOptions: {
+			show: {
+				resource: ['invoice'],
+				operation: ['generatePaymentPix'],
+			},
+		},
+		default: 0,
+		description: 'Se omitido, usa o valor da fatura',
+	},
+	{
+		displayName: 'Detalhes Da Fatura',
+		name: 'invoiceDetail',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['invoice'],
+				operation: ['createInvoiceAvulsa', 'updateInvoice'],
+			},
+		},
+		default: '',
+		placeholder: 'Ex: Taxa de implantação',
+	},
+	{
+		displayName: 'Valor Da Fatura',
+		name: 'invoiceValue',
+		type: 'number',
+		required: true,
+		typeOptions: { numberPrecision: 2 },
+		displayOptions: {
+			show: {
+				resource: ['invoice'],
+				operation: ['createInvoiceAvulsa'],
+			},
+		},
+		default: 0,
+	},
+	{
+		displayName: 'Valor Da Fatura',
+		name: 'invoiceValueOptional',
+		type: 'number',
+		typeOptions: { numberPrecision: 2 },
+		displayOptions: {
+			show: {
+				resource: ['invoice'],
+				operation: ['updateInvoice'],
+			},
+		},
+		default: 0,
+		description: 'Deixe 0 para não alterar',
+	},
+	{
+		displayName: 'Data De Vencimento',
+		name: 'invoiceDueDate',
+		type: 'dateTime',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['invoice'],
+				operation: ['createInvoiceAvulsa'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Data De Vencimento (Opcional)',
+		name: 'invoiceDueDateOptional',
+		type: 'dateTime',
+		displayOptions: {
+			show: {
+				resource: ['invoice'],
+				operation: ['updateInvoice'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Recorrência (Opcional)',
+		name: 'invoiceRecurrence',
+		type: 'options',
+		displayOptions: {
+			show: {
+				resource: ['invoice'],
+				operation: ['createInvoiceAvulsa'],
+			},
+		},
+		options: [
+			{ name: 'Mensal',    value: 'MENSAL' },
+			{ name: 'Bimestral', value: 'BIMESTRAL' },
+			{ name: 'Trimestral', value: 'TRIMESTRAL' },
+			{ name: 'Semestral', value: 'SEMESTRAL' },
+			{ name: 'Anual',     value: 'ANUAL' },
+		],
+		default: 'MENSAL',
+		description: 'Herda a recorrência do tenant se omitido',
+	},
+	{
+		displayName: 'Status Da Fatura',
+		name: 'invoiceStatus',
+		type: 'options',
+		displayOptions: {
+			show: {
+				resource: ['invoice'],
+				operation: ['updateInvoice'],
+			},
+		},
+		options: [
+			{ name: 'Em Aberto', value: 'open' },
+			{ name: 'Paga', value: 'paid' },
+		],
+		default: 'open',
+		description: 'Atualizar status da fatura',
 	},
 ];

@@ -1,5 +1,28 @@
 # Registro de Atualizações - Whazing Node
 
+## [1.0.8] - 21/05/2026
+
+### ✨ Novos Recursos e Endpoints
+
+Esta atualização traz mudanças importantes no node Whazing, não apenas um bump de versão.
+
+#### 📝 O que foi adicionado em 1.0.8:
+
+- **Novo recurso `Fatura`** (`invoice`) para gerenciar cobranças e pagamentos:
+  - Criar cobrança avulsa
+  - Deletar fatura
+  - Editar fatura
+  - Listar todas as faturas
+  - Listar faturas em aberto do tenant
+  - Gerar pagamento / QR Code PIX
+  - Marcar fatura como paga manualmente
+  - Recriar faturas abertas do tenant
+- **Novo suporte a `Enviar Carrossel`** no recurso **Mensagens › API Oficial** (`sendCarouselOfficial`).
+- **Aprimoramentos na interface do node** com nomes de recurso mais claros e campos adicionais para operações de fatura e cobrança.
+- Sincronização de versão entre `package.json`, `package-lock.json` e a build em `dist/`.
+
+---
+
 ## [1.0.7] - 05/05/2026
 
 ### 🔧 Padronização de Telefones e Correções de Busca

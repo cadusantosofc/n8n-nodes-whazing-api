@@ -51,6 +51,7 @@ async function handleApiMessage(
 		sendCarouselPlus:       'carousel_button',
 		sendPixButtonPlus:      'pixbutton',
 		sendRequestPaymentPlus: 'requestpayment',
+		sendCarouselOfficial:   'carousel_button',
 		sendTemplate:           'template',
 		sendTemplateParams:     'template',
 	};
@@ -115,7 +116,7 @@ async function handleApiMessage(
 		if (dFooter) contents.footerText = dFooter;
 		contents.choices = opts.getDynamicButtons();
 
-	} else if (operation === 'sendCarouselPlus') {
+	} else if (operation === 'sendCarouselPlus' || operation === 'sendCarouselOfficial') {
 		contents.text  = ctx.getNodeParameter('body', i, '') as string;
 		contents.items = opts.getCarouselItems();
 
@@ -163,6 +164,80 @@ async function handleApiMessage(
 	if (contents.header && !(contents.header as IDataObject).text) delete contents.header;
 
 	return whazingApiRequest.call(ctx, 'POST', path, body);
+}
+
+/**
+ * Detecta erro 404 de forma robusta.
+ * O n8n encapsula erros HTTP num NodeOperationError antes de chegar aqui,
+ * então error.statusCode e error.response ficam undefined.
+ * Por isso checamos também o texto da mensagem.
+ */
+function isNotFound(error: any): boolean {
+	const status =
+		error?.response?.status    ||
+		error?.response?.statusCode ||
+		error?.statusCode           ||
+		error?.cause?.response?.status ||
+		error?.cause?.statusCode    ||
+		error?.httpCode;
+	if (Number(status) === 404) return true;
+
+	const msg = String(error?.message || '').toLowerCase();
+	return (
+		msg.includes('404')                      ||
+		msg.includes('not found')                ||
+		msg.includes('could not be found')       ||
+		msg.includes('resource you are requesting')
+	);
+}
+
+/**
+ * Executa chamadas para os endpoints do Kanban Pro (/kanbanpro/*).
+ *
+ * Mapeamento de endpoints confirmado pelo Postman (API_WHAZING_NOVA):
+ *   GET    /kanbanpro/boards
+ *   GET    /kanbanpro/boards/{id}/columns
+ *   GET    /kanbanpro/boards/{id}/cards        ?columnId=&priority=&search=&includeArchived=
+ *   GET    /kanbanpro/cards/{id}               (plural: cards)
+ *   GET    /kanbanpro/contact/{id}/cards
+ *   POST   /kanbanpro/card                     (singular: card) — action: create_or_move | create_or_update | create_only
+ *   PUT    /kanbanpro/card/{id}
+ *   DELETE /kanbanpro/card/{id}                ?permanent=true
+ *
+ * O node internamente usa /kanban/* (prefixo legado) e esta função
+ * converte automaticamente para /kanbanpro/* antes de chamar a API.
+ * Se /kanbanpro retornar 404, faz fallback para /kanban (instalações legadas).
+ */
+async function kanbanApiRequest(
+	ctx: IExecuteFunctions,
+	method: string,
+	path: string,
+	body: IDataObject = {},
+	qs: IDataObject = {},
+): Promise<IDataObject> {
+	// Converte /kanban/* → /kanbanpro/* (mantém /kanbanpro/* intacto se já vier assim)
+	const pathKanbanPro = (path.startsWith('/kanban') && !path.startsWith('/kanbanpro'))
+		? path.replace(/^\/kanban/, '/kanbanpro')
+		: path;
+	const pathKanbanLegacy = pathKanbanPro.replace(/^\/kanbanpro/, '/kanban');
+
+	// 1ª tentativa: /kanbanpro (endpoint atual, confirmado em produção)
+	let notFoundError: any;
+	try {
+		return await whazingApiRequest.call(ctx, method, pathKanbanPro, body, qs);
+	} catch (err: any) {
+		if (!isNotFound(err)) throw err;
+		notFoundError = err;
+	}
+
+	// 2ª tentativa: /kanban (fallback para instalações legadas)
+	try {
+		return await whazingApiRequest.call(ctx, method, pathKanbanLegacy, body, qs);
+	} catch (err: any) {
+		// Se o fallback também falhou com 404, relança o erro do /kanbanpro (mais informativo)
+		if (isNotFound(err)) throw notFoundError;
+		throw err;
+	}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -355,7 +430,7 @@ export class Whazing implements INodeType {
 							const footer = this.getNodeParameter('footer', i, '') as string;
 							if (footer) (body.contents as IDataObject).footer = { text: footer };
 							const headerText = this.getNodeParameter('headerText', i, '') as string;
-							if (headerText) (body.contents as IDataObject).header = { text: headerText };
+							if (headerText) (body.contents as IDataObject).header = { type: 'text', text: headerText };
 
 							if (ticketId) body.ticketId = ticketId;
 							responseData = await whazingApiRequest.call(this, 'POST', '/apioficial', body);
@@ -391,12 +466,15 @@ export class Whazing implements INodeType {
 					responseData = await handleApiMessage(this, {
 						i, number, ticketId, path: '/apioficial', operation,
 						getButtons, getSections, getTemplateComponents,
-						getDynamicButtons: () => [],
-						getCarouselItems:  () => [],
+						getDynamicButtons, getCarouselItems,
 					});
 
 				} else if (resource === 'msgPlus') {
-					const path = operation === 'sendRequestPaymentPlus' ? '/requestpayment' : '/apiplus';
+					const plusPathMap: Record<string, string> = {
+						sendRequestPaymentPlus: '/requestpayment',
+						sendPixButtonPlus:      '/pixbutton',
+					};
+					const path = plusPathMap[operation] ?? '/apiplus';
 					responseData = await handleApiMessage(this, {
 						i, number, ticketId, path, operation,
 						getButtons, getSections, getTemplateComponents,
@@ -432,8 +510,16 @@ export class Whazing implements INodeType {
 						if (number)         body.number    = number;
 						responseData = await whazingApiRequest.call(this, 'POST', operation === 'create' ? '/createcontact' : '/updatecontact', body);
 
-					} else if (operation === 'get' || operation === 'getLastTicket') {
-						responseData = await whazingApiRequest.call(this, 'GET', `/contact/${number}`);
+					} else if (operation === 'get') {
+						const contactIdInput = this.getNodeParameter('contactId', i, '') as string;
+						const body: IDataObject = {};
+						if (contactIdInput) body.contactId = contactIdInput;
+						else               body.number    = number;
+						responseData = await whazingApiRequest.call(this, 'POST', '/contact', body);
+
+					} else if (operation === 'getLastTicket') {
+						const numInt = isNaN(Number(number)) ? number : Number(number);
+						responseData = await whazingApiRequest.call(this, 'POST', '/showticket', { number: numInt });
 
 					} else if (operation === 'validateNumber') {
 						responseData = await whazingApiRequest.call(this, 'POST', '/valid-whatsapp-number', { number });
@@ -441,14 +527,30 @@ export class Whazing implements INodeType {
 					} else if (operation === 'setCrm' || operation === 'setFollowup' || operation === 'setTags') {
 						const body: IDataObject = {};
 						const contactIdInput = this.getNodeParameter('contactId', i, '') as string;
-						if (contactIdInput) body.contactId = Number(contactIdInput);
-						else if (ticketId)  body.ticketId  = Number(ticketId);
+						if (contactIdInput) body.contactId = isNaN(Number(contactIdInput)) ? contactIdInput : Number(contactIdInput);
+						else if (ticketId)  body.ticketId  = isNaN(Number(ticketId)) ? ticketId : Number(ticketId);
 						else                body.number    = number;
 
 						const val = this.getNodeParameter('valueId', i, '');
 						if (operation === 'setCrm')      body.crm      = Number(val);
 						else if (operation === 'setFollowup') body.followup = Number(val);
-						else body.tags = (Array.isArray(val) ? val : [val]).map((t) => Number(t));
+						else {
+							if (Array.isArray(val)) {
+								body.tags = val.map((t) => (isNaN(Number(t)) ? t : Number(t)));
+							} else if (typeof val === 'string') {
+								const trimmed = val.trim();
+								if (trimmed === '') {
+									body.tags = [];
+								} else {
+									body.tags = trimmed.split(',').map((t) => {
+										const tr = t.trim();
+										return isNaN(Number(tr)) ? tr : Number(tr);
+									});
+								}
+							} else if (val !== undefined && val !== null) {
+								body.tags = isNaN(Number(val)) ? val : Number(val);
+							}
+						}
 
 						const pathMap: Record<string, string> = {
 							setCrm: '/updatecrm', setFollowup: '/updatefollowup', setTags: '/updatetag',
@@ -542,11 +644,11 @@ export class Whazing implements INodeType {
 				} else if (resource === 'kanban') {
 
 					if (operation === 'getBoards') {
-						responseData = await whazingApiRequest.call(this, 'GET', '/kanbanpro/boards');
+						responseData = await kanbanApiRequest(this, 'GET', '/kanban/boards');
 
 					} else if (operation === 'getColumns') {
 						const boardId = this.getNodeParameter('boardId', i, '') as string;
-						responseData = await whazingApiRequest.call(this, 'GET', `/kanbanpro/boards/${boardId}/columns`);
+						responseData = await kanbanApiRequest(this, 'GET', `/kanban/boards/${boardId}/columns`);
 
 					} else if (operation === 'getCards') {
 						const boardId = this.getNodeParameter('boardId', i, '') as string;
@@ -562,11 +664,11 @@ export class Whazing implements INodeType {
 						if (filters.search) qs.search = filters.search;
 						if (filters.includeArchived) qs.includeArchived = 'true';
 
-						responseData = await whazingApiRequest.call(this, 'GET', `/kanbanpro/boards/${boardId}/cards`, {}, qs);
+						responseData = await kanbanApiRequest(this, 'GET', `/kanban/boards/${boardId}/cards`, {}, qs);
 
 					} else if (operation === 'getCard') {
 						const cardId = this.getNodeParameter('cardId', i, '') as string;
-						responseData = await whazingApiRequest.call(this, 'GET', `/kanbanpro/cards/${cardId}`);
+						responseData = await kanbanApiRequest(this, 'GET', `/kanban/cards/${cardId}`);
 
 					} else if (operation === 'getContactCards') {
 						const contactIdInput = this.getNodeParameter('contactId', i, '') as string;
@@ -574,26 +676,50 @@ export class Whazing implements INodeType {
 						const filters = this.getNodeParameter('kanbanFilters', i, {}) as IDataObject;
 						if (filters.includeArchived) qs.includeArchived = 'true';
 
-						responseData = await whazingApiRequest.call(this, 'GET', `/kanbanpro/contact/${contactIdInput}/cards`, {}, qs);
+						responseData = await kanbanApiRequest(this, 'GET', `/kanban/contact/${contactIdInput}/cards`, {}, qs);
 
 					} else if (operation === 'createOrMoveCard') {
+						const boardIdVal = this.getNodeParameter('boardId', i, '');
+						const columnIdVal = this.getNodeParameter('columnId', i, '');
+						const contactIdVal = this.getNodeParameter('contactId', i, '');
+
 						const body: IDataObject = {
-							boardId:   Number(this.getNodeParameter('boardId',   i, '')),
-							columnId:  Number(this.getNodeParameter('columnId',  i, '')),
-							contactId: Number(this.getNodeParameter('contactId', i, '')),
+							boardId:   isNaN(Number(boardIdVal)) ? boardIdVal : Number(boardIdVal),
+							columnId:  isNaN(Number(columnIdVal)) ? columnIdVal : Number(columnIdVal),
 							action:    this.getNodeParameter('kanbanAction', i, 'create_or_move'),
 						};
+
+						if (contactIdVal) {
+							body.contactId = isNaN(Number(contactIdVal)) ? contactIdVal : Number(contactIdVal);
+						}
+
 						const title    = this.getNodeParameter('cardTitle',      i, '') as string;
 						const priority = this.getNodeParameter('kanbanPriority', i, 'none') as string;
 						const note     = this.getNodeParameter('kanbanNote',     i, '') as string;
 						const ticketIdInput = this.getNodeParameter('ticketId', i, '') as string;
+						const tagsInput = this.getNodeParameter('tags', i, '') as string | string[] | number[];
 
 						if (title)    body.title    = title;
 						if (priority && priority !== 'none') body.priority = priority;
 						if (note)     body.note     = note;
-						if (ticketIdInput) body.ticketId = Number(ticketIdInput);
+						if (ticketIdInput) body.ticketId = isNaN(Number(ticketIdInput)) ? ticketIdInput : Number(ticketIdInput);
+						if (tagsInput !== undefined) {
+							if (Array.isArray(tagsInput)) {
+								body.tags = tagsInput;
+							} else if (typeof tagsInput === 'string') {
+								const trimmed = tagsInput.trim();
+								if (trimmed === '') {
+									body.tags = [];
+								} else {
+									body.tags = trimmed.split(',').map(t => {
+										const tr = t.trim();
+										return isNaN(Number(tr)) ? tr : Number(tr);
+									});
+								}
+							}
+						}
 
-						responseData = await whazingApiRequest.call(this, 'POST', '/kanbanpro/card', body);
+						responseData = await kanbanApiRequest(this, 'POST', '/kanban/card', body);
 
 					} else if (operation === 'updateCard') {
 						const cardId = this.getNodeParameter('cardId', i, '') as string;
@@ -605,15 +731,31 @@ export class Whazing implements INodeType {
 						const note     = this.getNodeParameter('kanbanNote',     i, '') as string;
 						const assignee = this.getNodeParameter('assigneeId',     i, '') as string;
 						const dueDate  = this.getNodeParameter('kanbanDueDate',  i, '') as string;
+						const tagsInput = this.getNodeParameter('tags', i, '') as string | string[] | number[];
 
 						if (title)    body.title    = title;
 						if (priority && priority !== 'none') body.priority = priority;
-						if (columnId) body.columnId = Number(columnId);
+						if (columnId) body.columnId = isNaN(Number(columnId)) ? columnId : Number(columnId);
 						if (note)     body.note     = note;
-						if (assignee) body.assigneeId = Number(assignee);
+						if (assignee) body.assigneeId = isNaN(Number(assignee)) ? assignee : Number(assignee);
 						if (dueDate)  body.dueDate  = dueDate;
+						if (tagsInput !== undefined) {
+							if (Array.isArray(tagsInput)) {
+								body.tags = tagsInput;
+							} else if (typeof tagsInput === 'string') {
+								const trimmed = tagsInput.trim();
+								if (trimmed === '') {
+									body.tags = [];
+								} else {
+									body.tags = trimmed.split(',').map(t => {
+										const tr = t.trim();
+										return isNaN(Number(tr)) ? tr : Number(tr);
+									});
+								}
+							}
+						}
 
-						responseData = await whazingApiRequest.call(this, 'PUT', `/kanbanpro/card/${cardId}`, body);
+						responseData = await kanbanApiRequest(this, 'PUT', `/kanban/card/${cardId}`, body);
 
 					} else if (operation === 'deleteCard') {
 						const cardId    = this.getNodeParameter('cardId', i, '') as string;
@@ -621,7 +763,7 @@ export class Whazing implements INodeType {
 						const qs: IDataObject = {};
 						if (permanent) qs.permanent = 'true';
 
-						responseData = await whazingApiRequest.call(this, 'DELETE', `/kanbanpro/card/${cardId}`, {}, qs);
+						responseData = await kanbanApiRequest(this, 'DELETE', `/kanban/card/${cardId}`, {}, qs);
 					}
 
 				// ===========================================================
@@ -637,7 +779,7 @@ export class Whazing implements INodeType {
 
 					} else if (operation === 'getTenant') {
 						const tenantId = this.getNodeParameter('tenantId', i, '') as string;
-						responseData = await adminApiRequest.call(this, 'GET', '', {}, { tenantId });
+						responseData = await adminApiRequest.call(this, 'GET', '', { tenantId });
 
 					} else if (operation === 'createTenant') {
 						responseData = await adminApiRequest.call(this, 'POST', '/createtenant', {
@@ -649,6 +791,9 @@ export class Whazing implements INodeType {
 							plano:      this.getNodeParameter('planId',       i, '1') as string,
 							timetest:   this.getNodeParameter('timeTest',     i, '3') as string,
 							recurrence: this.getNodeParameter('recurrence',   i, 'MENSAL') as string,
+							status:     this.getNodeParameter('tenantStatus', i, 'active') as string,
+							trial:      this.getNodeParameter('tenantTrial',  i, false) as boolean,
+							affiliate:  this.getNodeParameter('tenantAffiliate', i, false) as boolean,
 						});
 
 					} else if (operation === 'updateTenant') {
@@ -662,44 +807,13 @@ export class Whazing implements INodeType {
 							plano:      this.getNodeParameter('planId',     i, '1') as string,
 							dueDate:    this.getNodeParameter('dueDate',    i, '') as string,
 							recurrence: this.getNodeParameter('recurrence', i, 'MENSAL') as string,
+							status:     this.getNodeParameter('tenantStatus', i, 'active') as string,
 						});
 
 					} else if (operation === 'addMonth') {
 						const tenantId = this.getNodeParameter('tenantId', i, '') as string;
 						if (tenantId === '1') throw new NodeOperationError(this.getNode(), 'O tenant ID 1 é o administrador global e não pode ser editado.', { itemIndex: i });
-
-						const renewalMode = this.getNodeParameter('renewalMode', i, 'template') as string;
-
-						// Calcula a nova data de vencimento
-						let newDueDate: string;
-						if (renewalMode === 'manual') {
-							newDueDate = this.getNodeParameter('renewalDate', i, '') as string;
-							if (!newDueDate) throw new NodeOperationError(this.getNode(), 'Informe a data de vencimento manual.', { itemIndex: i });
-						} else {
-							const period = this.getNodeParameter('renewalTemplate', i, 'monthly') as string;
-							const d = new Date();
-							if (period === 'weekly')     d.setDate(d.getDate() + 7);
-							if (period === 'monthly')    d.setMonth(d.getMonth() + 1);
-							if (period === 'quarterly')  d.setMonth(d.getMonth() + 3);
-							if (period === 'semiannual') d.setMonth(d.getMonth() + 6);
-							if (period === 'annual')     d.setFullYear(d.getFullYear() + 1);
-							newDueDate = d.toISOString();
-						}
-
-						// Busca dados atuais do tenant para não sobrescrever campos obrigatórios
-						let tenant = await adminApiRequest.call(this, 'GET', '', {}, { tenantId }) as IDataObject;
-						if (Array.isArray(tenant)) tenant = (tenant as IDataObject[])[0];
-						if (!tenant) throw new NodeOperationError(this.getNode(), 'Tenant não encontrado.', { itemIndex: i });
-
-						responseData = await adminApiRequest.call(this, 'POST', '/updatetenant', {
-							tenantId,
-							tenantName: tenant.name as string,
-							email:      tenant.email as string,
-							phone:      tenant.phone as string,
-							plano:      String(tenant.planId),
-							dueDate:    newDueDate,
-							recurrence: (tenant.recurrence as string) || 'MENSAL',
-						});
+						responseData = await adminApiRequest.call(this, 'POST', '/addMonth', { tenantId });
 
 					} else if (operation === 'listUsers') {
 						const tenantId = this.getNodeParameter('tenantId', i, '') as string;
@@ -712,6 +826,70 @@ export class Whazing implements INodeType {
 							userId,
 							password: this.getNodeParameter('adminPassword', i, '') as string,
 						});
+					} else {
+						throw new NodeOperationError(this.getNode(), `Operação "${operation}" não reconhecida para o recurso "${resource}".`, { itemIndex: i });
+					}
+				} else if (resource === 'invoice') {
+
+					if (operation === 'getInvoices') {
+						const tenantId = this.getNodeParameter('tenantId', i, '') as string;
+						const status = this.getNodeParameter('invoiceStatusFilter', i, 'all') as string;
+						const qs: IDataObject = {};
+						if (status && status !== 'all') {
+							qs.status = status;
+						}
+						responseData = await adminApiRequest.call(this, 'GET', `/invoices/${tenantId}`, {}, qs);
+
+					} else if (operation === 'getInvoicesOpen') {
+						const tenantId = this.getNodeParameter('tenantId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'GET', `/invoices/${tenantId}/open`);
+
+					} else if (operation === 'generatePaymentPix') {
+						const invoiceId = this.getNodeParameter('invoiceId', i, '') as string;
+						const price = this.getNodeParameter('invoicePrice', i, 0) as number;
+						const body: IDataObject = {};
+						if (price > 0) {
+							body.price = price;
+						}
+						responseData = await adminApiRequest.call(this, 'POST', `/invoices/${invoiceId}/payment`, body);
+
+					} else if (operation === 'markPaidManual') {
+						const invoiceId = this.getNodeParameter('invoiceId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'POST', `/invoices/${invoiceId}/paid`);
+
+					} else if (operation === 'createInvoiceAvulsa') {
+						const body: IDataObject = {
+							tenantId: this.getNodeParameter('tenantId', i, '') as string,
+							value: this.getNodeParameter('invoiceValue', i, 0) as number,
+							dueDate: this.getNodeParameter('invoiceDueDate', i, '') as string,
+						};
+						const detail = this.getNodeParameter('invoiceDetail', i, '') as string;
+						if (detail) body.detail = detail;
+						const recurrence = this.getNodeParameter('invoiceRecurrence', i, '') as string;
+						if (recurrence) body.recurrence = recurrence;
+						responseData = await adminApiRequest.call(this, 'POST', '/invoices/create', body);
+
+					} else if (operation === 'updateInvoice') {
+						const invoiceId = this.getNodeParameter('invoiceId', i, '') as string;
+						const body: IDataObject = {};
+						const detail = this.getNodeParameter('invoiceDetail', i, '') as string;
+						if (detail) body.detail = detail;
+						const value = this.getNodeParameter('invoiceValueOptional', i, 0) as number;
+						if (value > 0) body.value = value;
+						const dueDate = this.getNodeParameter('invoiceDueDateOptional', i, '') as string;
+						if (dueDate) body.dueDate = dueDate;
+						const status = this.getNodeParameter('invoiceStatus', i, '') as string;
+						if (status) body.status = status;
+						responseData = await adminApiRequest.call(this, 'PUT', `/invoices/${invoiceId}`, body);
+
+					} else if (operation === 'deleteInvoice') {
+						const invoiceId = this.getNodeParameter('invoiceId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'DELETE', `/invoices/${invoiceId}`);
+
+					} else if (operation === 'recreateInvoices') {
+						const tenantId = this.getNodeParameter('tenantId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'POST', `/invoices/${tenantId}/recreate`);
+
 					} else {
 						throw new NodeOperationError(this.getNode(), `Operação "${operation}" não reconhecida para o recurso "${resource}".`, { itemIndex: i });
 					}
