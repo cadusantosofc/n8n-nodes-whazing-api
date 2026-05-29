@@ -215,11 +215,11 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Criar Cobrança Avulsa',          value: 'createInvoiceAvulsa', action: 'Criar cobrança avulsa' },
 			{ name: 'Deletar Fatura',                 value: 'deleteInvoice',        action: 'Deletar fatura' },
 			{ name: 'Editar Fatura',                  value: 'updateInvoice',        action: 'Editar fatura' },
-			{ name: 'Faturas Em Aberto (Atalho)',     value: 'getInvoicesOpen',      action: 'Listar faturas em aberto do tenant' },
+			{ name: 'Faturas Em Aberto (Atalho)',     value: 'getInvoicesOpen',      action: 'Listar faturas em aberto da Empresa' },
 			{ name: 'Gerar Pagamento / QR Code PIX',  value: 'generatePaymentPix',  action: 'Gerar pagamento ou qr code pix da fatura' },
 			{ name: 'Marcar Como Paga (Manual)',      value: 'markPaidManual',       action: 'Marcar fatura como paga manualmente' },
-			{ name: 'Recriar Faturas Do Tenant',      value: 'recreateInvoices',     action: 'Deletar e recriar faturas abertas do tenant' },
-			{ name: 'Listar Todas As Faturas',        value: 'getInvoices',          action: 'Listar histórico de faturas do tenant' },
+			{ name: 'Recriar Faturas da Empresa',      value: 'recreateInvoices',     action: 'Deletar e recriar faturas abertas da Empresa' },
+			{ name: 'Listar Todas As Faturas',        value: 'getInvoices',          action: 'Listar histórico de faturas da Empresa' },
 		],
 		default: 'getInvoices',
 	},
@@ -1126,7 +1126,7 @@ export const whazingDescription: INodeProperties[] = [
 	//  CAMPOS — Admin
 	// ============================================================
 	{
-		displayName: 'ID Da Empresa (Tenant)',
+		displayName: 'ID Da Empresa',
 		name: 'tenantId',
 		type: 'string',
 		required: true,
@@ -1262,7 +1262,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Status Do Tenant',
+		displayName: 'Status da Empresa',
 		name: 'tenantStatus',
 		type: 'options',
 		displayOptions: {
@@ -1288,7 +1288,7 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Define se o tenant está em período de testes',
+		description: 'define se a empresa está em período de testes',
 	},
 	{
 		displayName: 'Afiliado',
@@ -1301,7 +1301,7 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Define se o tenant é um afiliado',
+		description: 'define se a empresa é um afiliado',
 	},
 
 	// ============================================================
@@ -1484,7 +1484,7 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Anual',     value: 'ANUAL' },
 		],
 		default: 'MENSAL',
-		description: 'Herda a recorrência do tenant se omitido',
+		description: 'Herda a recorrência da Empresa se omitido',
 	},
 	{
 		displayName: 'Status Da Fatura',
