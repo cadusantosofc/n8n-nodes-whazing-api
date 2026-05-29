@@ -1,4 +1,4 @@
-import { INodeProperties } from 'n8n-workflow';
+﻿import { INodeProperties } from 'n8n-workflow';
 
 export const whazingDescription: INodeProperties[] = [
 
@@ -59,8 +59,10 @@ export const whazingDescription: INodeProperties[] = [
 		displayOptions: { show: { resource: ['msgOfficial'] } },
 		options: [
 			{ name: 'Enviar Botão',                     value: 'sendButtonOfficial',  action: 'Enviar botão oficial' },
+			{ name: 'Enviar Botão Com Imagem',          value: 'sendButtonImageOfficial', action: 'Enviar botão com imagem no cabeçalho' },
 			{ name: 'Enviar Carrossel',                 value: 'sendCarouselOfficial', action: 'Enviar carrossel oficial' },
 			{ name: 'Enviar Link CTA',                  value: 'sendLinkCta',         action: 'Enviar link CTA' },
+			{ name: 'Enviar Link Com Imagem',           value: 'sendLinkImageOfficial', action: 'Enviar link CTA com imagem no cabeçalho' },
 			{ name: 'Enviar Lista',                     value: 'sendList',            action: 'Enviar lista' },
 			{ name: 'Enviar Template (Com Parâmetros)', value: 'sendTemplateParams',  action: 'Enviar template com parâmetros' },
 			{ name: 'Enviar Template (Sem Parâmetros)', value: 'sendTemplate',        action: 'Enviar template' },
@@ -79,15 +81,16 @@ export const whazingDescription: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['msgPlus'] } },
 		options: [
-			{ name: 'Enviar Botão',                    value: 'sendButtonPlus',         action: 'Enviar botão plus' },
-			{ name: 'Enviar Botão Dinâmico',           value: 'sendButtonDynamicPlus',  action: 'Enviar botão dinâmico plus' },
-			{ name: 'Enviar Botão Pix',                value: 'sendPixButtonPlus',      action: 'Enviar pix button plus' },
-			{ name: 'Enviar Carrossel',                value: 'sendCarouselPlus',       action: 'Enviar carrossel plus' },
-			{ name: 'Enviar Link',                     value: 'sendLinkPlus',           action: 'Enviar link plus' },
-			{ name: 'Enviar Link CTA',                 value: 'sendLinkCtaPlus',        action: 'Enviar link CTA plus' },
-			{ name: 'Enviar Lista',                    value: 'sendListPlus',           action: 'Enviar lista plus' },
-			{ name: 'Enviar Solicitação De Pagamento', value: 'sendRequestPaymentPlus', action: 'Enviar solicitação de pagamento plus' },
-			{ name: 'Solicitar Localização',           value: 'requestLocationPlus',    action: 'Solicitar localização plus' },
+			{ name: 'Enviar Botão',                    value: 'sendButtonPlus',           action: 'Enviar botão plus' },
+			{ name: 'Enviar Botão Dinâmico',           value: 'sendButtonDynamicPlus',    action: 'Enviar botão dinâmico plus' },
+			{ name: 'Enviar Botão Dinâmico Com Imagem', value: 'sendButtonDynamicImagePlus', action: 'Enviar botão dinâmico com imagem plus' },
+			{ name: 'Enviar Botão Pix',                value: 'sendPixButtonPlus',        action: 'Enviar pix button plus' },
+			{ name: 'Enviar Carrossel',                value: 'sendCarouselPlus',         action: 'Enviar carrossel plus' },
+			{ name: 'Enviar Link',                     value: 'sendLinkPlus',             action: 'Enviar link plus' },
+			{ name: 'Enviar Link CTA',                 value: 'sendLinkCtaPlus',          action: 'Enviar link CTA plus' },
+			{ name: 'Enviar Lista',                    value: 'sendListPlus',             action: 'Enviar lista plus' },
+			{ name: 'Enviar Solicitação De Pagamento', value: 'sendRequestPaymentPlus',   action: 'Enviar solicitação de pagamento plus' },
+			{ name: 'Solicitar Localização',           value: 'requestLocationPlus',      action: 'Solicitar localização plus' },
 		],
 		default: 'sendButtonPlus',
 	},
@@ -283,9 +286,9 @@ export const whazingDescription: INodeProperties[] = [
 			show: {
 				operation: [
 					'sendText', 'sendButton', 'sendList',
-					'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus',
-					'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus',
-					'sendButtonDynamicPlus', 'sendFile', 'sendSticker',
+					'sendButtonOfficial', 'sendButtonImageOfficial', 'sendButtonPlus', 'sendListPlus',
+					'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus', 'sendLinkImageOfficial',
+					'sendButtonDynamicPlus', 'sendButtonDynamicImagePlus', 'sendFile', 'sendSticker',
 					'sendCarouselPlus', 'sendCarouselOfficial', 'sendRequestPaymentPlus',
 					'sendParams', 'sendParamsGroup',
 				],
@@ -422,6 +425,51 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
+		displayName: 'Tipo De Mídia Do Cabeçalho',
+		name: 'headerMediaType',
+		type: 'options',
+		options: [
+			{ name: 'Imagem',    value: 'image' },
+			{ name: 'Vídeo',     value: 'video' },
+			{ name: 'Documento', value: 'document' },
+		],
+		default: 'image',
+		displayOptions: {
+			show: {
+				operation: [
+					'sendButtonImageOfficial',
+					'sendButtonPlus',
+					'sendLinkImageOfficial',
+					'sendButtonDynamicImagePlus',
+					'sendLinkPlus',
+					'sendLinkCtaPlus',
+					'sendLinkCta',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'URL Do Cabeçalho',
+		name: 'headerMediaUrl',
+		type: 'string',
+		displayOptions: {
+			show: {
+				operation: [
+					'sendButtonImageOfficial',
+					'sendLinkImageOfficial',
+					'sendButtonPlus',
+					'sendButtonDynamicImagePlus',
+					'sendLinkPlus',
+					'sendLinkCtaPlus',
+					'sendLinkCta',
+				],
+			},
+		},
+		default: '',
+		placeholder: 'https://exemplo.com/arquivo',
+		description: 'URL pública da mídia do cabeçalho (imagem, vídeo ou documento conforme tipo selecionado acima)',
+	},
+	{
 		displayName: 'Rodapé (Opcional)',
 		name: 'footer',
 		type: 'string',
@@ -430,8 +478,10 @@ export const whazingDescription: INodeProperties[] = [
 				operation: [
 					'sendButton', 'sendList',
 					'sendButtonOfficial', 'sendButtonPlus', 'sendListPlus',
+					'sendButtonImageOfficial',
 					'sendLinkPlus', 'sendLinkCta', 'sendLinkCtaPlus',
-					'sendButtonDynamicPlus', 'sendRequestPaymentPlus',
+					'sendLinkImageOfficial',
+					'sendButtonDynamicPlus', 'sendButtonDynamicImagePlus', 'sendRequestPaymentPlus',
 				],
 			},
 		},
@@ -441,7 +491,7 @@ export const whazingDescription: INodeProperties[] = [
 		displayName: 'Texto Do Botão Link',
 		name: 'linkDisplayText',
 		type: 'string',
-		displayOptions: { show: { operation: ['sendLinkCta', 'sendLinkCtaPlus'] } },
+		displayOptions: { show: { operation: ['sendLinkCta', 'sendLinkCtaPlus', 'sendLinkImageOfficial'] } },
 		default: 'Ver mais',
 	},
 	{
@@ -449,7 +499,7 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'linkUrl',
 		type: 'string',
 		required: true,
-		displayOptions: { show: { operation: ['sendLinkCta', 'sendLinkCtaPlus'] } },
+		displayOptions: { show: { operation: ['sendLinkCta', 'sendLinkCtaPlus', 'sendLinkImageOfficial'] } },
 		default: 'https://',
 	},
 	{
@@ -522,7 +572,7 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'buttons',
 		type: 'fixedCollection',
 		typeOptions: { multipleValues: true },
-		displayOptions: { show: { operation: ['sendButton', 'sendButtonOfficial', 'sendButtonPlus'] } },
+		displayOptions: { show: { operation: ['sendButton', 'sendButtonOfficial', 'sendButtonPlus', 'sendButtonImageOfficial'] } },
 		default: {},
 		options: [
 			{
@@ -544,8 +594,9 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'dynamicButtons',
 		type: 'fixedCollection',
 		typeOptions: { multipleValues: true },
-		displayOptions: { show: { operation: ['sendButtonDynamicPlus'] } },
+		displayOptions: { show: { operation: ['sendButtonDynamicPlus', 'sendButtonDynamicImagePlus'] } },
 		default: {},
+		description: 'Configure os botões dinâmicos. Use a URL da imagem do cabeçalho para enviar uma imagem acima da mensagem.',
 		options: [
 			{
 				name: 'buttonValues',

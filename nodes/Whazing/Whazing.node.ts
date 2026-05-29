@@ -1,4 +1,4 @@
-import {
+﻿import {
 	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
@@ -38,22 +38,25 @@ async function handleApiMessage(
 	const { i, number, ticketId, path, operation } = opts;
 
 	const typeMap: Record<string, string> = {
-		sendButtonOfficial:     'button',
-		sendButtonPlus:         'button',
-		sendList:               'list',
-		sendListPlus:           'list',
-		sendLinkCta:            'cta_url',
-		sendLinkCtaPlus:        'cta_url',
-		sendLinkPlus:           'cta_url',
-		requestLocation:        'location_request_message',
-		requestLocationPlus:    'location_request_message',
-		sendButtonDynamicPlus:  'dinamic_button',
-		sendCarouselPlus:       'carousel_button',
-		sendPixButtonPlus:      'pixbutton',
-		sendRequestPaymentPlus: 'requestpayment',
-		sendCarouselOfficial:   'carousel_button',
-		sendTemplate:           'template',
-		sendTemplateParams:     'template',
+		sendButtonOfficial:          'button',
+		sendButtonImageOfficial:     'button',
+		sendButtonPlus:              'button',
+		sendList:                    'list',
+		sendListPlus:                'list',
+		sendLinkCta:                 'cta_url',
+		sendLinkCtaPlus:             'cta_url',
+		sendLinkImageOfficial:       'cta_url',
+		sendLinkPlus:                'cta_url',
+		requestLocation:             'location_request_message',
+		requestLocationPlus:         'location_request_message',
+		sendButtonDynamicPlus:       'dinamic_button',
+		sendButtonDynamicImagePlus:  'dinamic_button',
+		sendCarouselPlus:            'carousel_button',
+		sendPixButtonPlus:           'pixbutton',
+		sendRequestPaymentPlus:      'requestpayment',
+		sendCarouselOfficial:        'carousel_button',
+		sendTemplate:                'template',
+		sendTemplateParams:          'template',
 	};
 
 	const contentType = typeMap[operation];
@@ -71,12 +74,34 @@ async function handleApiMessage(
 
 	// Estrutura padrão body/header/footer para tipos interativos
 	const interactiveTypes = ['button', 'list', 'cta_url', 'location_request_message', 'pixbutton', 'requestpayment'];
+	// Operações que usam mídia no header (não têm campo headerText no UI)
+	const mediaHeaderOps = [
+		'sendButtonImageOfficial', 'sendButtonDynamicImagePlus',
+		'sendLinkImageOfficial', 'sendLinkPlus', 'sendLinkCtaPlus', 'sendLinkCta', 'sendButtonPlus',
+	];
 	if (interactiveTypes.includes(contentType as string)) {
 		contents.body = { text: ctx.getNodeParameter('body', i, '') as string };
-		const headerText = ctx.getNodeParameter('headerText', i, '') as string;
-		if (headerText) contents.header = { type: 'text', text: headerText };
+		if (!mediaHeaderOps.includes(operation)) {
+			const headerText = ctx.getNodeParameter('headerText', i, '') as string;
+			if (headerText) contents.header = { type: 'text', text: headerText };
+		}
 		const footerText = ctx.getNodeParameter('footer', i, '') as string;
 		if (footerText) contents.footer = { text: footerText };
+	}
+
+	// Header multimídia para button/cta_url (API Oficial e PLUS com header estruturado)
+	const headerStructuredOps = [
+		'sendButtonOfficial', 'sendButtonImageOfficial', 'sendButtonPlus', 'sendLinkImageOfficial',
+		'sendLinkPlus', 'sendLinkCtaPlus', 'sendLinkCta',
+	];
+	if (headerStructuredOps.includes(operation)) {
+		const mediaType = ctx.getNodeParameter('headerMediaType', i, 'image') as string;
+		const mediaUrl  = ctx.getNodeParameter('headerMediaUrl',  i, '') as string;
+		if (mediaUrl) {
+			if (mediaType === 'video')         contents.header = { type: 'video',    video:    { link: mediaUrl } };
+			else if (mediaType === 'document') contents.header = { type: 'document', document: { link: mediaUrl } };
+			else                               contents.header = { type: 'image',    image:    { link: mediaUrl } };
+		}
 	}
 
 	// Ação específica por operação
@@ -86,7 +111,7 @@ async function handleApiMessage(
 			sections: opts.getSections(),
 		};
 
-	} else if (operation === 'sendButtonOfficial' || operation === 'sendButtonPlus') {
+	} else if (operation === 'sendButtonOfficial' || operation === 'sendButtonPlus' || operation === 'sendButtonImageOfficial') {
 		contents.action = { buttons: opts.getButtons() };
 
 	} else if (operation === 'sendLinkPlus') {
@@ -97,7 +122,7 @@ async function handleApiMessage(
 			parameters: { display_text: ctx.getNodeParameter('buttonText', i, 'Ver Link') as string, url },
 		};
 
-	} else if (operation === 'sendLinkCta' || operation === 'sendLinkCtaPlus') {
+	} else if (operation === 'sendLinkCta' || operation === 'sendLinkCtaPlus' || operation === 'sendLinkImageOfficial') {
 		const url = ctx.getNodeParameter('linkUrl', i, '') as string;
 		if (!url?.trim()) throw new NodeOperationError(ctx.getNode(), 'A URL é obrigatória para enviar um CTA de link.', { itemIndex: i });
 		contents.action = {
@@ -110,11 +135,17 @@ async function handleApiMessage(
 		if (!bodyText?.trim()) throw new NodeOperationError(ctx.getNode(), 'A mensagem é obrigatória para solicitar localização.', { itemIndex: i });
 		contents.action = { name: 'send_location' };
 
-	} else if (operation === 'sendButtonDynamicPlus') {
+	} else if (operation === 'sendButtonDynamicPlus' || operation === 'sendButtonDynamicImagePlus') {
 		contents.text = ctx.getNodeParameter('body', i, '') as string;
 		const dFooter = ctx.getNodeParameter('footer', i, '') as string;
 		if (dFooter) contents.footerText = dFooter;
 		contents.choices = opts.getDynamicButtons();
+
+		// dinamic_button: imagem vai em contents.imageUrl (não em header)
+		if (operation === 'sendButtonDynamicImagePlus') {
+			const mediaUrl = ctx.getNodeParameter('headerMediaUrl', i, '') as string;
+			if (mediaUrl) contents.imageUrl = mediaUrl;
+		}
 
 	} else if (operation === 'sendCarouselPlus' || operation === 'sendCarouselOfficial') {
 		contents.text  = ctx.getNodeParameter('body', i, '') as string;
@@ -159,9 +190,12 @@ async function handleApiMessage(
 		};
 	}
 
-	// Limpa header/footer vazios
+	// Limpa footer vazio e header texto vazio
 	if (contents.footer && !(contents.footer as IDataObject).text) delete contents.footer;
-	if (contents.header && !(contents.header as IDataObject).text) delete contents.header;
+	if (contents.header) {
+		const header = contents.header as IDataObject;
+		if (header.type === 'text' && !header.text) delete contents.header;
+	}
 
 	return whazingApiRequest.call(ctx, 'POST', path, body);
 }
@@ -312,7 +346,7 @@ export class Whazing implements INodeType {
 						if (btn.btnType === 'copy') mapped.copyText    = btn.value as string;
 						if (btn.btnType === 'call') mapped.phoneNumber = btn.value as string;
 						if (btn.btnType === 'url')  mapped.url         = btn.value as string;
-						return mapped;
+							return mapped;
 					});
 				};
 
@@ -365,48 +399,60 @@ export class Whazing implements INodeType {
 
 						} else if (operation === 'sendFile') {
 							const sendMethod = this.getNodeParameter('sendMethod', i, 'url') as string;
-							const body: IDataObject = {
-								number,
-								body:        this.getNodeParameter('body',        i, '') as string,
-								externalKey: this.getNodeParameter('externalKey', i, '') as string,
+							const externalKey = this.getNodeParameter('externalKey', i, '') as string;
+							const commonBody: IDataObject = {
+							body: this.getNodeParameter('body', i, '') as string,
+							externalKey: externalKey?.trim() ? externalKey : `n8n-${Date.now()}`,
 							};
-							if (ticketId) body.ticketId = ticketId;
+							if (ticketId) {
+								commonBody.ticketId = ticketId;
+							} else if (number) {
+								commonBody.number = number;
+							}
 
 							if (sendMethod === 'url') {
-								body.mediaUrl = this.getNodeParameter('mediaUrl', i, '') as string;
-								responseData = await whazingApiRequest.call(this, 'POST', '', body);
+								commonBody.mediaUrl = this.getNodeParameter('mediaUrl', i, '') as string;
+								if (!commonBody.mediaUrl?.trim()) {
+									throw new NodeOperationError(this.getNode(), 'A URL do arquivo é obrigatória.', { itemIndex: i });
+								}
+								responseData = await whazingApiRequest.call(this, 'POST', '', commonBody);
 							} else if (sendMethod === 'base64') {
-								body.mediaMessage = {
-									mediaType: this.getNodeParameter('mediaType',   i, 'image') as string,
-									fileName:  this.getNodeParameter('fileName',    i, '') as string,
-									media:     this.getNodeParameter('mediaBase64', i, '') as string,
+								const mediaBase64 = this.getNodeParameter('mediaBase64', i, '') as string;
+								const fileName = this.getNodeParameter('fileName', i, '') as string;
+								if (!mediaBase64?.trim() || !fileName?.trim()) {
+									throw new NodeOperationError(this.getNode(), 'Base64 e Nome do Arquivo são obrigatórios.', { itemIndex: i });
+								}
+								commonBody.mediaMessage = {
+									mediaType: this.getNodeParameter('mediaType', i, 'image') as string,
+									fileName,
+									media: mediaBase64,
 								};
-								responseData = await whazingApiRequest.call(this, 'POST', '', body);
+								responseData = await whazingApiRequest.call(this, 'POST', '', commonBody);
 							} else {
-								// Binary / Form-data
 								const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i, 'data') as string;
 								const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
 								const formData: IDataObject = {
-									...body,
+									...commonBody,
 									media: {
 										value: await this.helpers.getBinaryDataBuffer(i, binaryPropertyName),
-										options: { filename: binaryData.fileName, contentType: binaryData.mimeType },
+										options: {
+											filename: binaryData.fileName || 'arquivo.pdf',
+											contentType: binaryData.mimeType || 'application/octet-stream',
+										},
 									},
 								};
-								responseData = await whazingApiRequest.call(this, 'POST', '', {}, {}, undefined, {}, undefined, formData);
+								responseData = await whazingApiRequest.call(
+									this,
+									'POST',
+									'',
+									{},
+									{},
+									undefined,
+									undefined,
+									undefined,
+									formData,
+								);
 							}
-
-						} else if (operation === 'sendLocation') {
-							responseData = await whazingApiRequest.call(this, 'POST', '/location', {
-								number,
-								contents: {
-									type:      'location',
-									longitude: parseFloat(this.getNodeParameter('longitude',    i, '0') as string),
-									latitude:  parseFloat(this.getNodeParameter('latitude',     i, '0') as string),
-									name:      this.getNodeParameter('locationName', i, '') as string,
-									address:   this.getNodeParameter('address',      i, '') as string,
-								},
-							});
 
 						} else if (operation === 'sendContact') {
 							responseData = await whazingApiRequest.call(this, 'POST', '/sendcontact', {

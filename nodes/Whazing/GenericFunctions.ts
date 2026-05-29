@@ -47,10 +47,9 @@ export async function whazingApiRequest(
 	const credentials = await this.getCredentials('whazingApi');
 	const finalBaseUrl = (credentials.baseUrl as string || '').trim().replace(/\/+$/, '');
 
+	const headers: IDataObject = formData ? {} : { 'Content-Type': 'application/json' };
 	const options: IHttpRequestOptionsWithFormData = {
-		headers: {
-			'Content-Type': formData ? 'multipart/form-data' : 'application/json',
-		},
+		headers: headers,
 		method: method as IHttpRequestMethods,
 		url: `${finalBaseUrl}${path}`,
 		json: true,
@@ -58,8 +57,19 @@ export async function whazingApiRequest(
 
 	if (Object.keys(body).length > 0)  options.body     = body;
 	if (Object.keys(qs).length > 0)    options.qs       = qs;
-	if (formData)                       options.formData = formData;
+	if (formData) {
+		options.formData = formData;
+		options.json = false;
+	}
 	if (Object.keys(option).length > 0) Object.assign(options, option);
+
+	// ★ DEBUG — imprime o payload completo no console do n8n
+	console.log('\n══════════════════════════════════════════');
+	console.log('🔵 WHAZING API REQUEST');
+	console.log(`   ${method} ${options.url}`);
+	if (options.body) console.log('   BODY:', JSON.stringify(options.body, null, 2));
+	if (options.formData) console.log('   FORM:', JSON.stringify(options.formData, null, 2));
+	console.log('══════════════════════════════════════════\n');
 
 	return this.helpers.httpRequestWithAuthentication.call(this, 'whazingApi', options);
 }

@@ -6,18 +6,16 @@ Este node permite a integração completa com a API Whazing, oferecendo automaç
 
 ## 📌 Versão atual
 
-- **1.0.8**
-- Inclui suporte ao novo recurso `invoice` e ao envio de carrossel oficial via `msgOfficial`.
+- **1.0.9**
+- Corrige bugs no envio de cabeçalho de mídia (imagem, vídeo, documento) nas operações de botão da API Plus (`Enviar Botão`) e API Oficial (`Enviar Botão` / `Enviar Botão Com Imagem`). Também corrige o hot reload do script `iniciar_whazing.bat` no Windows.
 
-## 🚀 Novidades da Versão 1.0.8
+## 🚀 Novidades da Versão 1.0.9
 
-- **Faturas / Cobranças**: novo recurso `invoice` para criar, editar, listar e pagar faturas.
-- **PIX e QR Code**: gerar pagamento / QR Code PIX para cobrança de faturas.
-- **Carrossel Oficial**: suporte a `Enviar Carrossel` no recurso **Mensagens › API Oficial**.
-- **Kanban Pro**: gestão completa de boards, colunas e cards (funis de venda).
-- **Upload Binário**: envio de arquivos diretamente de propriedades binárias do n8n (Multipart/Form-Data).
-- **Admin Avançado**: listagem de planos e suporte a recorrência (Mensal a Anual).
-- **Estabilidade**: correções em IDs de atendentes e tratamento de status de tickets.
+- **Botão com Imagem (API Plus)**: o campo "URL Do Cabeçalho" agora aparece corretamente para `Enviar Botão`, permitindo enviar imagem, vídeo ou documento no cabeçalho — igual ao Postman.
+- **Botão com Imagem (API Oficial)**: tanto `Enviar Botão` quanto `Enviar Botão Com Imagem` agora geram corretamente o payload `header.image.link`.
+- **Conflito header texto/mídia resolvido**: operações de imagem não sobrescrevem mais headers de texto e vice-versa.
+- **Hot Reload Windows corrigido**: `iniciar_whazing.bat` agora roda o `tsc --watch` em background real com `start /min` e mata automaticamente o processo na porta 5678 antes de iniciar.
+- **`sendFile` indentação corrigida**: bug de indentação na declaração `externalKey` resolvido.
 
 ## 🗂️ Histórico de versões
 
