@@ -6,16 +6,45 @@ Este node permite a integração completa com a API Whazing, oferecendo automaç
 
 ## 📌 Versão atual
 
-- **1.0.9**
-- Corrige bugs no envio de cabeçalho de mídia (imagem, vídeo, documento) nas operações de botão da API Plus (`Enviar Botão`) e API Oficial (`Enviar Botão` / `Enviar Botão Com Imagem`). Também corrige o hot reload do script `iniciar_whazing.bat` no Windows.
+- **1.0.10**
+- Adicionado suporte para NF-e.
+- Adicionado endpoint Admin - Empresas.
+- Adicionado suporte para números internacionais.
+- Melhorias nas operações de Tickets.
+- Correções e traduções de erros para PT-BR.
 
-## 🚀 Novidades da Versão 1.0.9
+## 🚀 Novidades da Versão 1.0.10
 
-- **Botão com Imagem (API Plus)**: o campo "URL Do Cabeçalho" agora aparece corretamente para `Enviar Botão`, permitindo enviar imagem, vídeo ou documento no cabeçalho — igual ao Postman.
-- **Botão com Imagem (API Oficial)**: tanto `Enviar Botão` quanto `Enviar Botão Com Imagem` agora geram corretamente o payload `header.image.link`.
-- **Conflito header texto/mídia resolvido**: operações de imagem não sobrescrevem mais headers de texto e vice-versa.
-- **Hot Reload Windows corrigido**: `iniciar_whazing.bat` agora roda o `tsc --watch` em background real com `start /min` e mata automaticamente o processo na porta 5678 antes de iniciar.
-- **`sendFile` indentação corrigida**: bug de indentação na declaração `externalKey` resolvido.
+### Mensagens
+
+- * Corrigido envio de mensagens utilizando ID do Ticket.
+- * Corrigido envio de botões utilizando ID do Ticket.
+- * Corrigido envio de localização.
+- * Corrigido envio de mensagens parametrizadas utilizando ID do Ticket.
+- * Adicionado suporte para envio de contatos utilizando ID do Ticket.
+- * Adicionado suporte para envio de figurinhas utilizando ID do Ticket.
+* Adicionado suporte para envio de mensagens para números internacionais. (Obrigatório informar o DDI, exemplo: `+12546125421`).
+
+### NF-e
+
+- * Adicionado novos endpoints para NF-e. (Geração, consulta e listagem).
+
+### Admin
+
+- * Adicionado endpoint Admin - Empresas.
+- * Agora é possível criar empresas já em modo Trial.
+- * Empresas removidas do modo Trial não poderão retornar ao modo Trial posteriormente.
+
+### Tickets
+
+- * Melhoradas validações das operações de Tickets.
+- * Ajustadas operações que exigem obrigatoriamente o ID do Ticket.
+- * Corrigidas validações na consulta de contatos.
+
+### Traduções
+
+- * Tradução de erros conhecidos para PT-BR.
+- * Quando disponível, o motivo do erro será exibido em português.
 
 ## 🗂️ Histórico de versões
 

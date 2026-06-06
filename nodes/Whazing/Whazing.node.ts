@@ -389,26 +389,30 @@ export class Whazing implements INodeType {
 				if (resource === 'msgBaileys') {
 
 					if (operation === 'sendText') {
+						// Postman: ticketId e number são mutuamente exclusivos — não enviar os dois
 						const body: IDataObject = {
-								number,
-								body:        this.getNodeParameter('body',        i, '') as string,
-								externalKey: this.getNodeParameter('externalKey', i, '') as string,
-							};
-							if (ticketId) body.ticketId = ticketId;
-							responseData = await whazingApiRequest.call(this, 'POST', '', body);
+							body:        this.getNodeParameter('body',        i, '') as string,
+							externalKey: this.getNodeParameter('externalKey', i, '') as string,
+						};
+						if (ticketId) {
+							body.ticketId = ticketId;
+						} else if (number) {
+							body.number = number;
+						}
+						responseData = await whazingApiRequest.call(this, 'POST', '', body);
 
-						} else if (operation === 'sendFile') {
-							const sendMethod = this.getNodeParameter('sendMethod', i, 'url') as string;
-							const externalKey = this.getNodeParameter('externalKey', i, '') as string;
-							const commonBody: IDataObject = {
-							body: this.getNodeParameter('body', i, '') as string,
+					} else if (operation === 'sendFile') {
+						const sendMethod = this.getNodeParameter('sendMethod', i, 'url') as string;
+						const externalKey = this.getNodeParameter('externalKey', i, '') as string;
+						const commonBody: IDataObject = {
+							body:        this.getNodeParameter('body', i, '') as string,
 							externalKey: externalKey?.trim() ? externalKey : `n8n-${Date.now()}`,
-							};
-							if (ticketId) {
-								commonBody.ticketId = ticketId;
-							} else if (number) {
-								commonBody.number = number;
-							}
+						};
+						if (ticketId) {
+							commonBody.ticketId = ticketId;
+						} else if (number) {
+							commonBody.number = number;
+						}
 
 							if (sendMethod === 'url') {
 								commonBody.mediaUrl = this.getNodeParameter('mediaUrl', i, '') as string;
@@ -455,58 +459,94 @@ export class Whazing implements INodeType {
 							}
 
 						} else if (operation === 'sendContact') {
-							responseData = await whazingApiRequest.call(this, 'POST', '/sendcontact', {
-								number,
-								contents: {
-									type:        'contact',
-									displayName: this.getNodeParameter('contactDisplayName', i, '') as string,
-									telephone:   this.getNodeParameter('contactTelephone',  i, '') as string,
-								},
-							});
-
-						} else if (operation === 'sendButton') {
-							const body: IDataObject = {
-								number,
-								contents: {
-									type:   'button',
-									body:   { text: this.getNodeParameter('body', i, '') as string },
-									action: { buttons: getButtons() },
-								},
-							};
-							const footer = this.getNodeParameter('footer', i, '') as string;
-							if (footer) (body.contents as IDataObject).footer = { text: footer };
-							const headerText = this.getNodeParameter('headerText', i, '') as string;
-							if (headerText) (body.contents as IDataObject).header = { type: 'text', text: headerText };
-
-							if (ticketId) body.ticketId = ticketId;
-							responseData = await whazingApiRequest.call(this, 'POST', '/apioficial', body);
-
-						} else if (operation === 'sendSticker') {
-							const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i, 'data') as string;
-							const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
-							const formData: IDataObject = {
-								number,
-								body:        'sticker',
-								sticker:     'true',
-								externalKey: this.getNodeParameter('externalKey', i, '') as string,
-								media: {
-									value: await this.helpers.getBinaryDataBuffer(i, binaryPropertyName),
-									options: { filename: binaryData.fileName, contentType: binaryData.mimeType },
-								},
-							};
-							responseData = await whazingApiRequest.call(this, 'POST', '', {}, {}, undefined, {}, undefined, formData);
-
-						} else if (operation === 'sendParams' || operation === 'sendParamsGroup') {
-							const credentials = await this.getCredentials('whazingApi');
-							const qs: IDataObject = {
-								body:        this.getNodeParameter('body',        i, '') as string,
-								number,
-								externalKey: this.getNodeParameter('externalKey', i, '') as string,
-								bearertoken: credentials.apiToken || '',
-							};
-							if (ticketId) qs.ticketId = ticketId;
-							responseData = await whazingApiRequest.call(this, 'GET', '/params', {}, qs);
+						// Postman: number é padrão; ticketId é alternativa (mesmo padrão dos outros ops)
+						const contactBody: IDataObject = {
+							contents: {
+								type:        'contact',
+								displayName: this.getNodeParameter('contactDisplayName', i, '') as string,
+								telephone:   this.getNodeParameter('contactTelephone',  i, '') as string,
+							},
+						};
+						if (ticketId) {
+							contactBody.ticketId = ticketId;
+						} else {
+							contactBody.number = number;
 						}
+						responseData = await whazingApiRequest.call(this, 'POST', '/sendcontact', contactBody);
+
+					} else if (operation === 'sendButton') {
+						// Postman: ticketId e number são mutuamente exclusivos
+						const btnContents: IDataObject = {
+							type:   'button',
+							body:   { text: this.getNodeParameter('body', i, '') as string },
+							action: { buttons: getButtons() },
+						};
+						const footer = this.getNodeParameter('footer', i, '') as string;
+						if (footer) btnContents.footer = { text: footer };
+						const headerText = this.getNodeParameter('headerText', i, '') as string;
+						if (headerText) btnContents.header = { type: 'text', text: headerText };
+
+						const body: IDataObject = { contents: btnContents };
+						if (ticketId) {
+							body.ticketId = ticketId;
+						} else {
+							body.number = number;
+						}
+						responseData = await whazingApiRequest.call(this, 'POST', '/apioficial', body);
+
+					} else if (operation === 'sendSticker') {
+						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i, 'data') as string;
+						const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
+						// Postman: ticketId e number são mutuamente exclusivos também no form-data
+						const formData: IDataObject = {
+							body:        'sticker',
+							sticker:     'true',
+							externalKey: this.getNodeParameter('externalKey', i, '') as string,
+							media: {
+								value: await this.helpers.getBinaryDataBuffer(i, binaryPropertyName),
+								options: { filename: binaryData.fileName, contentType: binaryData.mimeType },
+							},
+						};
+						if (ticketId) {
+							formData.ticketId = ticketId;
+						} else {
+							formData.number = number;
+						}
+						responseData = await whazingApiRequest.call(this, 'POST', '', {}, {}, undefined, {}, undefined, formData);
+
+					} else if (operation === 'sendLocation') {
+						// Postman: ticketId e number são mutuamente exclusivos
+						const locationBody: IDataObject = {
+							contents: {
+								type:      'location',
+								latitude:  Number(this.getNodeParameter('latitude',     i, 0)),
+								longitude: Number(this.getNodeParameter('longitude',    i, 0)),
+								name:      this.getNodeParameter('locationName', i, '') as string,
+								address:   this.getNodeParameter('address',      i, '') as string,
+							},
+						};
+						if (ticketId) {
+							locationBody.ticketId = ticketId;
+						} else if (number) {
+							locationBody.number = number;
+						}
+						responseData = await whazingApiRequest.call(this, 'POST', '/location', locationBody);
+
+					} else if (operation === 'sendParams' || operation === 'sendParamsGroup') {
+						const credentials = await this.getCredentials('whazingApi');
+						// Postman: ticketId e number são mutuamente exclusivos nos query params
+						const qs: IDataObject = {
+							body:        this.getNodeParameter('body',        i, '') as string,
+							externalKey: this.getNodeParameter('externalKey', i, '') as string,
+							bearertoken: credentials.apiToken || '',
+						};
+						if (ticketId) {
+							qs.ticketId = ticketId;
+						} else {
+							qs.number = number;
+						}
+						responseData = await whazingApiRequest.call(this, 'GET', '/params', {}, qs);
+					}
 
 				} else if (resource === 'msgOfficial') {
 					responseData = await handleApiMessage(this, {
@@ -558,12 +598,16 @@ export class Whazing implements INodeType {
 
 					} else if (operation === 'get') {
 						const contactIdInput = this.getNodeParameter('contactId', i, '') as string;
+						if (!contactIdInput && !number) {
+							throw new NodeOperationError(this.getNode(), 'Informe o ID do Contato ou o Número do WhatsApp para consultar o contato.', { itemIndex: i });
+						}
 						const body: IDataObject = {};
 						if (contactIdInput) body.contactId = contactIdInput;
 						else               body.number    = number;
 						responseData = await whazingApiRequest.call(this, 'POST', '/contact', body);
 
 					} else if (operation === 'getLastTicket') {
+						// Código de compatibilidade — operação removida da UI mas mantida por segurança
 						const numInt = isNaN(Number(number)) ? number : Number(number);
 						responseData = await whazingApiRequest.call(this, 'POST', '/showticket', { number: numInt });
 
@@ -613,6 +657,11 @@ export class Whazing implements INodeType {
 				// RECURSO: Tickets
 				// ===========================================================
 				} else if (resource === 'ticket') {
+					// Operações que consultam por número exigem que ele seja informado
+					const numberRequiredOps = ['create', 'showTicket', 'showTicketChatBot', 'getAll'];
+					if (numberRequiredOps.includes(operation) && !number) {
+						throw new NodeOperationError(this.getNode(), 'O número do WhatsApp é obrigatório para esta operação. Preencha o campo "Número Do WhatsApp".', { itemIndex: i });
+					}
 					const numInt = isNaN(Number(number)) ? number : Number(number);
 
 					if (operation === 'create') {
@@ -847,13 +896,14 @@ export class Whazing implements INodeType {
 						if (tenantId === '1') throw new NodeOperationError(this.getNode(), 'O tenant ID 1 é o administrador global e não pode ser editado.', { itemIndex: i });
 						responseData = await adminApiRequest.call(this, 'POST', '/updatetenant', {
 							tenantId,
-							tenantName: this.getNodeParameter('tenantName', i, '') as string,
-							email:      this.getNodeParameter('adminEmail', i, '') as string,
-							phone:      this.getNodeParameter('adminPhone', i, '') as string,
-							plano:      this.getNodeParameter('planId',     i, '1') as string,
-							dueDate:    this.getNodeParameter('dueDate',    i, '') as string,
-							recurrence: this.getNodeParameter('recurrence', i, 'MENSAL') as string,
+							tenantName: this.getNodeParameter('tenantName',   i, '') as string,
+							email:      this.getNodeParameter('adminEmail',   i, '') as string,
+							phone:      this.getNodeParameter('adminPhone',   i, '') as string,
+							plano:      this.getNodeParameter('planId',       i, '1') as string,
+							dueDate:    this.getNodeParameter('dueDate',      i, '') as string,
+							recurrence: this.getNodeParameter('recurrence',   i, 'MENSAL') as string,
 							status:     this.getNodeParameter('tenantStatus', i, 'active') as string,
+							trial:      this.getNodeParameter('tenantTrial',  i, false) as boolean,
 						});
 
 					} else if (operation === 'addMonth') {
@@ -939,6 +989,85 @@ export class Whazing implements INodeType {
 					} else {
 						throw new NodeOperationError(this.getNode(), `Operação "${operation}" não reconhecida para o recurso "${resource}".`, { itemIndex: i });
 					}
+				} else if (resource === 'nfse') {
+
+					// ===========================================================
+					// RECURSO: NFS-e (Nota Fiscal de Serviço Eletrônica)
+					// Todos os endpoints NFS-e são sob a API Admin.
+					// ===========================================================
+
+					if (operation === 'getFiscalData') {
+						const tenantId = this.getNodeParameter('tenantId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'GET', `/nfse/fiscal/${tenantId}`);
+
+					} else if (operation === 'updateFiscalData') {
+						const tenantId  = this.getNodeParameter('tenantId',   i, '') as string;
+						const fiscalData = this.getNodeParameter('fiscalData', i, {}) as IDataObject;
+						const body: IDataObject = {};
+						if (fiscalData.tenantFiscalName)              body.tenantFiscalName       = fiscalData.tenantFiscalName;
+						if (fiscalData.cpfCnpj)                       body.cpfCnpj                = fiscalData.cpfCnpj;
+						if (fiscalData.fiscalEmail)                   body.fiscalEmail             = fiscalData.fiscalEmail;
+						if (fiscalData.fiscalMobilePhone)             body.fiscalMobilePhone       = fiscalData.fiscalMobilePhone;
+						if (fiscalData.address)                       body.address                 = fiscalData.address;
+						if (fiscalData.addressNumber)                 body.addressNumber            = fiscalData.addressNumber;
+						if (fiscalData.complement)                    body.complement              = fiscalData.complement;
+						if (fiscalData.province)                      body.province                = fiscalData.province;
+						if (fiscalData.city)                          body.city                    = fiscalData.city;
+						if (fiscalData.state)                         body.state                   = fiscalData.state;
+						if (fiscalData.postalCode)                    body.postalCode              = fiscalData.postalCode;
+						if (fiscalData.invoiceEmissionEnabled !== undefined) body.invoiceEmissionEnabled = fiscalData.invoiceEmissionEnabled;
+						responseData = await adminApiRequest.call(this, 'PUT', `/nfse/fiscal/${tenantId}`, body);
+
+					} else if (operation === 'listNfse') {
+						const filters = this.getNodeParameter('nfseFilters', i, {}) as IDataObject;
+						const qs: IDataObject = {};
+						if (filters.tenantId)   qs.tenantId   = filters.tenantId;
+						if (filters.status)     qs.status     = filters.status;
+						if (filters.invoiceId)  qs.invoiceId  = filters.invoiceId;
+						if (filters.startDate)  qs.startDate  = (filters.startDate as string).split('T')[0];
+						if (filters.endDate)    qs.endDate    = (filters.endDate as string).split('T')[0];
+						if (filters.pageNumber) qs.pageNumber = filters.pageNumber;
+						if (filters.pageSize)   qs.pageSize   = filters.pageSize;
+						responseData = await adminApiRequest.call(this, 'GET', '/nfse', {}, qs);
+
+					} else if (operation === 'getNfse') {
+						const nfseId = this.getNodeParameter('nfseId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'GET', `/nfse/${nfseId}`);
+
+					} else if (operation === 'getNfseByInvoice') {
+						const invoiceId = this.getNodeParameter('invoiceId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'GET', `/nfse/invoices/${invoiceId}`);
+
+					} else if (operation === 'scheduleNfse') {
+						const invoiceId     = this.getNodeParameter('invoiceId',        i, '') as string;
+						const effectiveDate = this.getNodeParameter('nfseEffectiveDate', i, '') as string;
+						const body: IDataObject = {};
+						if (effectiveDate) body.effectiveDate = (effectiveDate as string).split('T')[0];
+						responseData = await adminApiRequest.call(this, 'POST', `/nfse/invoices/${invoiceId}/schedule`, body);
+
+					} else if (operation === 'authorizeNfse') {
+						const nfseId = this.getNodeParameter('nfseId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'POST', `/nfse/${nfseId}/authorize`);
+
+					} else if (operation === 'cancelNfse') {
+						const nfseId = this.getNodeParameter('nfseId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'POST', `/nfse/${nfseId}/cancel`);
+
+					} else if (operation === 'syncNfse') {
+						const nfseId = this.getNodeParameter('nfseId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'POST', `/nfse/${nfseId}/sync`);
+
+					} else if (operation === 'downloadNfsePdf') {
+						const nfseId = this.getNodeParameter('nfseId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'GET', `/nfse/${nfseId}/download/pdf`);
+
+					} else if (operation === 'downloadNfseXml') {
+						const nfseId = this.getNodeParameter('nfseId', i, '') as string;
+						responseData = await adminApiRequest.call(this, 'GET', `/nfse/${nfseId}/download/xml`);
+
+					} else {
+						throw new NodeOperationError(this.getNode(), `Operação "${operation}" não reconhecida para o recurso "${resource}".`, { itemIndex: i });
+					}
 				} else {
 					throw new NodeOperationError(this.getNode(), `Recurso "${resource}" não reconhecido.`, { itemIndex: i });
 				}
@@ -949,11 +1078,26 @@ export class Whazing implements INodeType {
 				returnData.push(...executionData);
 
 			} catch (error) {
+				let finalError = error as Error;
+
+				// Credencial ausente ou excluída → instrução clara ao usuário
+				if (finalError.message?.includes('does not exist for type') &&
+						finalError.message?.includes('whazingApi')) {
+					finalError = Object.assign(
+						new Error(
+							'Credencial Whazing não encontrada ou excluída. ' +
+							'Abra as configurações deste node, clique em "Credential to connect with" ' +
+							'e selecione ou crie uma credencial válida do tipo "Whazing API".',
+						),
+						{ cause: error },
+					);
+				}
+
 				if (this.continueOnFail()) {
-					returnData.push({ json: { error: (error as Error).message }, pairedItem: i });
+					returnData.push({ json: { error: finalError.message }, pairedItem: i });
 					continue;
 				}
-				throw new NodeOperationError(this.getNode(), error as Error, { itemIndex: i });
+				throw new NodeOperationError(this.getNode(), finalError, { itemIndex: i });
 			}
 		}
 

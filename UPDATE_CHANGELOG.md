@@ -1,5 +1,44 @@
 # Registro de Atualizações - Whazing Node
 
+## [1.0.10] - 06/06/2026
+
+### ⚡ Correções e Compatibilidade
+
+Esta versão adiciona suporte a NF-e, endpointsAdmin - Empresas, suporte para números internacionais, melhorias nas operações de Tickets, correções de bugs e traduções para PT-BR.
+
+## 🚀 Novidades da Versão 1.0.10
+
+### Mensagens
+
+- * Corrigido envio de mensagens utilizando ID do Ticket.
+- * Corrigido envio de botões utilizando ID do Ticket.
+- * Corrigido envio de localização.
+- * Corrigido envio de mensagens parametrizadas utilizando ID do Ticket.
+- * Adicionado suporte para envio de contatos utilizando ID do Ticket.
+- * Adicionado suporte para envio de figurinhas utilizando ID do Ticket.
+- * Adicionado suporte para envio de mensagens para números internacionais. (Obrigatório informar o DDI, exemplo: `+12546125421`).
+
+### NF-e
+
+- * Adicionado novos endpoints para NF-e. (Geração, consulta e listagem).
+
+### Admin
+
+- * Adicionado endpoint Admin - Empresas.
+- * Agora é possível criar empresas já em modo Trial.
+- * Empresas removidas do modo Trial não poderão retornar ao modo Trial posteriormente.
+
+### Tickets
+
+- * Melhoradas validações das operações de Tickets.
+- * Ajustadas operações que exigem obrigatoriamente o ID do Ticket.
+- * Corrigidas validações na consulta de contatos.
+
+### Traduções
+
+- * Tradução de erros conhecidos para PT-BR.
+- * Quando disponível, o motivo do erro será exibido em português.
+
 ## [1.0.9] - 28/05/2026
 
 ### ⚡ Correções e Compatibilidade

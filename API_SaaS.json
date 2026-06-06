@@ -1,0 +1,496 @@
+{
+  "info": {
+    "_postman_id": "whazing-api-admin-v2",
+    "name": "Whazing - API Admin",
+    "description": "API Admin do Whazing. Autenticação via Bearer Token em todos os endpoints.\n\nVariáveis necessárias:\n- baseUrl: URL base da API (ex: https://app.whazing.com)\n- apiId: ID da API (obtido em Configurações > API Admin)\n- bearerToken: Token de autenticação (obtido em Configurações > API Admin)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://app.whazing.com",
+      "type": "string"
+    },
+    {
+      "key": "apiId",
+      "value": "SEU_API_ID_AQUI",
+      "type": "string"
+    },
+    {
+      "key": "bearerToken",
+      "value": "SEU_BEARER_TOKEN_AQUI",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Tenants",
+      "item": [
+        {
+          "name": "Criar Tenant",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/createtenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "createtenant"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"mudar123\",\n  \"tenantName\": \"Test Company\",\n  \"phone\": \"55555555555\",\n  \"plano\": \"1\",\n  \"timetest\": \"3\",\n  \"recurrence\": \"MENSAL\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Editar Tenant",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/updatetenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "updatetenant"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantId\": \"23\",\n  \"email\": \"test@example.com\",\n  \"tenantName\": \"Test Company\",\n  \"phone\": \"55555555555\",\n  \"plano\": \"1\",\n  \"dueDate\": \"2025-07-17T20:58\",\n  \"recurrence\": \"MENSAL\",\n  \"trial\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Listar Tenants",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}"]
+            }
+          }
+        },
+        {
+          "name": "Listar Tenant Específico",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantId\": \"23\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Adicionar 1 Mês",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/addMonth",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "addMonth"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantId\": \"23\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuários",
+      "item": [
+        {
+          "name": "Listar Usuários do Tenant",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/users/23",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "users", "23"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Senha do Usuário",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "users"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"42\",\n  \"password\": \"novaSenha123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Planos",
+      "item": [
+        {
+          "name": "Listar Planos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "plans"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Faturas",
+      "item": [
+        {
+          "name": "Listar Faturas (todas)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/invoices/23",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "invoices", "23"]
+            }
+          }
+        },
+        {
+          "name": "Listar Faturas (filtro status)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/invoices/23?status=open",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "invoices", "23"],
+              "query": [{ "key": "status", "value": "open", "description": "open | paid | all" }]
+            }
+          }
+        },
+        {
+          "name": "Faturas em Aberto",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/invoices/23/open",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "invoices", "23", "open"]
+            }
+          }
+        },
+        {
+          "name": "Gerar Pagamento / QR Code",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/invoices/456/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "invoices", "456", "payment"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 99.90\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Marcar como Paga",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/invoices/456/paid",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "invoices", "456", "paid"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Criar Cobrança Avulsa",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/invoices/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "invoices", "create"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantId\": \"23\",\n  \"detail\": \"Taxa de implantação\",\n  \"value\": 150.00,\n  \"dueDate\": \"2025-12-31\",\n  \"recurrence\": \"MENSAL\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Editar Fatura",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/invoices/456",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "invoices", "456"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"detail\": \"Nova descrição\",\n  \"value\": 199.90,\n  \"dueDate\": \"2026-01-15\",\n  \"status\": \"open\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Excluir Fatura",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/invoices/456",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "invoices", "456"]
+            }
+          }
+        },
+        {
+          "name": "Recriar Faturas",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/invoices/23/recreate",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "invoices", "23", "recreate"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "NFS-e - Dados Fiscais",
+      "item": [
+        {
+          "name": "Consultar Dados Fiscais",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse/fiscal/23",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse", "fiscal", "23"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Dados Fiscais",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse/fiscal/23",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse", "fiscal", "23"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantFiscalName\": \"Empresa LTDA\",\n  \"cpfCnpj\": \"00.000.000/0001-00\",\n  \"fiscalEmail\": \"fiscal@empresa.com\",\n  \"fiscalMobilePhone\": \"11999999999\",\n  \"address\": \"Rua Exemplo\",\n  \"addressNumber\": \"100\",\n  \"complement\": \"Sala 1\",\n  \"province\": \"Centro\",\n  \"city\": \"São Paulo\",\n  \"state\": \"SP\",\n  \"postalCode\": \"01001000\",\n  \"invoiceEmissionEnabled\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "NFS-e - Consultas",
+      "item": [
+        {
+          "name": "Listar NFS-e (todas)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse"]
+            }
+          }
+        },
+        {
+          "name": "Listar NFS-e (com filtros)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse?tenantId=23&status=AUTHORIZED&pageNumber=1&pageSize=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse"],
+              "query": [
+                { "key": "tenantId", "value": "23", "description": "Filtrar por tenant" },
+                { "key": "status", "value": "AUTHORIZED", "description": "SCHEDULED | AUTHORIZED | CANCELED | ERROR" },
+                { "key": "invoiceId", "value": "", "description": "Filtrar por invoice", "disabled": true },
+                { "key": "startDate", "value": "", "description": "YYYY-MM-DD — filtro por effectiveDate", "disabled": true },
+                { "key": "endDate", "value": "", "description": "YYYY-MM-DD", "disabled": true },
+                { "key": "pageNumber", "value": "1" },
+                { "key": "pageSize", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalhe NFS-e",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse", "1"]
+            }
+          }
+        },
+        {
+          "name": "NFS-e por Invoice",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse/invoices/456",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse", "invoices", "456"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "NFS-e - Emissão e Ciclo de Vida",
+      "item": [
+        {
+          "name": "Emitir NFS-e",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse/invoices/456/schedule",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse", "invoices", "456", "schedule"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"effectiveDate\": \"2025-12-31\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Forçar Autorização NFS-e",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse/1/authorize",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse", "1", "authorize"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Cancelar NFS-e",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse/1/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse", "1", "cancel"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Sincronizar NFS-e",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse/1/sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse", "1", "sync"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "NFS-e - Downloads",
+      "item": [
+        {
+          "name": "Download PDF",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse/1/download/pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse", "1", "download", "pdf"]
+            }
+          }
+        },
+        {
+          "name": "Download XML",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api/admin/{{apiId}}/nfse/1/download/xml",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "api", "admin", "{{apiId}}", "nfse", "1", "download", "xml"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

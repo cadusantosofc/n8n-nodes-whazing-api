@@ -21,6 +21,7 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Mensagens › API Oficial', value: 'msgOfficial', description: 'Botões, listas, templates e localização (Meta)' },
 			{ name: 'Mensagens › API PLUS',    value: 'msgPlus',     description: 'Botões dinâmicos, carrossel, Pix e pagamentos' },
 			{ name: 'Mensagens › Baileys',     value: 'msgBaileys',  description: 'Texto, arquivo, sticker, localização, contato, params' },
+			{ name: 'NFS-e',                  value: 'nfse',        description: 'Nota Fiscal de Serviço Eletrônica — emissão, consulta e dados fiscais (API Admin)' },
 			{ name: 'Ticket',                 value: 'ticket',      description: 'Criar, consultar e gerenciar atendimentos' },
 		],
 		default: 'msgBaileys',
@@ -112,9 +113,9 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Consultar Ticket Do Chatbot',       value: 'showTicketChatBot', action: 'Consultar ticket do chatbot' },
 			{ name: 'Consultar Último Ticket Do Número', value: 'showTicket',        action: 'Consultar último ticket do número' },
 			{ name: 'Criar Ticket',                      value: 'create',            action: 'Criar ticket' },
-			{ name: 'Listar Mensagens Do Ticket',        value: 'listMessages',      action: 'Listar mensagens do ticket' },
-			{ name: 'Listar Todos Os Tickets',  value: 'getAll',            action: 'Listar todos os tickets do número' },
-			{ name: 'Obter Detalhes (Por ID)',           value: 'get',               action: 'Obter detalhes do ticket' },
+			{ name: 'Listar Mensagens Do Ticket (Por ID)', value: 'listMessages',      action: 'Listar mensagens do ticket — requer ID do ticket' },
+			{ name: 'Listar Todos Os Tickets',           value: 'getAll',            action: 'Listar todos os tickets do número' },
+			{ name: 'Obter Detalhes Do Ticket (Por ID)', value: 'get',               action: 'Obter detalhes do ticket — requer ID do ticket' },
 		],
 		default: 'create',
 	},
@@ -233,12 +234,28 @@ export const whazingDescription: INodeProperties[] = [
 		name: 'number',
 		type: 'string',
 		displayOptions: {
-			show: { resource: ['msgBaileys', 'msgOfficial', 'msgPlus', 'contact', 'ticket'] },
+			show: { resource: ['msgBaileys', 'msgOfficial', 'msgPlus', 'contact'] },
 			hide: { operation: ['sendTemplate', 'sendTemplateParams'] },
 		},
 		default: '',
 		placeholder: '5511999999999',
 		description: 'Número no formato internacional. Pode ser substituído pelo ID do Ticket abaixo.',
+	},
+	{
+		// Número para o recurso Ticket — exibido apenas para operações que consultam por número.
+		// Operações como listMessages e get usam Ticket ID e NÃO aparecem aqui.
+		displayName: 'Número Do WhatsApp',
+		name: 'number',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['ticket'],
+				operation: ['create', 'showTicket', 'showTicketChatBot', 'getAll'],
+			},
+		},
+		default: '',
+		placeholder: '5511999999999',
+		description: 'Número no formato internacional. Obrigatório para esta operação.',
 	},
 	{
 		displayName: 'ID Do Ticket',
@@ -253,9 +270,11 @@ export const whazingDescription: INodeProperties[] = [
 	},
 	{
 		// ticketId para ops de ticket que o exigem como alvo
+		// NOTA: listMessages e get NÃO suportam busca por número — use apenas o ID do ticket
 		displayName: 'ID Do Ticket',
 		name: 'ticketId',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['ticket'],
@@ -263,7 +282,7 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID do ticket a ser manipulado',
+		description: 'ID numérico do ticket. Obrigatório — estas operações não aceitam número de telefone.',
 	},
 
 	// ============================================================
@@ -817,7 +836,7 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['ticket'], operation: ['setChatBot'] } },
 		default: true,
-		description: 'Whether ativa (ligado) ou desativa (desligado) o chatbot para este ticket',
+		description: 'Ativa (true) ou desativa (false) o chatbot para este ticket',
 	},
 	{
 		displayName: 'Status Do Ticket',
@@ -999,7 +1018,7 @@ export const whazingDescription: INodeProperties[] = [
 			show: { resource: ['kanban'], operation: ['deleteCard'] },
 		},
 		default: false,
-		description: 'Se desativado, o card será apenas arquivado (soft delete)',
+		description: 'Se desativado, o card será apenas arquivado (exclusão reversível)',
 	},
 	{
 		displayName: 'Filtros Adicionais',
@@ -1284,11 +1303,11 @@ export const whazingDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['admin'],
-				operation: ['createTenant'],
+				operation: ['createTenant', 'updateTenant'],
 			},
 		},
 		default: false,
-		description: 'define se a empresa está em período de testes',
+		description: 'Define se a empresa está em período de testes (trial)',
 	},
 	{
 		displayName: 'Afiliado',
@@ -1301,7 +1320,7 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'define se a empresa é um afiliado',
+		description: 'Define se a empresa é um afiliado',
 	},
 
 	// ============================================================
@@ -1502,5 +1521,169 @@ export const whazingDescription: INodeProperties[] = [
 		],
 		default: 'open',
 		description: 'Atualizar status da fatura',
+	},
+	// ============================================================
+	//  OPERAÇÕES — NFS-e
+	// ============================================================
+	{
+		displayName: 'Operação',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['nfse'] } },
+		options: [
+			{ name: 'Atualizar Dados Fiscais',     value: 'updateFiscalData',  action: 'Atualizar dados fiscais do tenant' },
+			{ name: 'Autorizar NFS-e',             value: 'authorizeNfse',     action: 'Forçar autorização de uma NFS-e' },
+			{ name: 'Cancelar NFS-e',              value: 'cancelNfse',        action: 'Cancelar uma NFS-e' },
+			{ name: 'Consultar Dados Fiscais',     value: 'getFiscalData',     action: 'Consultar dados fiscais do tenant' },
+			{ name: 'Download PDF',                value: 'downloadNfsePdf',   action: 'Baixar PDF da NFS-e' },
+			{ name: 'Download XML',                value: 'downloadNfseXml',   action: 'Baixar XML da NFS-e' },
+			{ name: 'Emitir / Agendar NFS-e',     value: 'scheduleNfse',      action: 'Agendar emissão de NFS-e por fatura' },
+			{ name: 'Listar NFS-e',               value: 'listNfse',          action: 'Listar notas fiscais com filtros' },
+			{ name: 'NFS-e Por Fatura',            value: 'getNfseByInvoice',  action: 'Listar NFS-e de uma fatura' },
+			{ name: 'Obter Detalhe NFS-e',        value: 'getNfse',           action: 'Obter detalhes de uma NFS-e' },
+			{ name: 'Sincronizar NFS-e',           value: 'syncNfse',          action: 'Sincronizar status de uma NFS-e' },
+		],
+		default: 'listNfse',
+	},
+
+	// ============================================================
+	//  CAMPOS — NFS-e: ID da Empresa
+	// ============================================================
+	{
+		displayName: 'ID Da Empresa',
+		name: 'tenantId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['nfse'],
+				operation: ['getFiscalData', 'updateFiscalData'],
+			},
+		},
+		default: '',
+		description: 'ID do tenant para consulta/atualização dos dados fiscais',
+	},
+
+	// ============================================================
+	//  CAMPOS — NFS-e: ID da NFS-e
+	// ============================================================
+	{
+		displayName: 'ID Da NFS-e',
+		name: 'nfseId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['nfse'],
+				operation: ['getNfse', 'authorizeNfse', 'cancelNfse', 'syncNfse', 'downloadNfsePdf', 'downloadNfseXml'],
+			},
+		},
+		default: '',
+		description: 'ID numérico da NFS-e a ser manipulada',
+	},
+
+	// ============================================================
+	//  CAMPOS — NFS-e: ID da Fatura
+	// ============================================================
+	{
+		displayName: 'ID Da Fatura',
+		name: 'invoiceId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['nfse'],
+				operation: ['getNfseByInvoice', 'scheduleNfse'],
+			},
+		},
+		default: '',
+		description: 'ID da fatura vinculada à NFS-e',
+	},
+
+	// ============================================================
+	//  CAMPOS — NFS-e: Data de emissão (scheduleNfse)
+	// ============================================================
+	{
+		displayName: 'Data De Emissão (Effective Date)',
+		name: 'nfseEffectiveDate',
+		type: 'dateTime',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['nfse'],
+				operation: ['scheduleNfse'],
+			},
+		},
+		default: '',
+		description: 'Data de competência para emissão da nota fiscal (formato YYYY-MM-DD)',
+	},
+
+	// ============================================================
+	//  CAMPOS — NFS-e: Dados Fiscais (updateFiscalData)
+	// ============================================================
+	{
+		displayName: 'Dados Fiscais',
+		name: 'fiscalData',
+		type: 'collection',
+		placeholder: 'Adicionar Campo Fiscal',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['nfse'],
+				operation: ['updateFiscalData'],
+			},
+		},
+		options: [
+			{ displayName: 'Nome Fiscal Da Empresa',  name: 'tenantFiscalName',       type: 'string',  default: '', placeholder: 'Empresa LTDA' },
+			{ displayName: 'CPF / CNPJ',              name: 'cpfCnpj',                type: 'string',  default: '', placeholder: '00.000.000/0001-00' },
+			{ displayName: 'E-Mail Fiscal',           name: 'fiscalEmail',             type: 'string',  default: '', placeholder: 'fiscal@empresa.com' },
+			{ displayName: 'Telefone Fiscal',         name: 'fiscalMobilePhone',       type: 'string',  default: '', placeholder: '11999999999' },
+			{ displayName: 'Endereço',                name: 'address',                 type: 'string',  default: '' },
+			{ displayName: 'Número',                  name: 'addressNumber',            type: 'string',  default: '' },
+			{ displayName: 'Complemento',             name: 'complement',              type: 'string',  default: '' },
+			{ displayName: 'Bairro',                  name: 'province',                type: 'string',  default: '' },
+			{ displayName: 'Cidade',                  name: 'city',                    type: 'string',  default: '' },
+			{ displayName: 'Estado (UF)',             name: 'state',                   type: 'string',  default: '', placeholder: 'SP' },
+			{ displayName: 'CEP',                     name: 'postalCode',              type: 'string',  default: '', placeholder: '01001000' },
+			{ displayName: 'Habilitar Emissão NFS-e', name: 'invoiceEmissionEnabled',  type: 'boolean', default: false, description: 'Ativa a emissão automática de NFS-e para este tenant' },
+		],
+	},
+
+	// ============================================================
+	//  CAMPOS — NFS-e: Filtros de listagem (listNfse)
+	// ============================================================
+	{
+		displayName: 'Filtros',
+		name: 'nfseFilters',
+		type: 'collection',
+		placeholder: 'Adicionar Filtro',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['nfse'],
+				operation: ['listNfse'],
+			},
+		},
+		options: [
+			{ displayName: 'ID Da Empresa', name: 'tenantId',  type: 'string', default: '',  description: 'Filtrar notas de um tenant específico' },
+			{
+				displayName: 'Status',
+				name: 'status',
+				type: 'options',
+				options: [
+					{ name: 'Autorizada', value: 'AUTHORIZED' },
+					{ name: 'Agendada',   value: 'SCHEDULED'  },
+					{ name: 'Cancelada',  value: 'CANCELED'   },
+					{ name: 'Erro',       value: 'ERROR'       },
+				],
+				default: 'AUTHORIZED',
+			},
+			{ displayName: 'ID Da Fatura',         name: 'invoiceId',   type: 'string',   default: '',  description: 'Filtrar NFS-e de uma fatura específica' },
+			{ displayName: 'Data Inicial',         name: 'startDate',   type: 'dateTime', default: '',  description: 'Filtro por effectiveDate (YYYY-MM-DD)' },
+			{ displayName: 'Data Final',           name: 'endDate',     type: 'dateTime', default: '',  description: 'Filtro por effectiveDate (YYYY-MM-DD)' },
+			{ displayName: 'Página',               name: 'pageNumber',  type: 'number',   default: 1,   typeOptions: { minValue: 1 } },
+			{ displayName: 'Itens Por Página',     name: 'pageSize',    type: 'number',   default: 20,  typeOptions: { minValue: 1, maxValue: 100 } },
+		],
 	},
 ];
