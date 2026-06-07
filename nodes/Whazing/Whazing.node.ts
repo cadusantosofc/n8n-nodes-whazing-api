@@ -300,9 +300,11 @@ export class Whazing implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 
 		for (let i = 0; i < items.length; i++) {
+			let resource = '';
+			let operation = '';
 			try {
-				const resource = this.getNodeParameter('resource', i, '') as string;
-				const operation = this.getNodeParameter('operation', i, '') as string;
+				resource = this.getNodeParameter('resource', i, '') as string;
+				operation = this.getNodeParameter('operation', i, '') as string;
 
 				if (!resource) {
 					throw new NodeOperationError(this.getNode(), 'O parâmetro "resource" não foi encontrado. Verifique a configuração do node.', { itemIndex: i });

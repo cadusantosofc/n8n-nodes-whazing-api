@@ -63,14 +63,6 @@ export async function whazingApiRequest(
 	}
 	if (Object.keys(option).length > 0) Object.assign(options, option);
 
-	// ★ DEBUG — imprime o payload completo no console do n8n
-	console.log('\n══════════════════════════════════════════');
-	console.log('🔵 WHAZING API REQUEST');
-	console.log(`   ${method} ${options.url}`);
-	if (options.body) console.log('   BODY:', JSON.stringify(options.body, null, 2));
-	if (options.formData) console.log('   FORM:', JSON.stringify(options.formData, null, 2));
-	console.log('══════════════════════════════════════════\n');
-
 	return this.helpers.httpRequestWithAuthentication.call(this, 'whazingApi', options);
 }
 
