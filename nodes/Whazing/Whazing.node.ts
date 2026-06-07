@@ -539,10 +539,6 @@ export class Whazing implements INodeType {
 						}));
 						const body: IDataObject = {
 							name:            this.getNodeParameter('contactName',     i, '') as string,
-							email:           this.getNodeParameter('email',           i, '') as string,
-							commentary:      this.getNodeParameter('commentary',      i, '') as string,
-							deadline:        this.getNodeParameter('deadline',        i, '') as string,
-							kanbanPrice:     this.getNodeParameter('kanbanPrice',     i, '') as string,
 							disableBot:      this.getNodeParameter('disableBot',      i, false) as boolean,
 							disableCampaign: this.getNodeParameter('disableCampaign', i, false) as boolean,
 							disableKanban:   this.getNodeParameter('disableKanban',   i, false) as boolean,
@@ -550,6 +546,15 @@ export class Whazing implements INodeType {
 							extraInfo,
 							wallets: [],
 						};
+						// Only include optional string fields when non-empty — the API returns 500 for empty strings on these fields
+						const email       = this.getNodeParameter('email',       i, '') as string;
+						const commentary  = this.getNodeParameter('commentary',  i, '') as string;
+						const deadline    = this.getNodeParameter('deadline',    i, '') as string;
+						const kanbanPrice = this.getNodeParameter('kanbanPrice', i, '') as string;
+						if (email)       body.email       = email;
+						if (commentary)  body.commentary  = commentary;
+						if (deadline)    body.deadline    = deadline;
+						if (kanbanPrice) body.kanbanPrice = kanbanPrice;
 						const contactIdInput = this.getNodeParameter('contactId', i, '') as string;
 						if (contactIdInput) body.contactId = contactIdInput;
 						if (ticketId)       body.ticketId  = ticketId;
@@ -949,11 +954,42 @@ export class Whazing implements INodeType {
 				returnData.push(...executionData);
 
 			} catch (error) {
+				const err = error as any;
+				const statusCode: number | undefined =
+					err?.response?.status    ||
+					err?.response?.statusCode ||
+					err?.statusCode           ||
+					err?.cause?.response?.status ||
+					err?.cause?.statusCode    ||
+					err?.httpCode;
+				const responseBody: unknown =
+					err?.response?.data   ||
+					err?.response?.body   ||
+					err?.cause?.response?.data ||
+					err?.description;
+
 				if (this.continueOnFail()) {
-					returnData.push({ json: { error: (error as Error).message }, pairedItem: i });
+					returnData.push({
+						json: {
+							error:        (err as Error).message,
+							statusCode:   statusCode ?? null,
+							resource,
+							operation,
+							itemIndex:    i,
+							responseData: responseBody ?? null,
+						},
+						pairedItem: i,
+					});
 					continue;
 				}
-				throw new NodeOperationError(this.getNode(), error as Error, { itemIndex: i });
+
+				const description = [
+					`Resource: ${resource}, Operation: ${operation}, Item: ${i}`,
+					statusCode  ? `HTTP ${statusCode}` : null,
+					responseBody ? `Response: ${JSON.stringify(responseBody)}` : null,
+				].filter(Boolean).join(' | ');
+
+				throw new NodeOperationError(this.getNode(), err as Error, { itemIndex: i, description });
 			}
 		}
 
