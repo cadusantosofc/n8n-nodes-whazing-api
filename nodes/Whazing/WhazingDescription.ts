@@ -173,14 +173,19 @@ export const whazingDescription: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['kanban'] } },
 		options: [
-			{ name: 'Atualizar Card',            value: 'updateCard',      action: 'Atualizar card' },
-			{ name: 'Criar / Mover Card (Bot)',  value: 'createOrMoveCard', action: 'Criar ou mover card usando lógica de bot' },
-			{ name: 'Deletar / Arquivar Card',   value: 'deleteCard',      action: 'Deletar ou arquivar card' },
-			{ name: 'Listar Boards',             value: 'getBoards',       action: 'Listar boards' },
-			{ name: 'Listar Cards Do Board',     value: 'getCards',        action: 'Listar cards do board' },
-			{ name: 'Listar Cards Do Contato',   value: 'getContactCards', action: 'Listar cards do contato' },
-			{ name: 'Listar Colunas Do Board',   value: 'getColumns',      action: 'Listar colunas do board' },
-			{ name: 'Obter Detalhes Do Card',    value: 'getCard',         action: 'Obter detalhes do card' },
+			{ name: 'Atualizar Card',            value: 'updateCard',           action: 'Atualizar card' },
+			{ name: 'Atualizar Item De Checklist', value: 'updateChecklistItem', action: 'Atualizar item de checklist' },
+			{ name: 'Criar / Mover Card (Bot)',  value: 'createOrMoveCard',     action: 'Criar ou mover card usando lógica de bot' },
+			{ name: 'Criar Item De Checklist',   value: 'createChecklistItem',  action: 'Criar item de checklist no card' },
+			{ name: 'Deletar / Arquivar Card',   value: 'deleteCard',           action: 'Deletar ou arquivar card' },
+			{ name: 'Deletar Item De Checklist', value: 'deleteChecklistItem',  action: 'Deletar item de checklist' },
+			{ name: 'Listar Boards',             value: 'getBoards',            action: 'Listar boards' },
+			{ name: 'Listar Cards Do Board',     value: 'getCards',             action: 'Listar cards do board' },
+			{ name: 'Listar Cards Do Contato',   value: 'getContactCards',      action: 'Listar cards do contato' },
+			{ name: 'Listar Checklist Do Card',  value: 'getChecklists',        action: 'Listar itens de checklist do card' },
+			{ name: 'Listar Colunas Do Board',   value: 'getColumns',           action: 'Listar colunas do board' },
+			{ name: 'Obter Detalhes Do Card',    value: 'getCard',              action: 'Obter detalhes do card' },
+			{ name: 'Reordenar Checklist',       value: 'reorderChecklist',     action: 'Reordenar itens do checklist' },
 		],
 		default: 'getBoards',
 	},
@@ -235,7 +240,6 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: {
 			show: { resource: ['msgBaileys', 'msgOfficial', 'msgPlus', 'contact'] },
-			hide: { operation: ['sendTemplate', 'sendTemplateParams'] },
 		},
 		default: '',
 		placeholder: '5511999999999',
@@ -263,7 +267,13 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: {
 			show: { resource: ['msgBaileys', 'msgOfficial', 'msgPlus', 'contact', 'kanban'] },
-			hide: { operation: ['validateNumber', 'getBoards', 'getColumns', 'getCards', 'getCard', 'getContactCards', 'deleteCard', 'updateCard'] },
+			hide: {
+				operation: [
+					'validateNumber', 'getBoards', 'getColumns', 'getCards', 'getCard', 'getContactCards',
+					'deleteCard', 'updateCard', 'getChecklists', 'createChecklistItem', 'updateChecklistItem',
+					'deleteChecklistItem', 'reorderChecklist',
+				],
+			},
 		},
 		default: '',
 		description: 'Se fornecido, substitui o número como identificador do destinatário',
@@ -819,8 +829,23 @@ export const whazingDescription: INodeProperties[] = [
 		displayName: 'ID Do ChatBot',
 		name: 'chatbotId',
 		type: 'string',
+		required: true,
 		displayOptions: { show: { resource: ['ticket'], operation: ['updateChatbot'] } },
 		default: '',
+	},
+	{
+		displayName: 'ID Do ChatBot',
+		name: 'chatbotId',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['ticket'],
+				operation: ['setChatBot'],
+				enableChatbot: [true],
+			},
+		},
+		default: '',
+		description: 'Obrigatório ao ativar o chatbot — informe o ID do fluxo/bot no Whazing',
 	},
 	{
 		displayName: 'ID Do Atendente',
@@ -909,9 +934,29 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		displayOptions: {
-			show: { resource: ['kanban'], operation: ['getCard', 'updateCard', 'deleteCard'] },
+			show: {
+				resource: ['kanban'],
+				operation: [
+					'getCard', 'updateCard', 'deleteCard',
+					'getChecklists', 'createChecklistItem', 'reorderChecklist',
+				],
+			},
 		},
 		default: '',
+	},
+	{
+		displayName: 'ID Do Item De Checklist',
+		name: 'checklistItemId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['kanban'],
+				operation: ['updateChecklistItem', 'deleteChecklistItem'],
+			},
+		},
+		default: '',
+		description: 'ID numérico do item de checklist',
 	},
 	{
 		displayName: 'ID Da Coluna',
@@ -1001,14 +1046,14 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Tags (Opcional)',
+		displayName: 'IDs Das Etiquetas (Opcional)',
 		name: 'tags',
 		type: 'string',
 		displayOptions: {
 			show: { resource: ['kanban'], operation: ['createOrMoveCard', 'updateCard'] },
 		},
 		default: '',
-		description: 'Tags associadas ao card. Use string separada por vírgulas ou expressão n8n para array.',
+		description: 'IDs das etiquetas do card (labelIds). Separados por vírgula ou array JSON.',
 	},
 	{
 		displayName: 'Deletar Permanentemente',
@@ -1019,6 +1064,111 @@ export const whazingDescription: INodeProperties[] = [
 		},
 		default: false,
 		description: 'Se desativado, o card será apenas arquivado (exclusão reversível)',
+	},
+	{
+		displayName: 'Texto Do Item',
+		name: 'checklistText',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['createChecklistItem'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Texto Do Item (Opcional)',
+		name: 'checklistText',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['updateChecklistItem'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Status Concluído',
+		name: 'checklistDoneAction',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['updateChecklistItem'] },
+		},
+		options: [
+			{ name: 'Não Alterar', value: 'noChange' },
+			{ name: 'Marcar Concluído', value: 'done' },
+			{ name: 'Marcar Pendente', value: 'pending' },
+		],
+		default: 'noChange',
+	},
+	{
+		displayName: 'ID Do Responsável (Checklist)',
+		name: 'checklistAssigneeId',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['kanban'],
+				operation: ['createChecklistItem', 'updateChecklistItem'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Data Limite (Checklist)',
+		name: 'checklistDueDate',
+		type: 'dateTime',
+		displayOptions: {
+			show: {
+				resource: ['kanban'],
+				operation: ['createChecklistItem', 'updateChecklistItem'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'IDs Dos Itens (Ordem)',
+		name: 'checklistItemIds',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['reorderChecklist'] },
+		},
+		default: '',
+		placeholder: '14,12,10',
+		description: 'Todos os IDs do checklist na nova ordem desejada (vírgula ou array JSON)',
+	},
+	{
+		displayName: 'Campos Avançados (Opcional)',
+		name: 'kanbanAdvancedUpdate',
+		type: 'collection',
+		placeholder: 'Adicionar Campo',
+		default: {},
+		displayOptions: {
+			show: { resource: ['kanban'], operation: ['updateCard'] },
+		},
+		options: [
+			{ displayName: 'Descrição', name: 'description', type: 'string', default: '' },
+			{ displayName: 'ID Do Time', name: 'teamId', type: 'string', default: '' },
+			{ displayName: 'ID Do Contato', name: 'contactId', type: 'string', default: '' },
+			{ displayName: 'ID Do Ticket', name: 'ticketId', type: 'string', default: '' },
+			{ displayName: 'Valor Do Negócio', name: 'dealValue', type: 'string', default: '' },
+			{ displayName: 'Data De Início', name: 'startDate', type: 'dateTime', default: '' },
+			{ displayName: 'Horas Estimadas', name: 'estimatedHours', type: 'number', default: 0 },
+			{ displayName: 'Horas Registradas', name: 'loggedHours', type: 'number', default: 0 },
+			{ displayName: 'Cor Da Capa', name: 'coverColor', type: 'string', default: '', placeholder: '#f59e0b' },
+			{ displayName: 'Imagem Da Capa (URL)', name: 'coverImage', type: 'string', default: '' },
+			{
+				displayName: 'IDs Das Etiquetas',
+				name: 'labelIds',
+				type: 'string',
+				default: '',
+				description: 'Separados por vírgula: 1,2,3',
+			},
+			{
+				displayName: 'Campos Personalizados (JSON)',
+				name: 'customFieldsJson',
+				type: 'json',
+				default: '{}',
+			},
+		],
 	},
 	{
 		displayName: 'Filtros Adicionais',

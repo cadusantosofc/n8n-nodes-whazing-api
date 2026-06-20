@@ -2,49 +2,52 @@
 
 # n8n-nodes-whazing-api
 
-Este node permite a integração completa com a API Whazing, oferecendo automação de WhatsApp, tickets, gerenciamento multi-tenant (Admin), Kanban Pro e agora faturas/cobranças.
+Este node permite a integração completa com a API Whazing, oferecendo automação de WhatsApp, tickets, gerenciamento multi-tenant (Admin), Kanban Pro, checklist e faturas/cobranças.
 
 ## 📌 Versão atual
 
-- **1.0.10**
-- Adicionado suporte para NF-e.
-- Adicionado endpoint Admin - Empresas.
-- Adicionado suporte para números internacionais.
-- Melhorias nas operações de Tickets.
-- Correções e traduções de erros para PT-BR.
+- **1.0.11** — 20/06/2026
+- ✨ Módulo completo de **Checklist do Kanban Pro** (5 novas operações).
+- ✨ **Campos Avançados** em Atualizar Card (`description`, `teamId`, `dealValue`, `coverColor`, datas, horas, etc.).
+- 🐛 Correção em `setChatBot` — agora envia `chatbotId` (número) conforme a API exige.
+- 🐛 Correção em Templates — campo `number` / `ticketId` restaurado como destinatário.
+- 🐛 Kanban: campo `tags` corrigido para `labelIds` conforme a API.
+- 🐛 Datas normalizadas para `YYYY-MM-DD` em Kanban, Faturas e NFS-e.
+- 🔒 Remoção de logs de debug do console do n8n.
+- 🔒 Validações de destinatário em todas as operações de mensagem.
+- 🔒 Erros explícitos para operações desconhecidas em todos os recursos.
 
-## 🚀 Novidades da Versão 1.0.10
+## 🚀 Novidades da Versão 1.0.11
 
-### Mensagens
+### Checklist do Kanban Pro (novo)
 
-- * Corrigido envio de mensagens utilizando ID do Ticket.
-- * Corrigido envio de botões utilizando ID do Ticket.
-- * Corrigido envio de localização.
-- * Corrigido envio de mensagens parametrizadas utilizando ID do Ticket.
-- * Adicionado suporte para envio de contatos utilizando ID do Ticket.
-- * Adicionado suporte para envio de figurinhas utilizando ID do Ticket.
-* Adicionado suporte para envio de mensagens para números internacionais. (Obrigatório informar o DDI, exemplo: `+12546125421`).
+- ✅ **Listar** todos os itens de checklist de um card.
+- ✅ **Criar** item de checklist com texto, responsável e data limite.
+- ✅ **Atualizar** item (texto, status concluído com opção "Não Alterar", responsável, data).
+- ✅ **Deletar** item de checklist por ID.
+- ✅ **Reordenar** itens de checklist enviando a nova lista de IDs em ordem.
 
-### NF-e
+### Campos Avançados em Atualizar Card
 
-- * Adicionado novos endpoints para NF-e. (Geração, consulta e listagem).
+- Descrição, equipe, contato vinculado, ticket vinculado, valor do negócio.
+- Data de início, horas estimadas, horas registradas.
+- Cor e imagem de capa, etiquetas (`labelIds`), campos customizados (JSON).
 
-### Admin
+### Correções de Lógica
 
-- * Adicionado endpoint Admin - Empresas.
-- * Agora é possível criar empresas já em modo Trial.
-- * Empresas removidas do modo Trial não poderão retornar ao modo Trial posteriormente.
+- `setChatBot` corrigido: envia `chatbotId` (número) ou `null` ao desativar.
+- `sendTemplate` / `sendTemplateParams`: destinatário (`number` / `ticketId`) restaurado.
+- Kanban: `tags` mapeado corretamente para `labelIds` no payload.
+- Datas (`dueDate`, `startDate`, faturas, NFS-e) sempre enviadas como `YYYY-MM-DD`.
+- `sendContact`: formatação de telefone aplicada antes do envio.
+- `translateApiError`: não quebra mais quando `body.error` é `boolean`.
+- Valor `0` aceito em `estimatedHours` e `loggedHours`.
 
-### Tickets
+### Qualidade
 
-- * Melhoradas validações das operações de Tickets.
-- * Ajustadas operações que exigem obrigatoriamente o ID do Ticket.
-- * Corrigidas validações na consulta de contatos.
-
-### Traduções
-
-- * Tradução de erros conhecidos para PT-BR.
-- * Quando disponível, o motivo do erro será exibido em português.
+- Logs de debug removidos de `GenericFunctions.ts`.
+- Erros explícitos para operações desconhecidas em `msgBaileys`, `contact`, `ticket`, `channel` e `kanban`.
+- Funções utilitárias centralizadas: `formatDateParam()` e `parseOptionalId()`.
 
 ## 🗂️ Histórico de versões
 

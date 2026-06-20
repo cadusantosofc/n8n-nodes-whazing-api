@@ -1,39 +1,30 @@
-dist
-node_modules
-
-# Auto-generated entries
-# Dependencies
+# Dependências
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Build outputs
+# Build (gerado pelo npm run build — não commitar)
 dist/
 build/
 *.log
 
-# Environment files
+# Arquivos de ambiente
 .env
 .env.*
 !.env.example
 
-# IDE files
-.vscode/
+# IDE
 .idea/
 *.swp
 *.swo
+.vscode/
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Temporary files
+# Temporários
 *.tmp
 *.temp
 .cache/
-
-# Sensitive files (auto-detected)
-dist
-node_modules
-

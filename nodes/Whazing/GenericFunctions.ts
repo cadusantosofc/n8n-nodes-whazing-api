@@ -135,6 +135,9 @@ const API_MESSAGE_TRANSLATIONS: Array<[string, string]> = [
 	['too many requests',       'Muitas requisições — aguarde antes de tentar novamente (rate limit)'],
 	['service unavailable',     'Serviço indisponível — o servidor Whazing pode estar fora do ar'],
 	['gateway timeout',         'Tempo limite de resposta excedido — o servidor está demorando'],
+	['item de checklist',       'Item de checklist não encontrado — verifique o ID informado'],
+	['campo text é obrigatório', 'O texto do item de checklist é obrigatório'],
+	['itemids deve ser',        'itemIds deve ser um array não vazio com os IDs na ordem desejada'],
 ];
 
 /**
@@ -149,12 +152,15 @@ export function translateApiError(error: unknown): string {
 	const statusCode = extractStatusCode(err);
 	const body       = extractResponseBody(err);
 
-	// Mensagem retornada pela API no body da resposta
-	const apiRawMessage: string | undefined =
-		(body?.error   as string) ||
-		(body?.message as string) ||
-		(body?.msg     as string) ||
-		(body?.detail  as string);
+	// Mensagem retornada pela API no body da resposta (error pode ser boolean)
+	const apiRawMessage: string | undefined = (() => {
+		if (!body) return undefined;
+		for (const key of ['message', 'msg', 'detail', 'error']) {
+			const val = body[key];
+			if (typeof val === 'string' && val.trim()) return val;
+		}
+		return undefined;
+	})();
 
 	// 1ª tentativa: tradução pela mensagem do body da API
 	if (apiRawMessage) {
@@ -224,14 +230,6 @@ export async function whazingApiRequest(
 		options.json = false;
 	}
 	if (Object.keys(option).length > 0) Object.assign(options, option);
-
-	// ★ DEBUG — imprime o payload completo no console do n8n
-	console.log('\n══════════════════════════════════════════');
-	console.log('🔵 WHAZING API REQUEST');
-	console.log(`   ${method} ${options.url}`);
-	if (options.body)     console.log('   BODY:', JSON.stringify(options.body,     null, 2));
-	if (options.formData) console.log('   FORM:', JSON.stringify(options.formData, null, 2));
-	console.log('══════════════════════════════════════════\n');
 
 	try {
 		return await this.helpers.httpRequestWithAuthentication.call(this, 'whazingApi', options);

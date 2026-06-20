@@ -1,5 +1,66 @@
 # Registro de Atualizações - Whazing Node
 
+## [1.0.11] - 20/06/2026
+
+### 🆕 Novidades · 🐛 Correções de Lógica · 🔒 Robustez
+
+Esta versão adiciona o módulo completo de **Checklist do Kanban Pro**, campos avançados para atualização de cards, corrige falhas de lógica críticas encontradas na revisão detalhada dos endpoints e remove logs de debug que poluíam o console do n8n em produção.
+
+---
+
+### ✨ Novidades
+
+#### Checklist do Kanban Pro (5 operações novas)
+
+O módulo de Checklist estava presente na API Postman mas não havia sido implementado no node. Agora está completo:
+
+| Operação | Endpoint |
+|---|---|
+| **Listar Checklist Do Card** | `GET /kanbanpro/cards/{id}/checklists` |
+| **Criar Item De Checklist** | `POST /kanbanpro/cards/{id}/checklists` |
+| **Atualizar Item De Checklist** | `PUT /kanbanpro/checklists/{itemId}` |
+| **Deletar Item De Checklist** | `DELETE /kanbanpro/checklists/{itemId}` |
+| **Reordenar Checklist** | `POST /kanbanpro/cards/{id}/checklists/reorder` |
+
+Campos de UI adicionados: `checklistText`, `checklistAssigneeId`, `checklistDueDate`, `checklistItemIds`, `checklistDoneAction` (com opção **Não Alterar** para evitar desmarcar itens por engano).
+
+#### Campos Avançados em Atualizar Card (Kanban Pro)
+
+Nova coleção **Campos Avançados (Opcional)** disponível na operação `updateCard`, alinhada com o Postman:
+
+- `description`, `teamId`, `contactId`, `ticketId`, `dealValue`
+- `startDate`, `estimatedHours`, `loggedHours`
+- `coverColor`, `coverImage`, `labelIds`, `customFieldsJson`
+
+---
+
+### 🐛 Correções de Lógica
+
+| Problema | Correção Aplicada |
+|---|---|
+| **Templates sem destinatário** — campo `number` estava oculto em `sendTemplate` / `sendTemplateParams` | Campo `number` voltou a aparecer; validação de destinatário restaurada em `handleApiMessage` |
+| **setChatBot enviava `chatbot: boolean`** — a API espera `chatbotId` (número) | Agora envia `chatbotId` (número) ou `chatbotId: null` ao desativar; campo específico aparece quando "Ativar ChatBot" está ligado |
+| **Kanban `tags` vs `labelIds`** — API espera `labelIds`, node enviava campo com nome errado | Campo renomeado na UI para **IDs Das Etiquetas** e mapeado corretamente para `labelIds` no payload |
+| **Datas em formato datetime** — `dueDate`, `invoiceDueDate` e campos NFS-e iam com timestamp completo (`2025-07-17T20:58:00`) | Normalização para `YYYY-MM-DD` via `formatDateParam()` em todas as operações |
+| **Telefone do contato sem formatação** — `sendContact` não aplicava `formatPhoneNumber` | Telefone formatado antes do envio, alinhado com demais operações |
+| **Mensagens sem destinatário válido** — `sendText`, `sendFile`, `sendContact`, `sendButton`, `sendSticker` e `sendTemplateParams` podiam rodar sem `number` nem `ticketId` | Validação obrigatória de um dos dois adicionada em todas as operações |
+| **Criar card sem destinatário** — `createOrMoveCard` podia rodar sem `contactId` nem `ticketId` | Validação obrigatória: pelo menos um dos dois deve ser informado |
+| **Update card/checklist vazio** — PUT podia ser enviado sem nenhum campo preenchido | Erro claro exibido ao usuário se nenhum campo for informado |
+| **`translateApiError` quebrava com `error: true`** — `body.error` era `boolean`, a função chamava `.toLowerCase()` nele | Extração de mensagem só ocorre quando o valor é `string` |
+| **`estimatedHours` / `loggedHours` ignoravam valor 0** — condição `> 0` descartava zero | Corrigido para aceitar `0` como valor válido |
+
+---
+
+### 🔒 Robustez e Qualidade
+
+- **`else` faltando em múltiplos recursos** — operações desconhecidas em `msgBaileys`, `contact`, `ticket`, `channel` e `kanban` agora geram `NodeOperationError` explícito em vez de falhar silenciosamente retornando `undefined`.
+- **Remoção de logs de debug** — blocos `console.log` que imprimiam o payload completo no console do n8n em produção foram removidos de `GenericFunctions.ts`.
+- **Traduções de erro para checklist** — mensagens de erro da API de checklist traduzidas para PT-BR (`gateway timeout`, `item de checklist não encontrado`, `texto obrigatório`, `itemIds deve ser um array`).
+- **`formatDateParam()`** — função utilitária centralizada criada para normalizar datas em todos os recursos (Kanban, Faturas, NFS-e, Admin).
+- **`parseOptionalId()`** — função utilitária que converte string de ID para `number` quando o valor for numérico, evitando envio de strings onde a API espera inteiros.
+
+---
+
 ## [1.0.10] - 06/06/2026
 
 ### ⚡ Correções e Compatibilidade

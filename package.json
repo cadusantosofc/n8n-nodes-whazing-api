@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-whazing-api",
-	"version": "1.0.10",
+	"version": "1.0.11",
 	"description": "Whazing community node for n8n",
 	"license": "MIT",
 	"homepage": "",

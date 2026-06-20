@@ -197,6 +197,15 @@ async function handleApiMessage(
 		if (header.type === 'text' && !header.text) delete contents.header;
 	}
 
+	// Destinatário obrigatório (number ou ticketId)
+	if (!body.ticketId && !body.number) {
+		throw new NodeOperationError(
+			ctx.getNode(),
+			'Informe o Número do WhatsApp ou o ID do Ticket como destinatário da mensagem.',
+			{ itemIndex: i },
+		);
+	}
+
 	return whazingApiRequest.call(ctx, 'POST', path, body);
 }
 
@@ -223,6 +232,79 @@ function isNotFound(error: any): boolean {
 		msg.includes('could not be found')       ||
 		msg.includes('resource you are requesting')
 	);
+}
+
+/** Converte string de ID para number quando numérico. */
+function parseOptionalId(value: string): string | number | undefined {
+	if (!value?.trim()) return undefined;
+	return isNaN(Number(value)) ? value : Number(value);
+}
+
+/** Parseia lista de IDs (vírgula, JSON array ou array nativo do n8n). */
+function parseIdList(input: string | string[] | number[] | undefined): Array<string | number> | undefined {
+	if (input === undefined) return undefined;
+	if (Array.isArray(input)) return input;
+	const trimmed = String(input).trim();
+	if (trimmed === '') return [];
+	if (trimmed.startsWith('[')) {
+		try {
+			const parsed = JSON.parse(trimmed);
+			if (Array.isArray(parsed)) return parsed;
+		} catch { /* usa fallback por vírgula */ }
+	}
+	return trimmed.split(',').map((t) => {
+		const tr = t.trim();
+		return isNaN(Number(tr)) ? tr : Number(tr);
+	});
+}
+
+/** Normaliza campos de data para YYYY-MM-DD (formato esperado pela API). */
+function formatDateParam(value: string): string {
+	return value.includes('T') ? value.split('T')[0] : value;
+}
+
+/** Aplica lista de IDs de etiquetas (labelIds) no body do Kanban. */
+function applyKanbanLabelIds(
+	body: IDataObject,
+	tagsInput: string | string[] | number[] | undefined,
+): void {
+	if (tagsInput === undefined) return;
+	const labelIds = parseIdList(tagsInput);
+	if (labelIds !== undefined) body.labelIds = labelIds;
+}
+
+/** Mescla campos avançados opcionais no body de PUT /kanban/card/{id}. */
+function applyKanbanAdvancedFields(body: IDataObject, advanced: IDataObject): void {
+	if (advanced.description) body.description = advanced.description;
+
+	const teamId = parseOptionalId(advanced.teamId as string);
+	if (teamId !== undefined) body.teamId = teamId;
+
+	const contactId = parseOptionalId(advanced.contactId as string);
+	if (contactId !== undefined) body.contactId = contactId;
+
+	const ticketId = parseOptionalId(advanced.ticketId as string);
+	if (ticketId !== undefined) body.ticketId = ticketId;
+
+	if (advanced.dealValue) body.dealValue = advanced.dealValue;
+	if (advanced.startDate) body.startDate = formatDateParam(String(advanced.startDate));
+	if (advanced.estimatedHours !== undefined && advanced.estimatedHours !== '') {
+		body.estimatedHours = Number(advanced.estimatedHours);
+	}
+	if (advanced.loggedHours !== undefined && advanced.loggedHours !== '') {
+		body.loggedHours = Number(advanced.loggedHours);
+	}
+	if (advanced.coverColor) body.coverColor = advanced.coverColor;
+	if (advanced.coverImage !== undefined && advanced.coverImage !== '') {
+		body.coverImage = advanced.coverImage;
+	}
+
+	const labelIds = parseIdList(advanced.labelIds as string);
+	if (labelIds !== undefined && labelIds.length > 0) body.labelIds = labelIds;
+
+	if (advanced.customFieldsJson && typeof advanced.customFieldsJson === 'object') {
+		body.customFields = advanced.customFieldsJson;
+	}
 }
 
 /**
@@ -398,6 +480,12 @@ export class Whazing implements INodeType {
 							body.ticketId = ticketId;
 						} else if (number) {
 							body.number = number;
+						} else {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Informe o Número do WhatsApp ou o ID do Ticket para enviar a mensagem.',
+								{ itemIndex: i },
+							);
 						}
 						responseData = await whazingApiRequest.call(this, 'POST', '', body);
 
@@ -412,6 +500,12 @@ export class Whazing implements INodeType {
 							commonBody.ticketId = ticketId;
 						} else if (number) {
 							commonBody.number = number;
+						} else {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Informe o Número do WhatsApp ou o ID do Ticket para enviar o arquivo.',
+								{ itemIndex: i },
+							);
 						}
 
 							if (sendMethod === 'url') {
@@ -459,18 +553,26 @@ export class Whazing implements INodeType {
 							}
 
 						} else if (operation === 'sendContact') {
-						// Postman: number é padrão; ticketId é alternativa (mesmo padrão dos outros ops)
+						const contactPhone = formatPhoneNumber(
+							this.getNodeParameter('contactTelephone', i, '') as string,
+						);
 						const contactBody: IDataObject = {
 							contents: {
 								type:        'contact',
 								displayName: this.getNodeParameter('contactDisplayName', i, '') as string,
-								telephone:   this.getNodeParameter('contactTelephone',  i, '') as string,
+								telephone:   contactPhone,
 							},
 						};
 						if (ticketId) {
 							contactBody.ticketId = ticketId;
-						} else {
+						} else if (number) {
 							contactBody.number = number;
+						} else {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Informe o Número do WhatsApp ou o ID do Ticket para enviar o contato.',
+								{ itemIndex: i },
+							);
 						}
 						responseData = await whazingApiRequest.call(this, 'POST', '/sendcontact', contactBody);
 
@@ -489,8 +591,14 @@ export class Whazing implements INodeType {
 						const body: IDataObject = { contents: btnContents };
 						if (ticketId) {
 							body.ticketId = ticketId;
-						} else {
+						} else if (number) {
 							body.number = number;
+						} else {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Informe o Número do WhatsApp ou o ID do Ticket para enviar o botão.',
+								{ itemIndex: i },
+							);
 						}
 						responseData = await whazingApiRequest.call(this, 'POST', '/apioficial', body);
 
@@ -509,8 +617,14 @@ export class Whazing implements INodeType {
 						};
 						if (ticketId) {
 							formData.ticketId = ticketId;
-						} else {
+						} else if (number) {
 							formData.number = number;
+						} else {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Informe o Número do WhatsApp ou o ID do Ticket para enviar o sticker.',
+								{ itemIndex: i },
+							);
 						}
 						responseData = await whazingApiRequest.call(this, 'POST', '', {}, {}, undefined, {}, undefined, formData);
 
@@ -542,10 +656,22 @@ export class Whazing implements INodeType {
 						};
 						if (ticketId) {
 							qs.ticketId = ticketId;
-						} else {
+						} else if (number) {
 							qs.number = number;
+						} else {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Informe o Número do WhatsApp ou o ID do Ticket para enviar via parâmetros.',
+								{ itemIndex: i },
+							);
 						}
 						responseData = await whazingApiRequest.call(this, 'GET', '/params', {}, qs);
+					} else {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Operação "${operation}" não reconhecida para o recurso "${resource}".`,
+							{ itemIndex: i },
+						);
 					}
 
 				} else if (resource === 'msgOfficial') {
@@ -651,6 +777,13 @@ export class Whazing implements INodeType {
 						const val  = this.getNodeParameter('valueId', i, '') as string;
 						const type = operation.replace('listBy', '').toLowerCase();
 						responseData = await whazingApiRequest.call(this, 'GET', `/contacts/${type}/${val}`);
+
+					} else {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Operação "${operation}" não reconhecida para o recurso "${resource}".`,
+							{ itemIndex: i },
+						);
 					}
 
 				// ===========================================================
@@ -701,10 +834,22 @@ export class Whazing implements INodeType {
 
 					} else if (operation === 'setChatBot') {
 						const ticketIdInput = this.getNodeParameter('ticketId', i, '') as string;
-						responseData = await whazingApiRequest.call(this, 'POST', '/updatechatbot', {
-							ticketId: Number(ticketIdInput),
-							chatbot:  this.getNodeParameter('enableChatbot', i, true) as boolean,
-						});
+						const enableChatbot = this.getNodeParameter('enableChatbot', i, true) as boolean;
+						const body: IDataObject = { ticketId: Number(ticketIdInput) };
+						if (enableChatbot) {
+							const chatbotId = this.getNodeParameter('chatbotId', i, '') as string;
+							if (!chatbotId?.trim()) {
+								throw new NodeOperationError(
+									this.getNode(),
+									'Informe o ID do ChatBot para ativar o chatbot neste ticket.',
+									{ itemIndex: i },
+								);
+							}
+							body.chatbotId = Number(chatbotId);
+						} else {
+							body.chatbotId = null;
+						}
+						responseData = await whazingApiRequest.call(this, 'POST', '/updatechatbot', body);
 
 					} else if (operation === 'updateChatbot') {
 						const ticketIdInput = this.getNodeParameter('ticketId', i, '') as string;
@@ -716,6 +861,13 @@ export class Whazing implements INodeType {
 					} else if (operation === 'listMessages' || operation === 'get') {
 						const ticketIdInput = this.getNodeParameter('ticketId', i, '') as string;
 						responseData = await whazingApiRequest.call(this, 'GET', `/ticket/${ticketIdInput}`);
+
+					} else {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Operação "${operation}" não reconhecida para o recurso "${resource}".`,
+							{ itemIndex: i },
+						);
 					}
 
 				// ===========================================================
@@ -731,6 +883,13 @@ export class Whazing implements INodeType {
 						responseData = await whazingApiRequest.call(this, 'POST', '/logout', {});
 					} else if (operation === 'restart') {
 						responseData = await whazingApiRequest.call(this, 'POST', '/restart', {});
+
+					} else {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Operação "${operation}" não reconhecida para o recurso "${resource}".`,
+							{ itemIndex: i },
+						);
 					}
 
 				// ===========================================================
@@ -777,6 +936,15 @@ export class Whazing implements INodeType {
 						const boardIdVal = this.getNodeParameter('boardId', i, '');
 						const columnIdVal = this.getNodeParameter('columnId', i, '');
 						const contactIdVal = this.getNodeParameter('contactId', i, '');
+						const ticketIdInput = this.getNodeParameter('ticketId', i, '') as string;
+
+						if (!contactIdVal && !ticketIdInput) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Informe o ID do Contato ou o ID do Ticket para criar/mover o card.',
+								{ itemIndex: i },
+							);
+						}
 
 						const body: IDataObject = {
 							boardId:   isNaN(Number(boardIdVal)) ? boardIdVal : Number(boardIdVal),
@@ -791,28 +959,13 @@ export class Whazing implements INodeType {
 						const title    = this.getNodeParameter('cardTitle',      i, '') as string;
 						const priority = this.getNodeParameter('kanbanPriority', i, 'none') as string;
 						const note     = this.getNodeParameter('kanbanNote',     i, '') as string;
-						const ticketIdInput = this.getNodeParameter('ticketId', i, '') as string;
 						const tagsInput = this.getNodeParameter('tags', i, '') as string | string[] | number[];
 
 						if (title)    body.title    = title;
 						if (priority && priority !== 'none') body.priority = priority;
 						if (note)     body.note     = note;
 						if (ticketIdInput) body.ticketId = isNaN(Number(ticketIdInput)) ? ticketIdInput : Number(ticketIdInput);
-						if (tagsInput !== undefined) {
-							if (Array.isArray(tagsInput)) {
-								body.tags = tagsInput;
-							} else if (typeof tagsInput === 'string') {
-								const trimmed = tagsInput.trim();
-								if (trimmed === '') {
-									body.tags = [];
-								} else {
-									body.tags = trimmed.split(',').map(t => {
-										const tr = t.trim();
-										return isNaN(Number(tr)) ? tr : Number(tr);
-									});
-								}
-							}
-						}
+						applyKanbanLabelIds(body, tagsInput);
 
 						responseData = await kanbanApiRequest(this, 'POST', '/kanban/card', body);
 
@@ -827,30 +980,93 @@ export class Whazing implements INodeType {
 						const assignee = this.getNodeParameter('assigneeId',     i, '') as string;
 						const dueDate  = this.getNodeParameter('kanbanDueDate',  i, '') as string;
 						const tagsInput = this.getNodeParameter('tags', i, '') as string | string[] | number[];
+						const advanced  = this.getNodeParameter('kanbanAdvancedUpdate', i, {}) as IDataObject;
 
 						if (title)    body.title    = title;
 						if (priority && priority !== 'none') body.priority = priority;
 						if (columnId) body.columnId = isNaN(Number(columnId)) ? columnId : Number(columnId);
 						if (note)     body.note     = note;
 						if (assignee) body.assigneeId = isNaN(Number(assignee)) ? assignee : Number(assignee);
-						if (dueDate)  body.dueDate  = dueDate;
-						if (tagsInput !== undefined) {
-							if (Array.isArray(tagsInput)) {
-								body.tags = tagsInput;
-							} else if (typeof tagsInput === 'string') {
-								const trimmed = tagsInput.trim();
-								if (trimmed === '') {
-									body.tags = [];
-								} else {
-									body.tags = trimmed.split(',').map(t => {
-										const tr = t.trim();
-										return isNaN(Number(tr)) ? tr : Number(tr);
-									});
-								}
-							}
+						if (dueDate)  body.dueDate  = formatDateParam(dueDate);
+						applyKanbanLabelIds(body, tagsInput);
+						applyKanbanAdvancedFields(body, advanced);
+
+						if (Object.keys(body).length === 0) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Informe ao menos um campo para atualizar o card.',
+								{ itemIndex: i },
+							);
 						}
 
 						responseData = await kanbanApiRequest(this, 'PUT', `/kanban/card/${cardId}`, body);
+
+					} else if (operation === 'getChecklists') {
+						const cardId = this.getNodeParameter('cardId', i, '') as string;
+						responseData = await kanbanApiRequest(this, 'GET', `/kanban/cards/${cardId}/checklists`);
+
+					} else if (operation === 'createChecklistItem') {
+						const cardId = this.getNodeParameter('cardId', i, '') as string;
+						const text   = this.getNodeParameter('checklistText', i, '') as string;
+						if (!text?.trim()) {
+							throw new NodeOperationError(this.getNode(), 'O texto do item de checklist é obrigatório.', { itemIndex: i });
+						}
+						const body: IDataObject = { text };
+						const assigneeId = this.getNodeParameter('checklistAssigneeId', i, '') as string;
+						const dueDate    = this.getNodeParameter('checklistDueDate',    i, '') as string;
+						const parsedAssignee = parseOptionalId(assigneeId);
+						if (parsedAssignee !== undefined) body.assigneeId = parsedAssignee;
+						if (dueDate) body.dueDate = formatDateParam(dueDate);
+						responseData = await kanbanApiRequest(this, 'POST', `/kanban/cards/${cardId}/checklists`, body);
+
+					} else if (operation === 'updateChecklistItem') {
+						const itemId = this.getNodeParameter('checklistItemId', i, '') as string;
+						const body: IDataObject = {};
+						const text = this.getNodeParameter('checklistText', i, '') as string;
+						if (text?.trim()) body.text = text;
+
+						const doneAction = this.getNodeParameter('checklistDoneAction', i, 'noChange') as string;
+						if (doneAction === 'done') body.done = true;
+						else if (doneAction === 'pending') body.done = false;
+
+						const assigneeId = this.getNodeParameter('checklistAssigneeId', i, '') as string;
+						const dueDate    = this.getNodeParameter('checklistDueDate',    i, '') as string;
+						if (assigneeId !== '') {
+							body.assigneeId = assigneeId.trim() ? parseOptionalId(assigneeId) : null;
+						}
+						if (dueDate) body.dueDate = formatDateParam(dueDate);
+
+						if (Object.keys(body).length === 0) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Informe ao menos um campo para atualizar o item de checklist.',
+								{ itemIndex: i },
+							);
+						}
+
+						responseData = await kanbanApiRequest(this, 'PUT', `/kanban/checklists/${itemId}`, body);
+
+					} else if (operation === 'deleteChecklistItem') {
+						const itemId = this.getNodeParameter('checklistItemId', i, '') as string;
+						responseData = await kanbanApiRequest(this, 'DELETE', `/kanban/checklists/${itemId}`);
+
+					} else if (operation === 'reorderChecklist') {
+						const cardId = this.getNodeParameter('cardId', i, '') as string;
+						const itemIdsInput = this.getNodeParameter('checklistItemIds', i, '') as string;
+						const itemIds = parseIdList(itemIdsInput);
+						if (!itemIds || itemIds.length === 0) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Informe os IDs dos itens na ordem desejada (ex: 14,12,10).',
+								{ itemIndex: i },
+							);
+						}
+						responseData = await kanbanApiRequest(
+							this,
+							'POST',
+							`/kanban/cards/${cardId}/checklists/reorder`,
+							{ itemIds },
+						);
 
 					} else if (operation === 'deleteCard') {
 						const cardId    = this.getNodeParameter('cardId', i, '') as string;
@@ -859,6 +1075,13 @@ export class Whazing implements INodeType {
 						if (permanent) qs.permanent = 'true';
 
 						responseData = await kanbanApiRequest(this, 'DELETE', `/kanban/card/${cardId}`, {}, qs);
+
+					} else {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Operação "${operation}" não reconhecida para o recurso "${resource}".`,
+							{ itemIndex: i },
+						);
 					}
 
 				// ===========================================================
@@ -894,17 +1117,19 @@ export class Whazing implements INodeType {
 					} else if (operation === 'updateTenant') {
 						const tenantId = this.getNodeParameter('tenantId', i, '') as string;
 						if (tenantId === '1') throw new NodeOperationError(this.getNode(), 'O tenant ID 1 é o administrador global e não pode ser editado.', { itemIndex: i });
-						responseData = await adminApiRequest.call(this, 'POST', '/updatetenant', {
+						const body: IDataObject = {
 							tenantId,
 							tenantName: this.getNodeParameter('tenantName',   i, '') as string,
 							email:      this.getNodeParameter('adminEmail',   i, '') as string,
 							phone:      this.getNodeParameter('adminPhone',   i, '') as string,
 							plano:      this.getNodeParameter('planId',       i, '1') as string,
-							dueDate:    this.getNodeParameter('dueDate',      i, '') as string,
 							recurrence: this.getNodeParameter('recurrence',   i, 'MENSAL') as string,
 							status:     this.getNodeParameter('tenantStatus', i, 'active') as string,
 							trial:      this.getNodeParameter('tenantTrial',  i, false) as boolean,
-						});
+						};
+						const dueDateVal = this.getNodeParameter('dueDate', i, '') as string;
+						if (dueDateVal) body.dueDate = dueDateVal.includes('T') ? dueDateVal : formatDateParam(dueDateVal);
+						responseData = await adminApiRequest.call(this, 'POST', '/updatetenant', body);
 
 					} else if (operation === 'addMonth') {
 						const tenantId = this.getNodeParameter('tenantId', i, '') as string;
@@ -957,7 +1182,7 @@ export class Whazing implements INodeType {
 						const body: IDataObject = {
 							tenantId: this.getNodeParameter('tenantId', i, '') as string,
 							value: this.getNodeParameter('invoiceValue', i, 0) as number,
-							dueDate: this.getNodeParameter('invoiceDueDate', i, '') as string,
+							dueDate: formatDateParam(this.getNodeParameter('invoiceDueDate', i, '') as string),
 						};
 						const detail = this.getNodeParameter('invoiceDetail', i, '') as string;
 						if (detail) body.detail = detail;
@@ -973,7 +1198,7 @@ export class Whazing implements INodeType {
 						const value = this.getNodeParameter('invoiceValueOptional', i, 0) as number;
 						if (value > 0) body.value = value;
 						const dueDate = this.getNodeParameter('invoiceDueDateOptional', i, '') as string;
-						if (dueDate) body.dueDate = dueDate;
+						if (dueDate) body.dueDate = formatDateParam(dueDate);
 						const status = this.getNodeParameter('invoiceStatus', i, '') as string;
 						if (status) body.status = status;
 						responseData = await adminApiRequest.call(this, 'PUT', `/invoices/${invoiceId}`, body);
@@ -1024,8 +1249,8 @@ export class Whazing implements INodeType {
 						if (filters.tenantId)   qs.tenantId   = filters.tenantId;
 						if (filters.status)     qs.status     = filters.status;
 						if (filters.invoiceId)  qs.invoiceId  = filters.invoiceId;
-						if (filters.startDate)  qs.startDate  = (filters.startDate as string).split('T')[0];
-						if (filters.endDate)    qs.endDate    = (filters.endDate as string).split('T')[0];
+						if (filters.startDate)  qs.startDate  = formatDateParam(filters.startDate as string);
+						if (filters.endDate)    qs.endDate    = formatDateParam(filters.endDate as string);
 						if (filters.pageNumber) qs.pageNumber = filters.pageNumber;
 						if (filters.pageSize)   qs.pageSize   = filters.pageSize;
 						responseData = await adminApiRequest.call(this, 'GET', '/nfse', {}, qs);
@@ -1042,7 +1267,7 @@ export class Whazing implements INodeType {
 						const invoiceId     = this.getNodeParameter('invoiceId',        i, '') as string;
 						const effectiveDate = this.getNodeParameter('nfseEffectiveDate', i, '') as string;
 						const body: IDataObject = {};
-						if (effectiveDate) body.effectiveDate = (effectiveDate as string).split('T')[0];
+						if (effectiveDate) body.effectiveDate = formatDateParam(effectiveDate as string);
 						responseData = await adminApiRequest.call(this, 'POST', `/nfse/invoices/${invoiceId}/schedule`, body);
 
 					} else if (operation === 'authorizeNfse') {
