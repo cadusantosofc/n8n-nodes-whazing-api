@@ -1,5 +1,56 @@
 # Registro de Atualizações - Whazing Node
 
+## [1.0.12] - 04/09/2026
+
+### 🚀 Novos Módulos (Agenda, Agendamento e SMS) · 🏆 Conformidade Oficial n8n · 🛡️ Tipagem Segura
+
+Esta versão traz uma grande expansão de recursos alinhada à API oficial do Whazing, adicionando **3 módulos completos** que não existiam no node (**Agenda**, **Agendamento De Mensagem** e **SMS**), além de preparar o node para publicação oficial na comunidade n8n com **100% de conformidade no linter (`n8n-node lint`)**, tipagem TypeScript estrita e total retrocompatibilidade com fluxos existentes em produção.
+
+---
+
+### ✨ Novos Recursos e Endpoints Adicionados
+
+#### 1. 📅 Agenda e Compromissos (`/agenda/*` — 8 operações)
+Gerenciamento de calendários, profissionais da equipe, catálogo de serviços e compromissos:
+| Operação | Endpoint | Descrição |
+|---|---|---|
+| **Listar Calendários** | `GET /agenda/calendars` | Consulta todos os calendários configurados |
+| **Listar Profissionais** | `GET /agenda/professionals` | Lista os profissionais vinculados a um calendário |
+| **Listar Serviços** | `GET /agenda/services` | Lista os serviços oferecidos por um profissional |
+| **Criar Compromisso** | `POST /agenda` | Cria agendamento por serviço cadastrado ou horário manual |
+| **Consultar Compromisso** | `GET /agenda/{id}` | Obtém detalhes completos de um compromisso |
+| **Listar Compromissos** | `GET /agenda` | Lista agendamentos com filtros por período e número |
+| **Atualizar Compromisso** | `PUT /agenda/{id}` | Edita status, horário, serviço ou profissional |
+| **Cancelar Compromisso** | `DELETE /agenda/{id}` | Remove ou cancela o compromisso na agenda |
+
+#### 2. ⏰ Agendamento De Mensagem (`/schedule` e `/schedules` — 4 operações)
+Disparo programado de mensagens em data/hora futura com suporte completo a múltiplos formatos:
+| Operação | Endpoint | Descrição |
+|---|---|---|
+| **Criar Agendamento** | `POST /schedule` | Programa envio de mensagem (Texto, Mídia por URL ou Binário, Templates Oficiais e Botões) |
+| **Consultar Agendamento** | `GET /schedule/{id}` | Consulta dados e status de um agendamento específico |
+| **Listar Agendamentos** | `GET /schedules` | Lista agendamentos com filtros por status e número |
+| **Cancelar Agendamento** | `DELETE /schedule/{id}` | Cancela uma mensagem agendada antes do disparo |
+
+#### 3. 💬 SMS (`/sendsms` — 1 operação)
+Canal alternativo de disparo via SMS:
+| Operação | Endpoint | Descrição |
+|---|---|---|
+| **Enviar SMS** | `POST /sendsms` | Envio direto de mensagem de texto via SMS |
+
+---
+
+### 🛡️ Conformidade e Boas Práticas n8n Community
+
+- **`subtitle` Dinâmico no Canvas**: Adicionado o parâmetro `subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}'`, permitindo aos usuários visualizarem imediatamente no fluxo qual recurso e operação aquele nó está executando.
+- **Tipagem Segura (Zero `any`)**: Refatoração completa das funções de requisição em `GenericFunctions.ts` e `Whazing.node.ts`, criando a interface `IHttpError` e adotando `unknown` e type-narrowing seguro.
+- **Tratamento de Erros Padronizado**: Envelopamento de exceções com `NodeApiError` nos fallbacks de requisição de Kanban, garantindo exibição limpa e estruturada na interface do n8n.
+- **Padronização de Menus (Ordem Alfabética)**: Todas as listas de opções (`msgOfficial`, `ticket`, `invoice`, `kanbanPriority`, `kanbanAdvancedUpdate`, `recurrence`, `updateFiscalData`, `nfseFilters`) foram ordenadas alfabeticamente para uma experiência de configuração mais rápida e intuitiva.
+- **Descrições de Campos Booleanos**: Todas as propriedades do tipo booleano foram ajustadas para seguir o padrão internacional do n8n (`Whether to...`).
+- **100% Retrocompatível**: Nenhuma chave de parâmetro (`name`) e nenhum identificador de operação (`value`) foi modificado. Todos os fluxos já criados continuam executando perfeitamente sem qualquer necessidade de reconfiguração.
+
+---
+
 ## [1.0.11] - 20/06/2026
 
 ### 🆕 Novidades · 🐛 Correções de Lógica · 🔒 Robustez

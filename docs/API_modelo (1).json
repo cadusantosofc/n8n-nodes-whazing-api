@@ -553,6 +553,735 @@
       ]
     },
     {
+      "name": "Agendamentos",
+      "item": [
+        {
+          "name": "Criar Agendamento (texto)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "pedido-8842-lembrete",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"{{number}}\",\n  \"body\": \"Olá! Este é um lembrete agendado.\",\n  \"scheduledAt\": \"2026-08-25T14:30:00-03:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedule"
+              ]
+            },
+            "description": "Cria um agendamento de mensagem de texto. scheduledAt deve ser futuro (min. 5 minutos de antecedência) em ISO 8601 com offset. O header Idempotency-Key é opcional — reenvios com a mesma chave retornam o agendamento já criado em vez de duplicar."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Agendamento (com mídia)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "media",
+                  "type": "file",
+                  "src": "/home/durans/Downloads/577.pdf"
+                },
+                {
+                  "key": "body",
+                  "value": "Segue o arquivo combinado.",
+                  "type": "text"
+                },
+                {
+                  "key": "number",
+                  "value": "{{number}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scheduledAt",
+                  "value": "2026-08-25T14:30:00-03:00",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedule"
+              ]
+            },
+            "description": "Mesma estrutura do agendamento de texto, mas com anexo. O arquivo vai no campo 'media' (multipart/form-data), igual ao envio imediato. Não há suporte a mediaUrl no agendamento."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Agendamento (template oficial)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"{{number}}\",\n  \"messageType\": \"template\",\n  \"templateName\": \"confirmacao_pedido\",\n  \"templateLanguage\": \"pt_BR\",\n  \"templateComponents\": [\n    {\n      \"type\": \"body\",\n      \"parameters\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"12345\"\n        }\n      ]\n    }\n  ],\n  \"scheduledAt\": \"2026-08-25T14:30:00-03:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedule"
+              ]
+            },
+            "description": "Agenda o envio de um template oficial aprovado (WABA/Meta). templateComponents segue o mesmo formato usado em /apioficial."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Agendamento (botões)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"{{number}}\",\n  \"messageType\": \"buttons\",\n  \"buttons\": {\n    \"text\": \"Deseja confirmar presença?\",\n    \"choices\": [\n      {\n        \"id\": \"1\",\n        \"title\": \"Confirmar\"\n      },\n      {\n        \"id\": \"2\",\n        \"title\": \"Cancelar\"\n      }\n    ]\n  },\n  \"scheduledAt\": \"2026-08-25T14:30:00-03:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedule"
+              ]
+            },
+            "description": "Agenda uma mensagem com botões de resposta rápida (máximo de 3 choices)."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Agendamento (grupo)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"12036304123456@g.us\",\n  \"body\": \"Lembrete agendado para o grupo.\",\n  \"scheduledAt\": \"2026-08-25T14:30:00-03:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedule"
+              ]
+            },
+            "description": "Agenda uma mensagem para um grupo. O grupo precisa já existir como contato no CRM — não é criado automaticamente (diferente de número puro). Aceita <id>@grupo ou <id>@g.us. Retorna 404 GROUP_CONTACT_NOT_FOUND se o grupo não existir."
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar Agendamento",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/schedule/{{scheduleId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedule",
+                "{{scheduleId}}"
+              ]
+            },
+            "description": "Retorna o status atual de um agendamento (PENDENTE, ENVIADA ou CANCELADO). Funciona mesmo depois de enviado/cancelado. Só retorna agendamentos da mesma conexão/tenant do token — de outra empresa ou conexão, retorna 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Agendamentos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/schedules?status=PENDENTE",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedules"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "PENDENTE"
+                }
+              ]
+            },
+            "description": "Lista os agendamentos da conexão autenticada, paginados (40/página). Filtros opcionais: status, scheduledFrom, scheduledTo, page, number."
+          },
+          "response": []
+        },
+        {
+          "name": "Localizar Agendamentos por telefone/grupo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/schedules?number={{number}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedules"
+              ],
+              "query": [
+                {
+                  "key": "number",
+                  "value": "{{number}}"
+                }
+              ]
+            },
+            "description": "Localiza agendamentos pelo destinatário (telefone, <id>@grupo, <id>@g.us ou <id>@lid) em vez de precisar saber o id do agendamento. Retorna lista vazia (não erro) se não encontrar nenhum contato correspondente."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancelar Agendamento",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/schedule/{{scheduleId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedule",
+                "{{scheduleId}}"
+              ]
+            },
+            "description": "Cancela um agendamento PENDENTE (muda status para CANCELADO, sem apagar o registro). Retorna 409 se já foi enviado ou já está cancelado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Agenda",
+      "item": [
+        {
+          "name": "Listar Calendários",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agenda/calendars",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agenda",
+                "calendars"
+              ]
+            },
+            "description": "Lista os calendários ativos do tenant (id, name, color). Use o id retornado como calendarId ao criar um compromisso."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Profissionais",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agenda/professionals?calendarId={{calendarId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agenda",
+                "professionals"
+              ],
+              "query": [
+                {
+                  "key": "calendarId",
+                  "value": "{{calendarId}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lista os profissionais ativos do tenant (id, name). Informe calendarId (query, opcional) para listar só os vinculados a um calendário."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Serviços",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agenda/services?professionalId={{professionalId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agenda",
+                "services"
+              ],
+              "query": [
+                {
+                  "key": "professionalId",
+                  "value": "{{professionalId}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lista os serviços ativos do tenant (id, name, durationMinutes). Informe professionalId (query, opcional) para listar só os que aquele profissional realiza."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Compromisso (com serviço)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calendarId\": {{calendarId}},\n  \"professionalId\": {{professionalId}},\n  \"calendarServiceId\": {{calendarServiceId}},\n  \"number\": \"{{number}}\",\n  \"startAt\": \"2026-08-25T14:30:00-03:00\",\n  \"notes\": \"Cliente prefere confirmação por WhatsApp.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/agenda",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agenda"
+              ]
+            },
+            "description": "Cria um compromisso informando calendarServiceId — o endAt é calculado automaticamente a partir da duração do serviço. number resolve/cria o contato automaticamente; use contactId em vez de number se já souber o ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Compromisso (horário manual)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calendarId\": {{calendarId}},\n  \"professionalId\": {{professionalId}},\n  \"title\": \"Reunião de alinhamento\",\n  \"startAt\": \"2026-08-25T14:30:00-03:00\",\n  \"endAt\": \"2026-08-25T15:00:00-03:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/agenda",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agenda"
+              ]
+            },
+            "description": "Cria um compromisso sem serviço vinculado — endAt é obrigatório nesse caso. calendarId e professionalId precisam existir no tenant (veja GET /agenda/calendars e /agenda/professionals)."
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar Compromisso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agenda/{{agendaId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agenda",
+                "{{agendaId}}"
+              ]
+            },
+            "description": "Retorna os dados completos de um compromisso (com calendar/professional/contact/calendarService embutidos). 404 se não existir ou for de outro tenant."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Compromissos (por período)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agenda?startDate=2026-08-01T00:00:00-03:00&endDate=2026-08-31T23:59:59-03:00",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agenda"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-08-01T00:00:00-03:00"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-08-31T23:59:59-03:00"
+                }
+              ]
+            },
+            "description": "Lista compromissos dentro do período informado. Sem startDate/endDate, retorna todos os compromissos do tenant (use page/limit para paginar nesse caso)."
+          },
+          "response": []
+        },
+        {
+          "name": "Localizar Compromissos por telefone",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agenda?number={{number}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agenda"
+              ],
+              "query": [
+                {
+                  "key": "number",
+                  "value": "{{number}}"
+                }
+              ]
+            },
+            "description": "Localiza compromissos pelo telefone do contato, sem precisar saber o contactId. Retorna lista vazia (não erro) se não achar nenhum contato correspondente."
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Compromisso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startAt\": \"2026-08-26T10:00:00-03:00\",\n  \"endAt\": \"2026-08-26T10:30:00-03:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/agenda/{{agendaId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agenda",
+                "{{agendaId}}"
+              ]
+            },
+            "description": "Atualiza um compromisso existente — patch parcial, envie só os campos que quer alterar. As mesmas validações da criação se aplicam (exceto quando status = cancelled)."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancelar Compromisso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agenda/{{agendaId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agenda",
+                "{{agendaId}}"
+              ]
+            },
+            "description": "Cancela um compromisso (status vira 'cancelled', o registro não é apagado). 409 se já estiver cancelado ou concluído (completed)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SMS",
+      "item": [
+        {
+          "name": "Enviar SMS",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"{{number}}\",\n  \"body\": \"Mensagem de teste via SMS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/sendsms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "sendsms"
+              ]
+            },
+            "description": "Envia um SMS avulso pelo canal SMS (Witi) da empresa. Só texto — sem mídia, sem checar se o número tem WhatsApp. O token Bearer precisa ser gerado com o sessionId apontando pra um canal do tipo SMS (Configurações > API). Retorna 402 imediatamente se não houver créditos SMS suficientes."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Tickets",
       "item": [
         {
@@ -4069,6 +4798,26 @@
     },
     {
       "key": "ticketId",
+      "value": ""
+    },
+    {
+      "key": "scheduleId",
+      "value": ""
+    },
+    {
+      "key": "calendarId",
+      "value": ""
+    },
+    {
+      "key": "professionalId",
+      "value": ""
+    },
+    {
+      "key": "calendarServiceId",
+      "value": ""
+    },
+    {
+      "key": "agendaId",
       "value": ""
     }
   ]

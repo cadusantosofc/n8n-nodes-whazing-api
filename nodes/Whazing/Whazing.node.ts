@@ -1,9 +1,11 @@
-﻿import {
+import {
 	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
 	IDataObject,
+	JsonObject,
+	NodeApiError,
 	NodeOperationError,
 	NodeConnectionTypes,
 } from 'n8n-workflow';
@@ -215,17 +217,24 @@ async function handleApiMessage(
  * então error.statusCode e error.response ficam undefined.
  * Por isso checamos também o texto da mensagem.
  */
-function isNotFound(error: any): boolean {
+function isNotFound(error: unknown): boolean {
+	const err = error as {
+		response?: { status?: number; statusCode?: number };
+		statusCode?: number;
+		cause?: { response?: { status?: number }; statusCode?: number };
+		httpCode?: number;
+		message?: string;
+	};
 	const status =
-		error?.response?.status    ||
-		error?.response?.statusCode ||
-		error?.statusCode           ||
-		error?.cause?.response?.status ||
-		error?.cause?.statusCode    ||
-		error?.httpCode;
+		err?.response?.status    ||
+		err?.response?.statusCode ||
+		err?.statusCode           ||
+		err?.cause?.response?.status ||
+		err?.cause?.statusCode    ||
+		err?.httpCode;
 	if (Number(status) === 404) return true;
 
-	const msg = String(error?.message || '').toLowerCase();
+	const msg = String(err?.message || '').toLowerCase();
 	return (
 		msg.includes('404')                      ||
 		msg.includes('not found')                ||
@@ -338,21 +347,25 @@ async function kanbanApiRequest(
 	const pathKanbanLegacy = pathKanbanPro.replace(/^\/kanbanpro/, '/kanban');
 
 	// 1ª tentativa: /kanbanpro (endpoint atual, confirmado em produção)
-	let notFoundError: any;
+	let notFoundError: unknown;
 	try {
 		return await whazingApiRequest.call(ctx, method, pathKanbanPro, body, qs);
-	} catch (err: any) {
-		if (!isNotFound(err)) throw err;
+	} catch (err: unknown) {
+		if (!isNotFound(err)) {
+			throw new NodeApiError(ctx.getNode(), err as JsonObject);
+		}
 		notFoundError = err;
 	}
 
 	// 2ª tentativa: /kanban (fallback para instalações legadas)
 	try {
 		return await whazingApiRequest.call(ctx, method, pathKanbanLegacy, body, qs);
-	} catch (err: any) {
+	} catch (err: unknown) {
 		// Se o fallback também falhou com 404, relança o erro do /kanbanpro (mais informativo)
-		if (isNotFound(err)) throw notFoundError;
-		throw err;
+		if (isNotFound(err) && notFoundError) {
+			throw new NodeApiError(ctx.getNode(), notFoundError as JsonObject);
+		}
+		throw new NodeApiError(ctx.getNode(), err as JsonObject);
 	}
 }
 
@@ -366,6 +379,7 @@ export class Whazing implements INodeType {
 		icon: 'file:whazing.svg',
 		group: ['transform'],
 		version: 1,
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description:
 			'Integração completa com a API Whazing — ' +
 			'Envie mensagens, gerencie tickets, automatize pagamentos PIX e muito mais via WhatsApp Business API',
@@ -463,6 +477,33 @@ export class Whazing implements INodeType {
 						});
 						return component;
 					});
+				};
+
+				const getScheduleTemplateComponents = () => {
+					const raw = this.getNodeParameter('scheduleTemplateComponents', i, { componentValues: [] }) as IDataObject;
+					return ((raw.componentValues as IDataObject[]) || []).map((comp) => {
+						const component: IDataObject = { type: comp.componentType as string, parameters: [] };
+						if (comp.componentType === 'button') {
+							component.sub_type = comp.sub_type as string;
+							component.index    = String(comp.index);
+						}
+						const paramsRaw = (comp.parameters as IDataObject) || { parameterValues: [] };
+						component.parameters = ((paramsRaw.parameterValues as IDataObject[]) || []).map((param) => {
+							if (param.parameterType === 'text')
+								return { type: 'text', parameter_name: param.parameter_name as string, text: param.text as string };
+							if (param.parameterType === 'image')
+								return { type: 'image', image: { link: param.link as string } };
+							return param;
+						});
+						return component;
+					});
+				};
+
+				const getScheduleChoices = () => {
+					const col = this.getNodeParameter('scheduleChoices', i, { choiceValues: [] }) as IDataObject;
+					return ((col.choiceValues as IDataObject[]) || []).map((choice) => ({
+						id: choice.id as string, title: choice.title as string,
+					}));
 				};
 
 				// ===========================================================
@@ -1293,6 +1334,186 @@ export class Whazing implements INodeType {
 					} else {
 						throw new NodeOperationError(this.getNode(), `Operação "${operation}" não reconhecida para o recurso "${resource}".`, { itemIndex: i });
 					}
+
+				// ===========================================================
+				// RECURSO: Agendamento De Mensagem (schedule)
+				// ===========================================================
+				} else if (resource === 'schedule') {
+
+					if (operation === 'createSchedule') {
+						if (!number) {
+							throw new NodeOperationError(this.getNode(), 'Informe o Número do WhatsApp (ou ID de grupo) para criar o agendamento.', { itemIndex: i });
+						}
+						const scheduledAt = this.getNodeParameter('scheduledAt', i, '') as string;
+						if (!scheduledAt) {
+							throw new NodeOperationError(this.getNode(), 'Informe a Data/Hora do envio para criar o agendamento.', { itemIndex: i });
+						}
+						const messageType = this.getNodeParameter('scheduleMessageType', i, 'text') as string;
+
+						if (messageType === 'text') {
+							const body: IDataObject = { number, body: this.getNodeParameter('scheduleBody', i, '') as string, scheduledAt };
+							responseData = await whazingApiRequest.call(this, 'POST', '/schedule', body);
+
+						} else if (messageType === 'media') {
+							const sendMethod = this.getNodeParameter('scheduleSendMethod', i, 'url') as string;
+							const commonFields: IDataObject = {
+								number, body: this.getNodeParameter('scheduleBody', i, '') as string, scheduledAt,
+							};
+							if (sendMethod === 'url') {
+								const mediaUrl = this.getNodeParameter('scheduleMediaUrl', i, '') as string;
+								if (!mediaUrl?.trim()) throw new NodeOperationError(this.getNode(), 'A URL da mídia é obrigatória.', { itemIndex: i });
+								responseData = await whazingApiRequest.call(this, 'POST', '/schedule', { ...commonFields, mediaUrl });
+							} else {
+								const binaryPropertyName = this.getNodeParameter('scheduleBinaryPropertyName', i, 'data') as string;
+								const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
+								const formData: IDataObject = {
+									...commonFields,
+									media: {
+										value: await this.helpers.getBinaryDataBuffer(i, binaryPropertyName),
+										options: {
+											filename: binaryData.fileName || 'arquivo',
+											contentType: binaryData.mimeType || 'application/octet-stream',
+										},
+									},
+								};
+								responseData = await whazingApiRequest.call(this, 'POST', '/schedule', {}, {}, undefined, {}, undefined, formData);
+							}
+
+						} else if (messageType === 'template') {
+							const templateName = this.getNodeParameter('scheduleTemplateName', i, '') as string;
+							if (!templateName?.trim()) throw new NodeOperationError(this.getNode(), 'Informe o Nome do Template para o agendamento.', { itemIndex: i });
+							const body: IDataObject = {
+								number,
+								messageType: 'template',
+								templateName,
+								templateLanguage: this.getNodeParameter('scheduleTemplateLanguage', i, 'pt_BR') as string,
+								templateComponents: getScheduleTemplateComponents(),
+								scheduledAt,
+							};
+							responseData = await whazingApiRequest.call(this, 'POST', '/schedule', body);
+
+						} else if (messageType === 'buttons') {
+							const buttonsText = this.getNodeParameter('scheduleButtonsText', i, '') as string;
+							if (!buttonsText?.trim()) throw new NodeOperationError(this.getNode(), 'Informe a Mensagem dos Botões para o agendamento.', { itemIndex: i });
+							const body: IDataObject = {
+								number,
+								messageType: 'buttons',
+								buttons: { text: buttonsText, choices: getScheduleChoices() },
+								scheduledAt,
+							};
+							responseData = await whazingApiRequest.call(this, 'POST', '/schedule', body);
+						}
+
+					} else if (operation === 'getSchedule') {
+						const scheduleId = this.getNodeParameter('scheduleId', i, '') as string;
+						responseData = await whazingApiRequest.call(this, 'GET', `/schedule/${scheduleId}`);
+
+					} else if (operation === 'listSchedules') {
+						const filters = this.getNodeParameter('scheduleFilters', i, {}) as IDataObject;
+						const qs: IDataObject = {};
+						if (filters.status) qs.status = filters.status;
+						if (number) qs.number = number;
+						responseData = await whazingApiRequest.call(this, 'GET', '/schedules', {}, qs);
+
+					} else if (operation === 'deleteSchedule') {
+						const scheduleId = this.getNodeParameter('scheduleId', i, '') as string;
+						responseData = await whazingApiRequest.call(this, 'DELETE', `/schedule/${scheduleId}`);
+
+					} else {
+						throw new NodeOperationError(this.getNode(), `Operação "${operation}" não reconhecida para o recurso "${resource}".`, { itemIndex: i });
+					}
+
+				// ===========================================================
+				// RECURSO: Agenda (calendários, profissionais, compromissos)
+				// ===========================================================
+				} else if (resource === 'agenda') {
+
+					if (operation === 'listCalendars') {
+						responseData = await whazingApiRequest.call(this, 'GET', '/agenda/calendars');
+
+					} else if (operation === 'listProfessionals') {
+						const calendarId = this.getNodeParameter('calendarId', i, '') as string;
+						const qs: IDataObject = {};
+						if (calendarId) qs.calendarId = calendarId;
+						responseData = await whazingApiRequest.call(this, 'GET', '/agenda/professionals', {}, qs);
+
+					} else if (operation === 'listServices') {
+						const professionalId = this.getNodeParameter('professionalId', i, '') as string;
+						const qs: IDataObject = {};
+						if (professionalId) qs.professionalId = professionalId;
+						responseData = await whazingApiRequest.call(this, 'GET', '/agenda/services', {}, qs);
+
+					} else if (operation === 'createAppointment') {
+						const mode = this.getNodeParameter('appointmentMode', i, 'service') as string;
+						const startAt = this.getNodeParameter('startAt', i, '') as string;
+						if (!startAt) throw new NodeOperationError(this.getNode(), 'Informe o horário de Início do compromisso.', { itemIndex: i });
+
+						const body: IDataObject = {
+							calendarId: this.getNodeParameter('calendarId', i, '') as string,
+							professionalId: this.getNodeParameter('professionalId', i, '') as string,
+							startAt,
+						};
+						const notes = this.getNodeParameter('appointmentNotes', i, '') as string;
+						if (notes) body.notes = notes;
+
+						if (mode === 'service') {
+							body.calendarServiceId = this.getNodeParameter('calendarServiceId', i, '') as string;
+							if (number) body.number = number;
+						} else {
+							body.title = this.getNodeParameter('appointmentTitle', i, '') as string;
+							const endAt = this.getNodeParameter('endAt', i, '') as string;
+							if (!endAt) throw new NodeOperationError(this.getNode(), 'Informe o horário de Fim do compromisso no modo manual.', { itemIndex: i });
+							body.endAt = endAt;
+						}
+						responseData = await whazingApiRequest.call(this, 'POST', '/agenda', body);
+
+					} else if (operation === 'getAppointment') {
+						const agendaId = this.getNodeParameter('agendaId', i, '') as string;
+						responseData = await whazingApiRequest.call(this, 'GET', `/agenda/${agendaId}`);
+
+					} else if (operation === 'listAppointments') {
+						const filters = this.getNodeParameter('agendaFilters', i, {}) as IDataObject;
+						const qs: IDataObject = {};
+						if (filters.startDate) qs.startDate = filters.startDate;
+						if (filters.endDate)   qs.endDate   = filters.endDate;
+						if (number) qs.number = number;
+						responseData = await whazingApiRequest.call(this, 'GET', '/agenda', {}, qs);
+
+					} else if (operation === 'updateAppointment') {
+						const agendaId = this.getNodeParameter('agendaId', i, '') as string;
+						const body: IDataObject = {};
+						const startAt = this.getNodeParameter('startAt', i, '') as string;
+						const endAt   = this.getNodeParameter('endAt',   i, '') as string;
+						const notes   = this.getNodeParameter('appointmentNotes', i, '') as string;
+						if (startAt) body.startAt = startAt;
+						if (endAt)   body.endAt   = endAt;
+						if (notes)   body.notes   = notes;
+						responseData = await whazingApiRequest.call(this, 'PUT', `/agenda/${agendaId}`, body);
+
+					} else if (operation === 'deleteAppointment') {
+						const agendaId = this.getNodeParameter('agendaId', i, '') as string;
+						responseData = await whazingApiRequest.call(this, 'DELETE', `/agenda/${agendaId}`);
+
+					} else {
+						throw new NodeOperationError(this.getNode(), `Operação "${operation}" não reconhecida para o recurso "${resource}".`, { itemIndex: i });
+					}
+
+				// ===========================================================
+				// RECURSO: SMS
+				// ===========================================================
+				} else if (resource === 'sms') {
+
+					if (operation === 'sendSms') {
+						if (!number) {
+							throw new NodeOperationError(this.getNode(), 'Informe o Número do WhatsApp para enviar o SMS.', { itemIndex: i });
+						}
+						const body: IDataObject = { number, body: this.getNodeParameter('smsBody', i, '') as string };
+						responseData = await whazingApiRequest.call(this, 'POST', '/sendsms', body);
+
+					} else {
+						throw new NodeOperationError(this.getNode(), `Operação "${operation}" não reconhecida para o recurso "${resource}".`, { itemIndex: i });
+					}
+
 				} else {
 					throw new NodeOperationError(this.getNode(), `Recurso "${resource}" não reconhecido.`, { itemIndex: i });
 				}

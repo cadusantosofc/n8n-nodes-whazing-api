@@ -60,6 +60,26 @@ export function formatPhoneNumber(number: string): string {
 // Tradução de erros HTTP para português
 // ─────────────────────────────────────────────────────────────────────────────
 
+interface IHttpError extends Error {
+	response?: {
+		data?: unknown;
+		body?: unknown;
+		status?: number;
+		statusCode?: number;
+	};
+	cause?: {
+		response?: {
+			data?: unknown;
+			body?: unknown;
+			status?: number;
+		};
+		statusCode?: number;
+	};
+	statusCode?: number;
+	httpCode?: number;
+	data?: unknown;
+}
+
 /** Extrai código HTTP de mensagens no formato "status code 500". */
 function extractStatusFromMessage(message: string): number | undefined {
 	const match = message.match(/status\s+code\s+(\d{3})/i) || message.match(/\b([45]\d{2})\b/);
@@ -68,13 +88,14 @@ function extractStatusFromMessage(message: string): number | undefined {
 }
 
 /** Extrai o corpo da resposta HTTP de diversas estruturas de erro do n8n. */
-function extractResponseBody(err: any): IDataObject | undefined {
+function extractResponseBody(err: unknown): IDataObject | undefined {
+	const httpErr = err as IHttpError | undefined;
 	const raw =
-		err?.response?.data         ||
-		err?.response?.body         ||
-		err?.cause?.response?.data  ||
-		err?.cause?.response?.body  ||
-		err?.data;
+		httpErr?.response?.data         ||
+		httpErr?.response?.body         ||
+		httpErr?.cause?.response?.data  ||
+		httpErr?.cause?.response?.body  ||
+		httpErr?.data;
 	if (!raw) return undefined;
 	try {
 		return typeof raw === 'string' ? (JSON.parse(raw) as IDataObject) : (raw as IDataObject);
@@ -84,16 +105,17 @@ function extractResponseBody(err: any): IDataObject | undefined {
 }
 
 /** Extrai o código de status HTTP de diversas estruturas de erro do n8n. */
-function extractStatusCode(err: any): number | undefined {
+function extractStatusCode(err: unknown): number | undefined {
+	const httpErr = err as IHttpError | undefined;
 	const code =
-		err?.statusCode              ||
-		err?.response?.statusCode    ||
-		err?.response?.status        ||
-		err?.cause?.statusCode       ||
-		err?.cause?.response?.status ||
-		err?.httpCode;
+		httpErr?.statusCode              ||
+		httpErr?.response?.statusCode    ||
+		httpErr?.response?.status        ||
+		httpErr?.cause?.statusCode       ||
+		httpErr?.cause?.response?.status ||
+		httpErr?.httpCode;
 	if (Number(code) >= 400) return Number(code);
-	return extractStatusFromMessage(String(err?.message || ''));
+	return extractStatusFromMessage(String(httpErr?.message || ''));
 }
 
 /** Mapa de status HTTP → mensagem amigável em português. */
@@ -148,7 +170,7 @@ const API_MESSAGE_TRANSLATIONS: Array<[string, string]> = [
  * Exportada para que possa ser usada em testes unitários e em Whazing_node.ts.
  */
 export function translateApiError(error: unknown): string {
-	const err        = error as any;
+	const err        = error as IHttpError | undefined;
 	const statusCode = extractStatusCode(err);
 	const body       = extractResponseBody(err);
 
@@ -234,10 +256,10 @@ export async function whazingApiRequest(
 	try {
 		return await this.helpers.httpRequestWithAuthentication.call(this, 'whazingApi', options);
 	} catch (error) {
-		const orig: any = error;
+		const orig = error as IHttpError;
 		// Cria novo erro com mensagem traduzida, mas preserva response/statusCode
 		// para que isNotFound() em Whazing_node.ts continue funcionando corretamente.
-		const enriched: any = new Error(translateApiError(orig));
+		const enriched = new Error(translateApiError(orig)) as IHttpError;
 		if (orig?.response)   enriched.response   = orig.response;
 		if (orig?.statusCode) enriched.statusCode = orig.statusCode;
 		if (orig?.httpCode)   enriched.httpCode   = orig.httpCode;
@@ -290,8 +312,8 @@ export async function adminApiRequest(
 	try {
 		return await this.helpers.httpRequest.call(this, options);
 	} catch (error) {
-		const orig: any = error;
-		const enriched: any = new Error(translateApiError(orig));
+		const orig = error as IHttpError;
+		const enriched = new Error(translateApiError(orig)) as IHttpError;
 		if (orig?.response)   enriched.response   = orig.response;
 		if (orig?.statusCode) enriched.statusCode = orig.statusCode;
 		if (orig?.httpCode)   enriched.httpCode   = orig.httpCode;

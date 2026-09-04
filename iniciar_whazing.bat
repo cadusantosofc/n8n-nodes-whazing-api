@@ -48,6 +48,6 @@ REM Aguarda o tsc inicializar
 timeout /t 3 /nobreak >nul
 
 REM Inicia o nodemon que observa a pasta dist/ e reinicia o n8n
-npx nodemon --watch dist --ext js,json --delay 1500ms --exec "npx n8n start"
+npx nodemon --watch dist --ext js,json --delay 1500ms --exec "n8n start"
 
 pause

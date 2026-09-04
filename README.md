@@ -6,18 +6,46 @@ Este node permite a integração completa com a API Whazing, oferecendo automaç
 
 ## 📌 Versão atual
 
-- **1.0.11** — 20/06/2026
-- ✨ Módulo completo de **Checklist do Kanban Pro** (5 novas operações).
-- ✨ **Campos Avançados** em Atualizar Card (`description`, `teamId`, `dealValue`, `coverColor`, datas, horas, etc.).
-- 🐛 Correção em `setChatBot` — agora envia `chatbotId` (número) conforme a API exige.
-- 🐛 Correção em Templates — campo `number` / `ticketId` restaurado como destinatário.
-- 🐛 Kanban: campo `tags` corrigido para `labelIds` conforme a API.
-- 🐛 Datas normalizadas para `YYYY-MM-DD` em Kanban, Faturas e NFS-e.
-- 🔒 Remoção de logs de debug do console do n8n.
-- 🔒 Validações de destinatário em todas as operações de mensagem.
-- 🔒 Erros explícitos para operações desconhecidas em todos os recursos.
+- **1.0.12** — 04/09/2026
+- 🚀 **3 Novos Módulos Integrados**: **Agenda**, **Agendamento De Mensagem** e **SMS**.
+- 🏆 **100% em Conformidade com o Linter Oficial do n8n** (`npm run lint` com 0 erros).
+- ✨ **`subtitle` Dinâmico no Canvas** (`={{$parameter["operation"] + ": " + $parameter["resource"]}}`).
+- 🛡️ **Tipagem TypeScript Estrita**: remoção de tipos `any`, interface `IHttpError` e tratamento de erros padronizado com `NodeApiError`.
+- 🎨 **Menus e Coleções Ordenados Alfabeticamente** para melhorar a usabilidade na seleção de operações.
+- 🔒 **100% Retrocompatível** com fluxos em produção (nenhum identificador ou parâmetro alterado).
 
-## 🚀 Novidades da Versão 1.0.11
+## 🚀 Novidades da Versão 1.0.12
+
+### 🆕 Novos Recursos da API Whazing
+
+#### 1. 📅 Agenda e Compromissos (`/agenda/*` — 8 operações)
+- Listar calendários configurados
+- Listar profissionais da equipe
+- Listar serviços oferecidos
+- Criar compromisso (por serviço cadastrado ou horário manual)
+- Consultar detalhes de um compromisso
+- Listar compromissos com filtros por período e número
+- Atualizar horário, status ou dados do compromisso
+- Cancelar compromisso
+
+#### 2. ⏰ Agendamento De Mensagem (`/schedule` e `/schedules` — 4 operações)
+- Criar agendamento futuro (suporte completo a Texto, Mídia por URL/Upload binário, Templates e Botões)
+- Consultar status de agendamento por ID
+- Listar agendamentos com filtros
+- Cancelar agendamento antes do envio
+
+#### 3. 💬 SMS (`/sendsms` — 1 operação)
+- Envio direto de mensagens via SMS
+
+### 🏆 Conformidade e Estabilidade
+- ✅ **Linter Oficial Aprovado**: 100% aderente às diretrizes da comunidade n8n (`n8n-node lint`).
+- ✅ **Subtítulo no Canvas**: Exibição imediata da operação e recurso ativos no nó.
+- ✅ **Tipagem Estrita e Tratamento de Erros**: Remoção completa de `any`, adição de `IHttpError` e `NodeApiError`.
+- ✅ **Organização Visual**: Menus e coleções em ordem alfabética.
+
+---
+
+## 🚀 Versão 1.0.11 (Anterior)
 
 ### Checklist do Kanban Pro (novo)
 
@@ -82,11 +110,16 @@ npm publish
 
 ## 📦 Funcionalidades Principais
 
-- **Mensagens**: Texto, Arquivo (URL/Base64/Upload), Botões, Listas, Stickers e Localização.
-- **Kanban Pro**: Criar/Mover cards automaticamente via bot, atualizar responsáveis e datas limites.
-- **Tickets**: Criar atendimentos, mudar atendentes e gerenciar filas.
-- **Contatos**: Gerenciar CRM, Tags e Follow-ups.
-- **Admin**: Criar e gerenciar empresas (tenants) em larga escala.
+- **Mensagens**: Texto, Arquivo (URL/Base64/Upload), Botões, Listas, Stickers, Localização e Templates Oficiais.
+- **Agenda**: Gerenciamento de calendários, profissionais, catálogo de serviços e compromissos.
+- **Agendamento De Mensagem**: Programação de envios automáticos para data/hora futura com suporte a todos os tipos de mensagem.
+- **SMS**: Disparo direto de mensagens via SMS.
+- **Kanban Pro & Checklist**: Criar/Mover cards automaticamente, gerenciar funil de vendas, checklists de tarefas e campos avançados.
+- **Tickets**: Criar atendimentos, mudar atendentes, gerenciar filas e chatbots.
+- **Contatos**: Gerenciar CRM, carteiras, tags e follow-ups.
+- **Faturas e PIX**: Gerar cobranças avulsas, listar faturas em aberto e gerar QR Code PIX.
+- **NFS-e**: Gestão de dados fiscais e emissão/consulta de notas fiscais de serviço.
+- **Admin**: Gerenciamento multi-tenant de empresas, planos, usuários e faturamento.
 
 ---
 

@@ -1,4 +1,4 @@
-﻿import { INodeProperties } from 'n8n-workflow';
+import { INodeProperties } from 'n8n-workflow';
 
 export const whazingDescription: INodeProperties[] = [
 
@@ -14,14 +14,17 @@ export const whazingDescription: INodeProperties[] = [
 		noDataExpression: true,
 		options: [
 			{ name: 'Admin',                   value: 'admin',       description: 'Empresas e usuários (multi-tenant)' },
+			{ name: 'Agenda',                  value: 'agenda',      description: 'Calendários, profissionais, serviços e compromissos' },
+			{ name: 'Agendamento De Mensagem', value: 'schedule',    description: 'Criar, consultar, listar e cancelar mensagens agendadas' },
 			{ name: 'Canal',                   value: 'channel',     description: 'Status, QR Code, logout e restart' },
 			{ name: 'Contato',                value: 'contact',     description: 'CRM, tags e carteiras' },
 			{ name: 'Fatura',                 value: 'invoice',     description: 'Gerenciar faturas, pagamentos PIX e cobranças' },
 			{ name: 'Kanban Pro',              value: 'kanban',      description: 'Boards, colunas e cards (funil)' },
 			{ name: 'Mensagens › API Oficial', value: 'msgOfficial', description: 'Botões, listas, templates e localização (Meta)' },
 			{ name: 'Mensagens › API PLUS',    value: 'msgPlus',     description: 'Botões dinâmicos, carrossel, Pix e pagamentos' },
-			{ name: 'Mensagens › Baileys',     value: 'msgBaileys',  description: 'Texto, arquivo, sticker, localização, contato, params' },
-			{ name: 'NFS-e',                  value: 'nfse',        description: 'Nota Fiscal de Serviço Eletrônica — emissão, consulta e dados fiscais (API Admin)' },
+			{ name: 'Mensagens › Bailey',     value: 'msgBaileys',  description: 'Texto, arquivo, sticker, localização, contato, params' },
+			{ name: 'NFS-E',                  value: 'nfse',        description: 'Nota Fiscal de Serviço Eletrônica — emissão, consulta e dados fiscais (API Admin)' },
+			{ name: 'SMS',                     value: 'sms',         description: 'Enviar mensagem via SMS' },
 			{ name: 'Ticket',                 value: 'ticket',      description: 'Criar, consultar e gerenciar atendimentos' },
 		],
 		default: 'msgBaileys',
@@ -38,13 +41,13 @@ export const whazingDescription: INodeProperties[] = [
 		displayOptions: { show: { resource: ['msgBaileys'] } },
 		options: [
 			{ name: 'Enviar Arquivo',                   value: 'sendFile',        action: 'Enviar mensagem com arquivo' },
-			{ name: 'Enviar Botão',                     value: 'sendButton',      action: 'Enviar mensagem com botões' },
+			{ name: 'Enviar Botão',                     value: 'sendButton',      action: 'Enviar mensagem com bot es' },
 			{ name: 'Enviar Contato',                   value: 'sendContact',     action: 'Enviar um contato' },
-			{ name: 'Enviar Localização',               value: 'sendLocation',    action: 'Enviar mensagem com localização' },
+			{ name: 'Enviar Localização',               value: 'sendLocation',    action: 'Enviar mensagem com localiza o' },
 			{ name: 'Enviar Sticker',                   value: 'sendSticker',     action: 'Enviar sticker' },
 			{ name: 'Enviar Texto',                     value: 'sendText',        action: 'Enviar mensagem de texto' },
-			{ name: 'Mensagem Via Parâmetros (Grupo)',  value: 'sendParamsGroup', action: 'Enviar mensagem para grupo via parâmetros' },
-			{ name: 'Mensagem Via Parâmetros (Número)', value: 'sendParams',      action: 'Enviar mensagem via parâmetros' },
+			{ name: 'Mensagem Via Parâmetros (Grupo)',  value: 'sendParamsGroup', action: 'Enviar mensagem para grupo via par metros' },
+			{ name: 'Mensagem Via Parâmetros (Número)', value: 'sendParams',      action: 'Enviar mensagem via par metros' },
 		],
 		default: 'sendText',
 	},
@@ -59,15 +62,15 @@ export const whazingDescription: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['msgOfficial'] } },
 		options: [
-			{ name: 'Enviar Botão',                     value: 'sendButtonOfficial',  action: 'Enviar botão oficial' },
-			{ name: 'Enviar Botão Com Imagem',          value: 'sendButtonImageOfficial', action: 'Enviar botão com imagem no cabeçalho' },
+			{ name: 'Enviar Botão',                     value: 'sendButtonOfficial',  action: 'Enviar bot o oficial' },
+			{ name: 'Enviar Botão Com Imagem',          value: 'sendButtonImageOfficial', action: 'Enviar bot o com imagem no cabe alho' },
 			{ name: 'Enviar Carrossel',                 value: 'sendCarouselOfficial', action: 'Enviar carrossel oficial' },
+			{ name: 'Enviar Link Com Imagem',           value: 'sendLinkImageOfficial', action: 'Enviar link cta com imagem no cabe alho' },
 			{ name: 'Enviar Link CTA',                  value: 'sendLinkCta',         action: 'Enviar link CTA' },
-			{ name: 'Enviar Link Com Imagem',           value: 'sendLinkImageOfficial', action: 'Enviar link CTA com imagem no cabeçalho' },
 			{ name: 'Enviar Lista',                     value: 'sendList',            action: 'Enviar lista' },
-			{ name: 'Enviar Template (Com Parâmetros)', value: 'sendTemplateParams',  action: 'Enviar template com parâmetros' },
+			{ name: 'Enviar Template (Com Parâmetros)', value: 'sendTemplateParams',  action: 'Enviar template com par metros' },
 			{ name: 'Enviar Template (Sem Parâmetros)', value: 'sendTemplate',        action: 'Enviar template' },
-			{ name: 'Solicitar Localização',            value: 'requestLocation',     action: 'Solicitar localização' },
+			{ name: 'Solicitar Localização',            value: 'requestLocation',     action: 'Solicitar localiza o' },
 		],
 		default: 'sendButtonOfficial',
 	},
@@ -82,16 +85,16 @@ export const whazingDescription: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['msgPlus'] } },
 		options: [
-			{ name: 'Enviar Botão',                    value: 'sendButtonPlus',           action: 'Enviar botão plus' },
-			{ name: 'Enviar Botão Dinâmico',           value: 'sendButtonDynamicPlus',    action: 'Enviar botão dinâmico plus' },
-			{ name: 'Enviar Botão Dinâmico Com Imagem', value: 'sendButtonDynamicImagePlus', action: 'Enviar botão dinâmico com imagem plus' },
+			{ name: 'Enviar Botão',                    value: 'sendButtonPlus',           action: 'Enviar bot o plus' },
+			{ name: 'Enviar Botão Dinâmico',           value: 'sendButtonDynamicPlus',    action: 'Enviar bot o din mico plus' },
+			{ name: 'Enviar Botão Dinâmico Com Imagem', value: 'sendButtonDynamicImagePlus', action: 'Enviar bot o din mico com imagem plus' },
 			{ name: 'Enviar Botão Pix',                value: 'sendPixButtonPlus',        action: 'Enviar pix button plus' },
 			{ name: 'Enviar Carrossel',                value: 'sendCarouselPlus',         action: 'Enviar carrossel plus' },
 			{ name: 'Enviar Link',                     value: 'sendLinkPlus',             action: 'Enviar link plus' },
 			{ name: 'Enviar Link CTA',                 value: 'sendLinkCtaPlus',          action: 'Enviar link CTA plus' },
 			{ name: 'Enviar Lista',                    value: 'sendListPlus',             action: 'Enviar lista plus' },
-			{ name: 'Enviar Solicitação De Pagamento', value: 'sendRequestPaymentPlus',   action: 'Enviar solicitação de pagamento plus' },
-			{ name: 'Solicitar Localização',           value: 'requestLocationPlus',      action: 'Solicitar localização plus' },
+			{ name: 'Enviar Solicitação De Pagamento', value: 'sendRequestPaymentPlus',   action: 'Enviar solicita o de pagamento plus' },
+			{ name: 'Solicitar Localização',           value: 'requestLocationPlus',      action: 'Solicitar localiza o plus' },
 		],
 		default: 'sendButtonPlus',
 	},
@@ -109,12 +112,12 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Alterar Chatbot Do Ticket',         value: 'updateChatbot',     action: 'Alterar chatbot do ticket' },
 			{ name: 'Ativar / Desativar Chatbot',        value: 'setChatBot',        action: 'Ativar ou desativar chatbot do ticket' },
 			{ name: 'Atualizar Fila',                    value: 'setQueue',          action: 'Atualizar fila do ticket' },
-			{ name: 'Atualizar Informações',             value: 'updateInfo',        action: 'Atualizar informações do ticket' },
+			{ name: 'Atualizar Informações',             value: 'updateInfo',        action: 'Atualizar informa es do ticket' },
 			{ name: 'Consultar Ticket Do Chatbot',       value: 'showTicketChatBot', action: 'Consultar ticket do chatbot' },
-			{ name: 'Consultar Último Ticket Do Número', value: 'showTicket',        action: 'Consultar último ticket do número' },
+			{ name: 'Consultar Último Ticket Do Número', value: 'showTicket',        action: 'Consultar ltimo ticket do n mero' },
 			{ name: 'Criar Ticket',                      value: 'create',            action: 'Criar ticket' },
+			{ name: 'Get Many',                          value: 'getAll',            action: 'Listar todos os tickets do n mero' },
 			{ name: 'Listar Mensagens Do Ticket (Por ID)', value: 'listMessages',      action: 'Listar mensagens do ticket — requer ID do ticket' },
-			{ name: 'Listar Todos Os Tickets',           value: 'getAll',            action: 'Listar todos os tickets do número' },
 			{ name: 'Obter Detalhes Do Ticket (Por ID)', value: 'get',               action: 'Obter detalhes do ticket — requer ID do ticket' },
 		],
 		default: 'create',
@@ -140,7 +143,7 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Listar Por Follow-Up',    value: 'listByFollowup', action: 'Listar contatos por follow up' },
 			{ name: 'Listar Por Tag',          value: 'listByTag',      action: 'Listar contatos por tag' },
 			{ name: 'Obter Dados Do Contato',  value: 'get',            action: 'Obter dados do contato' },
-			{ name: 'Validar Número WhatsApp', value: 'validateNumber', action: 'Validar número do WhatsApp' },
+			{ name: 'Validar Número WhatsApp', value: 'validateNumber', action: 'Validar n mero do whats app' },
 		],
 		default: 'create',
 	},
@@ -158,7 +161,7 @@ export const whazingDescription: INodeProperties[] = [
 			{ name: 'Desconectar / Logout',        value: 'logout',    action: 'Fazer logout do canal' },
 			{ name: 'Gerar QR Code (Nova Sessão)', value: 'getQrCode', action: 'Gerar QR code' },
 			{ name: 'Obter Status Da Conexão',     value: 'getStatus', action: 'Obter status do canal' },
-			{ name: 'Reiniciar Sessão',            value: 'restart',   action: 'Reiniciar sessão do canal' },
+			{ name: 'Reiniciar Sessão',            value: 'restart',   action: 'Reiniciar sess o do canal' },
 		],
 		default: 'getStatus',
 	},
@@ -175,7 +178,7 @@ export const whazingDescription: INodeProperties[] = [
 		options: [
 			{ name: 'Atualizar Card',            value: 'updateCard',           action: 'Atualizar card' },
 			{ name: 'Atualizar Item De Checklist', value: 'updateChecklistItem', action: 'Atualizar item de checklist' },
-			{ name: 'Criar / Mover Card (Bot)',  value: 'createOrMoveCard',     action: 'Criar ou mover card usando lógica de bot' },
+			{ name: 'Criar / Mover Card (Bot)',  value: 'createOrMoveCard',     action: 'Criar ou mover card usando l gica de bot' },
 			{ name: 'Criar Item De Checklist',   value: 'createChecklistItem',  action: 'Criar item de checklist no card' },
 			{ name: 'Deletar / Arquivar Card',   value: 'deleteCard',           action: 'Deletar ou arquivar card' },
 			{ name: 'Deletar Item De Checklist', value: 'deleteChecklistItem',  action: 'Deletar item de checklist' },
@@ -200,12 +203,12 @@ export const whazingDescription: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['admin'] } },
 		options: [
-			{ name: 'Alterar Senha Do Usuário',    value: 'changePassword', action: 'Alterar senha do usuário' },
+			{ name: 'Alterar Senha Do Usuário',    value: 'changePassword', action: 'Alterar senha do usu rio' },
 			{ name: 'Atualizar Empresa',           value: 'updateTenant',   action: 'Atualizar empresa' },
 			{ name: 'Criar Empresa',               value: 'createTenant',   action: 'Criar empresa' },
 			{ name: 'Listar Planos',               value: 'listPlans',      action: 'Listar todos os planos' },
 			{ name: 'Listar Todas As Empresas',    value: 'listTenants',    action: 'Listar todas as empresas' },
-			{ name: 'Listar Usuários Da Empresa',  value: 'listUsers',      action: 'Listar usuários da empresa' },
+			{ name: 'Listar Usuários Da Empresa',  value: 'listUsers',      action: 'Listar usu rios da empresa' },
 			{ name: 'Obter Empresa Por ID',        value: 'getTenant',      action: 'Obter empresa por ID' },
 			{ name: 'Renovar Assinatura', value: 'addMonth',       action: 'Renovar assinatura' },
 		],
@@ -218,16 +221,71 @@ export const whazingDescription: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['invoice'] } },
 		options: [
-			{ name: 'Criar Cobrança Avulsa',          value: 'createInvoiceAvulsa', action: 'Criar cobrança avulsa' },
+			{ name: 'Criar Cobrança Avulsa',          value: 'createInvoiceAvulsa', action: 'Criar cobran a avulsa' },
 			{ name: 'Deletar Fatura',                 value: 'deleteInvoice',        action: 'Deletar fatura' },
 			{ name: 'Editar Fatura',                  value: 'updateInvoice',        action: 'Editar fatura' },
-			{ name: 'Faturas Em Aberto (Atalho)',     value: 'getInvoicesOpen',      action: 'Listar faturas em aberto da Empresa' },
+			{ name: 'Faturas Em Aberto (Atalho)',     value: 'getInvoicesOpen',      action: 'Listar faturas em aberto da empresa' },
 			{ name: 'Gerar Pagamento / QR Code PIX',  value: 'generatePaymentPix',  action: 'Gerar pagamento ou qr code pix da fatura' },
+			{ name: 'Listar Todas As Faturas',        value: 'getInvoices',          action: 'Listar hist rico de faturas da empresa' },
 			{ name: 'Marcar Como Paga (Manual)',      value: 'markPaidManual',       action: 'Marcar fatura como paga manualmente' },
-			{ name: 'Recriar Faturas da Empresa',      value: 'recreateInvoices',     action: 'Deletar e recriar faturas abertas da Empresa' },
-			{ name: 'Listar Todas As Faturas',        value: 'getInvoices',          action: 'Listar histórico de faturas da Empresa' },
+			{ name: 'Recriar Faturas Da Empresa',      value: 'recreateInvoices',     action: 'Deletar e recriar faturas abertas da empresa' },
 		],
 		default: 'getInvoices',
+	},
+
+	// ============================================================
+	//  OPERAÇÕES — Agendamento De Mensagem (schedule)
+	// ============================================================
+	{
+		displayName: 'Operação',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['schedule'] } },
+		options: [
+			{ name: 'Cancelar Agendamento',  value: 'deleteSchedule', action: 'Cancelar agendamento' },
+			{ name: 'Consultar Agendamento', value: 'getSchedule',    action: 'Consultar agendamento' },
+			{ name: 'Criar Agendamento',     value: 'createSchedule', action: 'Criar agendamento de mensagem' },
+			{ name: 'Listar Agendamentos',   value: 'listSchedules',  action: 'Listar agendamentos' },
+		],
+		default: 'createSchedule',
+	},
+
+	// ============================================================
+	//  OPERAÇÕES — Agenda (compromissos)
+	// ============================================================
+	{
+		displayName: 'Operação',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['agenda'] } },
+		options: [
+			{ name: 'Atualizar Compromisso',    value: 'updateAppointment', action: 'Atualizar compromisso' },
+			{ name: 'Cancelar Compromisso',     value: 'deleteAppointment', action: 'Cancelar compromisso' },
+			{ name: 'Consultar Compromisso',    value: 'getAppointment',    action: 'Consultar compromisso' },
+			{ name: 'Criar Compromisso',        value: 'createAppointment', action: 'Criar compromisso' },
+			{ name: 'Listar Calendários',       value: 'listCalendars',     action: 'Listar calend rios' },
+			{ name: 'Listar Compromissos',      value: 'listAppointments',  action: 'Listar compromissos' },
+			{ name: 'Listar Profissionais',     value: 'listProfessionals', action: 'Listar profissionais de um calend rio' },
+			{ name: 'Listar Serviços',          value: 'listServices',      action: 'Listar servi os de um profissional' },
+		],
+		default: 'listCalendars',
+	},
+
+	// ============================================================
+	//  OPERAÇÕES — SMS
+	// ============================================================
+	{
+		displayName: 'Operação',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['sms'] } },
+		options: [
+			{ name: 'Enviar SMS', value: 'sendSms', action: 'Enviar mensagem via SMS' },
+		],
+		default: 'sendSms',
 	},
 
 	// ============================================================
@@ -260,6 +318,23 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 		placeholder: '5511999999999',
 		description: 'Número no formato internacional. Obrigatório para esta operação.',
+	},
+	{
+		// Número para os recursos Agendamento De Mensagem, SMS e Agenda.
+		displayName: 'Número Do WhatsApp',
+		name: 'number',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['schedule', 'sms', 'agenda'],
+				operation: ['createSchedule', 'listSchedules', 'sendSms', 'createAppointment', 'listAppointments'],
+			},
+		},
+		default: '',
+		placeholder: '5511999999999',
+		description:
+			'Número no formato internacional, ou ID de grupo (formato "xxxxx@g.us"). ' +
+			'Obrigatório para criar; opcional como filtro ao listar.',
 	},
 	{
 		displayName: 'ID Do Ticket',
@@ -861,7 +936,7 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['ticket'], operation: ['setChatBot'] } },
 		default: true,
-		description: 'Ativa (true) ou desativa (false) o chatbot para este ticket',
+		description: 'Whether to enable (true) or disable (false) the chatbot for this ticket',
 	},
 	{
 		displayName: 'Status Do Ticket',
@@ -1009,10 +1084,10 @@ export const whazingDescription: INodeProperties[] = [
 			show: { resource: ['kanban'], operation: ['createOrMoveCard', 'updateCard', 'getCards'] },
 		},
 		options: [
-			{ name: 'Nenhuma', value: 'none' },
+			{ name: 'Alta', value: 'high' },
 			{ name: 'Baixa', value: 'low' },
 			{ name: 'Média', value: 'medium' },
-			{ name: 'Alta', value: 'high' },
+			{ name: 'Nenhuma', value: 'none' },
 			{ name: 'Urgente', value: 'urgent' },
 		],
 		default: 'none',
@@ -1063,7 +1138,7 @@ export const whazingDescription: INodeProperties[] = [
 			show: { resource: ['kanban'], operation: ['deleteCard'] },
 		},
 		default: false,
-		description: 'Se desativado, o card será apenas arquivado (exclusão reversível)',
+		description: 'Whether to permanently delete the card. If disabled, the card will only be archived.',
 	},
 	{
 		displayName: 'Texto Do Item',
@@ -1145,16 +1220,20 @@ export const whazingDescription: INodeProperties[] = [
 			show: { resource: ['kanban'], operation: ['updateCard'] },
 		},
 		options: [
-			{ displayName: 'Descrição', name: 'description', type: 'string', default: '' },
-			{ displayName: 'ID Do Time', name: 'teamId', type: 'string', default: '' },
-			{ displayName: 'ID Do Contato', name: 'contactId', type: 'string', default: '' },
-			{ displayName: 'ID Do Ticket', name: 'ticketId', type: 'string', default: '' },
-			{ displayName: 'Valor Do Negócio', name: 'dealValue', type: 'string', default: '' },
+			{
+				displayName: 'Campos Personalizados (JSON)',
+				name: 'customFieldsJson',
+				type: 'json',
+				default: '{}',
+			},
+			{ displayName: 'Cor Da Capa', name: 'coverColor', type: 'color', default: '', placeholder: '#f59e0b' },
 			{ displayName: 'Data De Início', name: 'startDate', type: 'dateTime', default: '' },
+			{ displayName: 'Descrição', name: 'description', type: 'string', default: '' },
 			{ displayName: 'Horas Estimadas', name: 'estimatedHours', type: 'number', default: 0 },
 			{ displayName: 'Horas Registradas', name: 'loggedHours', type: 'number', default: 0 },
-			{ displayName: 'Cor Da Capa', name: 'coverColor', type: 'string', default: '', placeholder: '#f59e0b' },
-			{ displayName: 'Imagem Da Capa (URL)', name: 'coverImage', type: 'string', default: '' },
+			{ displayName: 'ID Do Contato', name: 'contactId', type: 'string', default: '' },
+			{ displayName: 'ID Do Ticket', name: 'ticketId', type: 'string', default: '' },
+			{ displayName: 'ID Do Time', name: 'teamId', type: 'string', default: '' },
 			{
 				displayName: 'IDs Das Etiquetas',
 				name: 'labelIds',
@@ -1162,12 +1241,8 @@ export const whazingDescription: INodeProperties[] = [
 				default: '',
 				description: 'Separados por vírgula: 1,2,3',
 			},
-			{
-				displayName: 'Campos Personalizados (JSON)',
-				name: 'customFieldsJson',
-				type: 'json',
-				default: '{}',
-			},
+			{ displayName: 'Imagem Da Capa (URL)', name: 'coverImage', type: 'string', default: '' },
+			{ displayName: 'Valor Do Negócio', name: 'dealValue', type: 'string', default: '' },
 		],
 	},
 	{
@@ -1408,11 +1483,11 @@ export const whazingDescription: INodeProperties[] = [
 		type: 'options',
 		displayOptions: { show: { resource: ['admin'], operation: ['createTenant', 'updateTenant'] } },
 		options: [
-			{ name: 'Mensal',    value: 'MENSAL' },
-			{ name: 'Bimestral', value: 'BIMESTRAL' },
-			{ name: 'Trimestral', value: 'TRIMESTRAL' },
-			{ name: 'Semestral', value: 'SEMESTRAL' },
 			{ name: 'Anual',     value: 'ANUAL' },
+			{ name: 'Bimestral', value: 'BIMESTRAL' },
+			{ name: 'Mensal',    value: 'MENSAL' },
+			{ name: 'Semestral', value: 'SEMESTRAL' },
+			{ name: 'Trimestral', value: 'TRIMESTRAL' },
 		],
 		default: 'MENSAL',
 	},
@@ -1431,7 +1506,7 @@ export const whazingDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Status da Empresa',
+		displayName: 'Status Da Empresa',
 		name: 'tenantStatus',
 		type: 'options',
 		displayOptions: {
@@ -1457,7 +1532,7 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Define se a empresa está em período de testes (trial)',
+		description: 'Whether the company is in trial period',
 	},
 	{
 		displayName: 'Afiliado',
@@ -1470,7 +1545,7 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Define se a empresa é um afiliado',
+		description: 'Whether the company is an affiliate',
 	},
 
 	// ============================================================
@@ -1646,11 +1721,11 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Mensal',    value: 'MENSAL' },
-			{ name: 'Bimestral', value: 'BIMESTRAL' },
-			{ name: 'Trimestral', value: 'TRIMESTRAL' },
-			{ name: 'Semestral', value: 'SEMESTRAL' },
 			{ name: 'Anual',     value: 'ANUAL' },
+			{ name: 'Bimestral', value: 'BIMESTRAL' },
+			{ name: 'Mensal',    value: 'MENSAL' },
+			{ name: 'Semestral', value: 'SEMESTRAL' },
+			{ name: 'Trimestral', value: 'TRIMESTRAL' },
 		],
 		default: 'MENSAL',
 		description: 'Herda a recorrência da Empresa se omitido',
@@ -1683,16 +1758,16 @@ export const whazingDescription: INodeProperties[] = [
 		displayOptions: { show: { resource: ['nfse'] } },
 		options: [
 			{ name: 'Atualizar Dados Fiscais',     value: 'updateFiscalData',  action: 'Atualizar dados fiscais do tenant' },
-			{ name: 'Autorizar NFS-e',             value: 'authorizeNfse',     action: 'Forçar autorização de uma NFS-e' },
-			{ name: 'Cancelar NFS-e',              value: 'cancelNfse',        action: 'Cancelar uma NFS-e' },
+			{ name: 'Autorizar NFS-E',             value: 'authorizeNfse',     action: 'For ar autoriza o de uma nfs e' },
+			{ name: 'Cancelar NFS-E',              value: 'cancelNfse',        action: 'Cancelar uma nfs e' },
 			{ name: 'Consultar Dados Fiscais',     value: 'getFiscalData',     action: 'Consultar dados fiscais do tenant' },
-			{ name: 'Download PDF',                value: 'downloadNfsePdf',   action: 'Baixar PDF da NFS-e' },
-			{ name: 'Download XML',                value: 'downloadNfseXml',   action: 'Baixar XML da NFS-e' },
-			{ name: 'Emitir / Agendar NFS-e',     value: 'scheduleNfse',      action: 'Agendar emissão de NFS-e por fatura' },
-			{ name: 'Listar NFS-e',               value: 'listNfse',          action: 'Listar notas fiscais com filtros' },
-			{ name: 'NFS-e Por Fatura',            value: 'getNfseByInvoice',  action: 'Listar NFS-e de uma fatura' },
-			{ name: 'Obter Detalhe NFS-e',        value: 'getNfse',           action: 'Obter detalhes de uma NFS-e' },
-			{ name: 'Sincronizar NFS-e',           value: 'syncNfse',          action: 'Sincronizar status de uma NFS-e' },
+			{ name: 'Download PDF',                value: 'downloadNfsePdf',   action: 'Baixar pdf da nfs e' },
+			{ name: 'Download XML',                value: 'downloadNfseXml',   action: 'Baixar xml da nfs e' },
+			{ name: 'Emitir / Agendar NFS-E',     value: 'scheduleNfse',      action: 'Agendar emiss o de nfs e por fatura' },
+			{ name: 'Listar NFS-E',               value: 'listNfse',          action: 'Listar notas fiscais com filtros' },
+			{ name: 'NFS-E Por Fatura',            value: 'getNfseByInvoice',  action: 'Listar nfs e de uma fatura' },
+			{ name: 'Obter Detalhe NFS-E',        value: 'getNfse',           action: 'Obter detalhes de uma nfs e' },
+			{ name: 'Sincronizar NFS-E',           value: 'syncNfse',          action: 'Sincronizar status de uma nfs e' },
 		],
 		default: 'listNfse',
 	},
@@ -1719,7 +1794,7 @@ export const whazingDescription: INodeProperties[] = [
 	//  CAMPOS — NFS-e: ID da NFS-e
 	// ============================================================
 	{
-		displayName: 'ID Da NFS-e',
+		displayName: 'ID Da NFS-E',
 		name: 'nfseId',
 		type: 'string',
 		required: true,
@@ -1785,18 +1860,18 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ displayName: 'Nome Fiscal Da Empresa',  name: 'tenantFiscalName',       type: 'string',  default: '', placeholder: 'Empresa LTDA' },
+			{ displayName: 'Bairro',                  name: 'province',                type: 'string',  default: '' },
+			{ displayName: 'CEP',                     name: 'postalCode',              type: 'string',  default: '', placeholder: '01001000' },
+			{ displayName: 'Cidade',                  name: 'city',                    type: 'string',  default: '' },
+			{ displayName: 'Complemento',             name: 'complement',              type: 'string',  default: '' },
 			{ displayName: 'CPF / CNPJ',              name: 'cpfCnpj',                type: 'string',  default: '', placeholder: '00.000.000/0001-00' },
 			{ displayName: 'E-Mail Fiscal',           name: 'fiscalEmail',             type: 'string',  default: '', placeholder: 'fiscal@empresa.com' },
-			{ displayName: 'Telefone Fiscal',         name: 'fiscalMobilePhone',       type: 'string',  default: '', placeholder: '11999999999' },
 			{ displayName: 'Endereço',                name: 'address',                 type: 'string',  default: '' },
-			{ displayName: 'Número',                  name: 'addressNumber',            type: 'string',  default: '' },
-			{ displayName: 'Complemento',             name: 'complement',              type: 'string',  default: '' },
-			{ displayName: 'Bairro',                  name: 'province',                type: 'string',  default: '' },
-			{ displayName: 'Cidade',                  name: 'city',                    type: 'string',  default: '' },
 			{ displayName: 'Estado (UF)',             name: 'state',                   type: 'string',  default: '', placeholder: 'SP' },
-			{ displayName: 'CEP',                     name: 'postalCode',              type: 'string',  default: '', placeholder: '01001000' },
-			{ displayName: 'Habilitar Emissão NFS-e', name: 'invoiceEmissionEnabled',  type: 'boolean', default: false, description: 'Ativa a emissão automática de NFS-e para este tenant' },
+			{ displayName: 'Habilitar Emissão NFS-E', name: 'invoiceEmissionEnabled',  type: 'boolean', default: false, description: 'Whether to enable automatic NFS-e emission for this tenant' },
+			{ displayName: 'Nome Fiscal Da Empresa',  name: 'tenantFiscalName',       type: 'string',  default: '', placeholder: 'Empresa LTDA' },
+			{ displayName: 'Número',                  name: 'addressNumber',            type: 'string',  default: '' },
+			{ displayName: 'Telefone Fiscal',         name: 'fiscalMobilePhone',       type: 'string',  default: '', placeholder: '11999999999' },
 		],
 	},
 
@@ -1816,7 +1891,12 @@ export const whazingDescription: INodeProperties[] = [
 			},
 		},
 		options: [
+			{ displayName: 'Data Final',           name: 'endDate',     type: 'dateTime', default: '',  description: 'Filtro por effectiveDate (YYYY-MM-DD)' },
+			{ displayName: 'Data Inicial',         name: 'startDate',   type: 'dateTime', default: '',  description: 'Filtro por effectiveDate (YYYY-MM-DD)' },
 			{ displayName: 'ID Da Empresa', name: 'tenantId',  type: 'string', default: '',  description: 'Filtrar notas de um tenant específico' },
+			{ displayName: 'ID Da Fatura',         name: 'invoiceId',   type: 'string',   default: '',  description: 'Filtrar NFS-e de uma fatura específica' },
+			{ displayName: 'Itens Por Página',     name: 'pageSize',    type: 'number',   default: 20,  typeOptions: { minValue: 1, maxValue: 100 } },
+			{ displayName: 'Página',               name: 'pageNumber',  type: 'number',   default: 1,   typeOptions: { minValue: 1 } },
 			{
 				displayName: 'Status',
 				name: 'status',
@@ -1829,11 +1909,393 @@ export const whazingDescription: INodeProperties[] = [
 				],
 				default: 'AUTHORIZED',
 			},
-			{ displayName: 'ID Da Fatura',         name: 'invoiceId',   type: 'string',   default: '',  description: 'Filtrar NFS-e de uma fatura específica' },
-			{ displayName: 'Data Inicial',         name: 'startDate',   type: 'dateTime', default: '',  description: 'Filtro por effectiveDate (YYYY-MM-DD)' },
-			{ displayName: 'Data Final',           name: 'endDate',     type: 'dateTime', default: '',  description: 'Filtro por effectiveDate (YYYY-MM-DD)' },
-			{ displayName: 'Página',               name: 'pageNumber',  type: 'number',   default: 1,   typeOptions: { minValue: 1 } },
-			{ displayName: 'Itens Por Página',     name: 'pageSize',    type: 'number',   default: 20,  typeOptions: { minValue: 1, maxValue: 100 } },
 		],
+	},
+
+	// ============================================================
+	//  CAMPOS — Agendamento De Mensagem (schedule)
+	// ============================================================
+	{
+		displayName: 'ID Do Agendamento',
+		name: 'scheduleId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['getSchedule', 'deleteSchedule'] },
+		},
+		default: '',
+		description: 'ID retornado ao criar o agendamento',
+	},
+	{
+		displayName: 'Data/Hora Do Envio',
+		name: 'scheduledAt',
+		type: 'dateTime',
+		required: true,
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'] },
+		},
+		default: '',
+		description: 'Data e hora em que a mensagem agendada será enviada',
+	},
+	{
+		displayName: 'Tipo De Conteúdo',
+		name: 'scheduleMessageType',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'] },
+		},
+		options: [
+			{ name: 'Texto',    value: 'text' },
+			{ name: 'Mídia',    value: 'media' },
+			{ name: 'Template Oficial', value: 'template' },
+			{ name: 'Botões',   value: 'buttons' },
+		],
+		default: 'text',
+	},
+	{
+		displayName: 'Mensagem (Corpo)',
+		name: 'scheduleBody',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'], scheduleMessageType: ['text', 'media'] },
+		},
+		default: '',
+		description: 'Texto da mensagem (ou legenda, se houver mídia)',
+	},
+	{
+		displayName: 'Método De Envio Da Mídia',
+		name: 'scheduleSendMethod',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'], scheduleMessageType: ['media'] },
+		},
+		options: [
+			{ name: 'Binário (Arquivo De Entrada)', value: 'binary' },
+			{ name: 'URL',                          value: 'url' },
+		],
+		default: 'url',
+	},
+	{
+		displayName: 'URL Da Mídia',
+		name: 'scheduleMediaUrl',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'], scheduleMessageType: ['media'], scheduleSendMethod: ['url'] },
+		},
+		default: '',
+		placeholder: 'https://exemplo.com/arquivo.pdf',
+	},
+	{
+		displayName: 'Nome Da Propriedade Binária',
+		name: 'scheduleBinaryPropertyName',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'], scheduleMessageType: ['media'], scheduleSendMethod: ['binary'] },
+		},
+		default: 'data',
+		description: 'Nome da propriedade binária do item de entrada que contém o arquivo',
+	},
+	{
+		displayName: 'Nome Do Template',
+		name: 'scheduleTemplateName',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'], scheduleMessageType: ['template'] },
+		},
+		default: '',
+		placeholder: 'nome_do_template',
+		description: 'Nome exato do template aprovado no Meta Business Manager',
+	},
+	{
+		displayName: 'Código Do Idioma',
+		name: 'scheduleTemplateLanguage',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'], scheduleMessageType: ['template'] },
+		},
+		default: 'pt_BR',
+	},
+	{
+		displayName: 'Componentes Do Template',
+		name: 'scheduleTemplateComponents',
+		type: 'fixedCollection',
+		typeOptions: { multipleValues: true },
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'], scheduleMessageType: ['template'] },
+		},
+		default: {},
+		options: [
+			{
+				name: 'componentValues',
+				displayName: 'Componente',
+				values: [
+					{
+						displayName: 'Tipo De Componente',
+						name: 'componentType',
+						type: 'options',
+						options: [
+							{ name: 'Botão (Button)',     value: 'button' },
+							{ name: 'Cabeçalho (Header)', value: 'header' },
+							{ name: 'Corpo (Body)',       value: 'body' },
+						],
+						default: 'body',
+					},
+					{
+						displayName: 'Subtipo (Somente Para Botão)',
+						name: 'sub_type',
+						type: 'options',
+						options: [
+							{ name: 'Quick Reply', value: 'quick_reply' },
+							{ name: 'URL / CTA',   value: 'url' },
+						],
+						default: 'quick_reply',
+					},
+					{ displayName: 'Índice Do Botão', name: 'index', type: 'number', default: 0 },
+					{
+						displayName: 'Parâmetros',
+						name: 'parameters',
+						type: 'fixedCollection',
+						typeOptions: { multipleValues: true },
+						default: {},
+						options: [
+							{
+								name: 'parameterValues',
+								displayName: 'Parâmetro',
+								values: [
+									{
+										displayName: 'Tipo',
+										name: 'parameterType',
+										type: 'options',
+										options: [
+											{ name: 'Imagem', value: 'image' },
+											{ name: 'Texto',  value: 'text' },
+										],
+										default: 'text',
+									},
+									{ displayName: 'Nome Do Parâmetro', name: 'parameter_name', type: 'string', default: '' },
+									{ displayName: 'Texto',            name: 'text',           type: 'string', default: '' },
+									{ displayName: 'Link Da Imagem',   name: 'link',           type: 'string', default: '' },
+								],
+							},
+						],
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: 'Mensagem Dos Botões',
+		name: 'scheduleButtonsText',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'], scheduleMessageType: ['buttons'] },
+		},
+		default: '',
+		description: 'Texto exibido acima dos botões (ex: "Deseja confirmar presença?")',
+	},
+	{
+		displayName: 'Opções (Choices)',
+		name: 'scheduleChoices',
+		type: 'fixedCollection',
+		typeOptions: { multipleValues: true },
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['createSchedule'], scheduleMessageType: ['buttons'] },
+		},
+		default: {},
+		options: [
+			{
+				name: 'choiceValues',
+				displayName: 'Opção',
+				values: [
+					{ displayName: 'ID Da Opção', name: 'id',    type: 'string', default: '' },
+					{ displayName: 'Título',      name: 'title', type: 'string', default: '' },
+				],
+			},
+		],
+	},
+	{
+		displayName: 'Filtros',
+		name: 'scheduleFilters',
+		type: 'collection',
+		placeholder: 'Adicionar Filtro',
+		default: {},
+		displayOptions: {
+			show: { resource: ['schedule'], operation: ['listSchedules'] },
+		},
+		options: [
+			{
+				displayName: 'Status',
+				name: 'status',
+				type: 'string',
+				default: '',
+				placeholder: 'PENDENTE',
+				description: 'Filtra pelo status do agendamento (ex: PENDENTE, ENVIADO, CANCELADO)',
+			},
+		],
+	},
+
+	// ============================================================
+	//  CAMPOS — Agenda (calendários / profissionais / compromissos)
+	// ============================================================
+	{
+		// Filtro opcional na listagem (a API retorna todos os calendários se omitido)
+		displayName: 'ID Do Calendário',
+		name: 'calendarId',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['listProfessionals'] },
+		},
+		default: '',
+		description: 'Opcional — filtra os profissionais de um calendário específico',
+	},
+	{
+		displayName: 'ID Do Calendário',
+		name: 'calendarId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['createAppointment'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'ID Do Profissional',
+		name: 'professionalId',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['listServices'] },
+		},
+		default: '',
+		description: 'Opcional — filtra os serviços de um profissional específico',
+	},
+	{
+		displayName: 'ID Do Profissional',
+		name: 'professionalId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['createAppointment'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'ID Do Compromisso',
+		name: 'agendaId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['getAppointment', 'updateAppointment', 'deleteAppointment'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Modo De Criação',
+		name: 'appointmentMode',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['createAppointment'] },
+		},
+		options: [
+			{ name: 'Com Serviço Cadastrado', value: 'service' },
+			{ name: 'Horário Manual',         value: 'manual' },
+		],
+		default: 'service',
+		description: 'Com serviço usa a duração cadastrada; horário manual define início e fim livremente',
+	},
+	{
+		displayName: 'ID Do Serviço',
+		name: 'calendarServiceId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['createAppointment'], appointmentMode: ['service'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Título',
+		name: 'appointmentTitle',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['createAppointment'], appointmentMode: ['manual'] },
+		},
+		default: '',
+		placeholder: 'Reunião de alinhamento',
+	},
+	{
+		displayName: 'Início',
+		name: 'startAt',
+		type: 'dateTime',
+		required: true,
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['createAppointment', 'updateAppointment'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Fim',
+		name: 'endAt',
+		type: 'dateTime',
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['createAppointment', 'updateAppointment'], appointmentMode: ['manual'] },
+		},
+		default: '',
+		description: 'Obrigatório no modo manual — no modo "com serviço" a duração é calculada automaticamente',
+	},
+	{
+		// endAt para updateAppointment não depende de appointmentMode (esse campo só existe na criação)
+		displayName: 'Fim',
+		name: 'endAt',
+		type: 'dateTime',
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['updateAppointment'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Notas (Opcional)',
+		name: 'appointmentNotes',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['createAppointment', 'updateAppointment'] },
+		},
+		default: '',
+	},
+	{
+		displayName: 'Filtros',
+		name: 'agendaFilters',
+		type: 'collection',
+		placeholder: 'Adicionar Filtro',
+		default: {},
+		displayOptions: {
+			show: { resource: ['agenda'], operation: ['listAppointments'] },
+		},
+		options: [
+			{ displayName: 'Data Inicial', name: 'startDate', type: 'dateTime', default: '', description: 'Filtra compromissos a partir desta data' },
+			{ displayName: 'Data Final',   name: 'endDate',   type: 'dateTime', default: '', description: 'Filtra compromissos até esta data' },
+		],
+	},
+
+	// ============================================================
+	//  CAMPOS — SMS
+	// ============================================================
+	{
+		displayName: 'Mensagem (Corpo)',
+		name: 'smsBody',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['sms'], operation: ['sendSms'] },
+		},
+		default: '',
+		placeholder: 'Mensagem de teste via SMS',
 	},
 ];
