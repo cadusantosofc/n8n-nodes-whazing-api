@@ -1,5 +1,34 @@
 # Registro de Atualizações - Whazing Node
 
+## [1.0.13] - 24/09/2026
+
+### 📝 Novo Módulo: Anotações (Ticket Notes) · 🚀 Cobertura Total da API Whazing · 🛡️ Tipagem e Linter 100%
+
+Esta versão implementa o módulo completo de **Anotações (Ticket Notes)**, permitindo registrar, consultar, listar e apagar anotações internas vinculadas tanto a tickets quanto a contatos, com suporte nativo a menções e notificações de usuários e equipes no chat interno do Whazing.
+
+---
+
+### ✨ Novos Recursos e Endpoints Adicionados
+
+#### 1. 📝 Anotações (Ticket Notes) (`/ticketnote/*` — 5 operações)
+Gerenciamento de notas e anotações internas da equipe de atendimento:
+| Operação | Endpoint | Descrição |
+|---|---|---|
+| **Criar Anotação** | `POST /ticketnote` | Cria anotação interna no ticket (por Ticket ID ou Número de WhatsApp) com menções opcionais (`userIdNotification` e `equipeIdNotification`) |
+| **Consultar Anotação** | `GET /ticketnote/{id}` | Obtém os detalhes completos de uma anotação pelo ID |
+| **Apagar Anotação** | `DELETE /ticketnote/{id}` | Remove a anotação interna e seu registro correspondente |
+| **Listar Anotações Do Ticket** | `GET /ticketnote/ticket/{ticketId}` | Lista todas as anotações do ticket em ordem cronológica reversa |
+| **Listar Anotações Do Contato** | `GET /ticketnote/contact/{contactId}` ou `GET /ticketnote/contact/?number={number}` | Lista o histórico completo de anotações do contato (em todos os tickets) por ID do Contato ou Número de WhatsApp |
+
+---
+
+### 🛡️ Conformidade e Boas Práticas n8n Community
+- **100% em Conformidade no Linter Oficial** (`npm run lint` com 0 erros).
+- **Tradução Amigável de Erros**: Adicionadas traduções específicas em português para erros de anotação não encontrada.
+- **100% Retrocompatível**: Nenhuma quebra de compatibilidade com fluxos existentes em produção.
+
+---
+
 ## [1.0.12] - 04/09/2026
 
 ### 🚀 Novos Módulos (Agenda, Agendamento e SMS) · 🏆 Conformidade Oficial n8n · 🛡️ Tipagem Segura

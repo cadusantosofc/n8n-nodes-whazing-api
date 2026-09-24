@@ -1567,6 +1567,343 @@
       ]
     },
     {
+      "name": "Anotações",
+      "item": [
+        {
+          "name": "Criar anotação em um ticket",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"ticketId\": 2881,\n    \"note\": \"Cliente pediu retorno amanhã\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/ticketnote",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ticketnote"
+              ]
+            },
+            "description": "Cria uma anotação interna no ticket, com o mesmo comportamento da tela Anotações do painel (mensagem interna no ticket + notificações de menção). Envie ticketId OU number, nunca os dois. Com number, a nota vai para o último ticket do contato na conexão do token. O autor é o usuário vinculado ao token da API."
+          },
+          "response": [
+            {
+              "name": "Criar anotação — sucesso",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"ticketId\": 2881,\n    \"note\": \"Cliente pediu retorno amanhã\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/ticketnote",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "ticketnote"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"ticketNote\": {\n    \"id\": 741,\n    \"note\": \"Cliente pediu retorno amanhã\",\n    \"userId\": 3,\n    \"contactId\": 3397,\n    \"ticketId\": 2881,\n    \"tenantId\": 1,\n    \"messageId\": \"e0c0b1f4-1d2b-4f3a-9a2b-6c7d8e9f0a1b\",\n    \"updatedAt\": \"2026-09-23T12:00:00.000Z\",\n    \"createdAt\": \"2026-09-23T12:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "Ticket não encontrado",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"ticketId\": 99999,\n    \"note\": \"teste\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/ticketnote",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "ticketnote"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"error\": true,\n  \"message\": \"Ticket não encontrado\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Criar anotação por número",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"number\": \"{{number}}\",\n    \"note\": \"Cliente pediu retorno amanhã\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/ticketnote",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ticketnote"
+              ]
+            },
+            "description": "Alternativa por número: a anotação é anexada ao último ticket do contato na conexão (canal) do token, igual ao endpoint showticket."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar anotação com menções",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"ticketId\": 2881,\n    \"note\": \"Preciso de ajuda neste atendimento\",\n    \"userIdNotification\": [\"5\"],\n    \"equipeIdNotification\": [\"2\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/ticketnote",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ticketnote"
+              ]
+            },
+            "description": "Menções opcionais: cada userIdNotification/equipeIdNotification gera mensagem no Chat Interno, notificação push e log no ticket, igual às menções feitas no painel."
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar anotação",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ticketnote/{{noteId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ticketnote",
+                "{{noteId}}"
+              ]
+            },
+            "description": "Retorna os dados de uma anotação. Anotação de outra empresa retorna 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Apagar anotação",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ticketnote/{{noteId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ticketnote",
+                "{{noteId}}"
+              ]
+            },
+            "description": "Remove a anotação e a mensagem interna correspondente no ticket, com log de deleção. Anotação de outra empresa retorna 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar anotações de um ticket",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ticketnote/ticket/{{ticketId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ticketnote",
+                "ticket",
+                "{{ticketId}}"
+              ]
+            },
+            "description": "Lista todas as anotações do ticket, da mais recente para a mais antiga."
+          },
+          "response": [
+            {
+              "name": "Lista de anotações — sucesso",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/ticketnote/ticket/{{ticketId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "ticketnote",
+                    "ticket",
+                    "{{ticketId}}"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"ticketNotes\": [\n    {\n      \"id\": 741,\n      \"note\": \"Cliente pediu retorno amanhã\",\n      \"userId\": 3,\n      \"user\": {\n        \"name\": \"Maria Silva\"\n      },\n      \"contactId\": 3397,\n      \"ticketId\": 2881,\n      \"tenantId\": 1,\n      \"updatedAt\": \"2026-09-23T12:00:00.000Z\",\n      \"createdAt\": \"2026-09-23T12:00:00.000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Listar anotações de um contato",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ticketnote/contact/3397",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ticketnote",
+                "contact",
+                "3397"
+              ]
+            },
+            "description": "Lista todas as anotações do contato (todos os tickets dele), da mais recente para a mais antiga. Identifique o contato pelo contactId no path ou, alternativamente, pelo número na query string: {{base_url}}/ticketnote/contact/?number={{number}} — nesse formato o contactId fica vazio e o contato é resolvido pelo number."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Contatos",
       "item": [
         {
@@ -4818,6 +5155,10 @@
     },
     {
       "key": "agendaId",
+      "value": ""
+    },
+    {
+      "key": "noteId",
       "value": ""
     }
   ]

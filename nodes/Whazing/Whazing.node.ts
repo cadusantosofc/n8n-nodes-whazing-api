@@ -380,9 +380,7 @@ export class Whazing implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description:
-			'Integração completa com a API Whazing — ' +
-			'Envie mensagens, gerencie tickets, automatize pagamentos PIX e muito mais via WhatsApp Business API',
+		description: 'Integração completa com a API Whazing',
 		defaults: { name: 'Whazing' },
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
@@ -1512,6 +1510,96 @@ export class Whazing implements INodeType {
 
 					} else {
 						throw new NodeOperationError(this.getNode(), `Operação "${operation}" não reconhecida para o recurso "${resource}".`, { itemIndex: i });
+					}
+
+				// ===========================================================
+				// RECURSO: Anotações (Ticket Notes)
+				// ===========================================================
+				} else if (resource === 'ticketNote') {
+
+					if (operation === 'createNote') {
+						const targetType = this.getNodeParameter('noteTargetType', i, 'ticketId') as string;
+						const noteText = this.getNodeParameter('note', i, '') as string;
+						if (!noteText?.trim()) {
+							throw new NodeOperationError(this.getNode(), 'O texto da anotação é obrigatório.', { itemIndex: i });
+						}
+
+						const body: IDataObject = { note: noteText };
+
+						if (targetType === 'ticketId') {
+							const ticketIdInput = this.getNodeParameter('ticketId', i, '') as string;
+							if (!ticketIdInput?.trim()) {
+								throw new NodeOperationError(this.getNode(), 'Informe o ID do Ticket para criar a anotação.', { itemIndex: i });
+							}
+							body.ticketId = Number(ticketIdInput);
+						} else {
+							const numInput = this.getNodeParameter('number', i, '') as string;
+							if (!numInput?.trim()) {
+								throw new NodeOperationError(this.getNode(), 'Informe o Número do WhatsApp para criar a anotação.', { itemIndex: i });
+							}
+							body.number = formatPhoneNumber(numInput);
+						}
+
+						const additionalFields = this.getNodeParameter('noteAdditionalFields', i, {}) as IDataObject;
+						if (additionalFields.userIdNotification) {
+							const rawUsers = String(additionalFields.userIdNotification).trim();
+							if (rawUsers) {
+								body.userIdNotification = rawUsers.split(',').map((u) => u.trim()).filter(Boolean);
+							}
+						}
+						if (additionalFields.equipeIdNotification) {
+							const rawEquipes = String(additionalFields.equipeIdNotification).trim();
+							if (rawEquipes) {
+								body.equipeIdNotification = rawEquipes.split(',').map((e) => e.trim()).filter(Boolean);
+							}
+						}
+
+						responseData = await whazingApiRequest.call(this, 'POST', '/ticketnote', body);
+
+					} else if (operation === 'getNote') {
+						const noteId = this.getNodeParameter('noteId', i, '') as string;
+						if (!noteId?.trim()) {
+							throw new NodeOperationError(this.getNode(), 'Informe o ID da Anotação para consultar.', { itemIndex: i });
+						}
+						responseData = await whazingApiRequest.call(this, 'GET', `/ticketnote/${noteId.trim()}`);
+
+					} else if (operation === 'deleteNote') {
+						const noteId = this.getNodeParameter('noteId', i, '') as string;
+						if (!noteId?.trim()) {
+							throw new NodeOperationError(this.getNode(), 'Informe o ID da Anotação para apagar.', { itemIndex: i });
+						}
+						responseData = await whazingApiRequest.call(this, 'DELETE', `/ticketnote/${noteId.trim()}`);
+
+					} else if (operation === 'listByTicket') {
+						const ticketIdInput = this.getNodeParameter('ticketId', i, '') as string;
+						if (!ticketIdInput?.trim()) {
+							throw new NodeOperationError(this.getNode(), 'Informe o ID do Ticket para listar as anotações.', { itemIndex: i });
+						}
+						responseData = await whazingApiRequest.call(this, 'GET', `/ticketnote/ticket/${ticketIdInput.trim()}`);
+
+					} else if (operation === 'listByContact') {
+						const lookupBy = this.getNodeParameter('contactLookupBy', i, 'contactId') as string;
+						if (lookupBy === 'number') {
+							const numInput = this.getNodeParameter('number', i, '') as string;
+							if (!numInput?.trim()) {
+								throw new NodeOperationError(this.getNode(), 'Informe o Número do WhatsApp do contato.', { itemIndex: i });
+							}
+							const formatted = formatPhoneNumber(numInput);
+							responseData = await whazingApiRequest.call(this, 'GET', '/ticketnote/contact/', {}, { number: formatted });
+						} else {
+							const contactIdInput = this.getNodeParameter('contactId', i, '') as string;
+							if (!contactIdInput?.trim()) {
+								throw new NodeOperationError(this.getNode(), 'Informe o ID do Contato para listar as anotações.', { itemIndex: i });
+							}
+							responseData = await whazingApiRequest.call(this, 'GET', `/ticketnote/contact/${contactIdInput.trim()}`);
+						}
+
+					} else {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Operação "${operation}" não reconhecida para o recurso "${resource}".`,
+							{ itemIndex: i },
+						);
 					}
 
 				} else {

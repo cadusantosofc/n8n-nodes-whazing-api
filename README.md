@@ -6,15 +6,27 @@ Este node permite a integração completa com a API Whazing, oferecendo automaç
 
 ## 📌 Versão atual
 
-- **1.0.12** — 04/09/2026
-- 🚀 **3 Novos Módulos Integrados**: **Agenda**, **Agendamento De Mensagem** e **SMS**.
+- **1.0.13** — 24/09/2026
+- 📝 **Novo Módulo Integrado**: **Anotações (Ticket Notes)** (`/ticketnote/*` — 5 operações).
+- 🎯 **100% de Cobertura da API Whazing**: todos os módulos e endpoints oficiais implementados.
 - 🏆 **100% em Conformidade com o Linter Oficial do n8n** (`npm run lint` com 0 erros).
-- ✨ **`subtitle` Dinâmico no Canvas** (`={{$parameter["operation"] + ": " + $parameter["resource"]}}`).
-- 🛡️ **Tipagem TypeScript Estrita**: remoção de tipos `any`, interface `IHttpError` e tratamento de erros padronizado com `NodeApiError`.
-- 🎨 **Menus e Coleções Ordenados Alfabeticamente** para melhorar a usabilidade na seleção de operações.
-- 🔒 **100% Retrocompatível** com fluxos em produção (nenhum identificador ou parâmetro alterado).
+- 🛡️ **Tipagem TypeScript Estrita** e tratamento amigável de erros em português.
+- 🔒 **100% Retrocompatível** com fluxos em produção.
 
-## 🚀 Novidades da Versão 1.0.12
+## 🚀 Novidades da Versão 1.0.13
+
+### 🆕 Módulo de Anotações (Ticket Notes) (`/ticketnote/*` — 5 operações)
+Gerencie anotações e mensagens internas da equipe diretamente pelos fluxos do n8n:
+- **Criar Anotação**: cria anotação interna no atendimento por ID do Ticket ou por Número do WhatsApp (anexando ao último ticket ativo no canal).
+- **Menções e Notificações**: suporte a menções de usuários (`userIdNotification`) e equipes (`equipeIdNotification`) gerando notificações push e chat interno.
+- **Consultar Anotação**: busca detalhes de uma anotação por ID.
+- **Apagar Anotação**: remove uma anotação do sistema por ID.
+- **Listar Anotações do Ticket**: obtém todo o histórico de notas de um ticket específico em ordem cronológica reversa.
+- **Listar Anotações do Contato**: consulta todas as notas de um cliente em todos os seus tickets históricos (busca por ID do Contato ou Número de WhatsApp).
+
+---
+
+## 🚀 Versão 1.0.12 (Anterior)
 
 ### 🆕 Novos Recursos da API Whazing
 
@@ -111,6 +123,7 @@ npm publish
 ## 📦 Funcionalidades Principais
 
 - **Mensagens**: Texto, Arquivo (URL/Base64/Upload), Botões, Listas, Stickers, Localização e Templates Oficiais.
+- **Anotações (Ticket Notes)**: Criar, consultar, apagar e listar notas internas em tickets e contatos, com suporte a menções.
 - **Agenda**: Gerenciamento de calendários, profissionais, catálogo de serviços e compromissos.
 - **Agendamento De Mensagem**: Programação de envios automáticos para data/hora futura com suporte a todos os tipos de mensagem.
 - **SMS**: Disparo direto de mensagens via SMS.
